@@ -45,7 +45,9 @@ dependencies and no install step.
 - **Click anyone** — hear what they're doing, what they carry, then ask about
   their Kalamazoo (some families recur across eras — look for the ❧ marks).
 - **Click buildings and ground** — the mill, the Mall, the park, the depot, the
-  asylum tower, the superfund cap, the flats — each shows its full column of time.
+  asylum tower, the superfund cap, the flats — each tells its story *for the era
+  you're standing in*. The full column of time waits behind a small
+  "what stood here in other years" expander.
 - **Click the river.** It has the longest memory of all. Every third click it
   tells you the whole story.
 - **City Event** (`E`) lets something happen — bright, aching, or strange.

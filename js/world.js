@@ -670,22 +670,26 @@ function buildTheatre(era, world) {
       roughness: 0.6,
     })
   );
-  blade.position.set(-4.1, 8, 2.2);
+  blade.position.set(-4.1, 8.6, 2.2);
   g.add(blade);
   world.marqueeMats.push(blade.material);
 
-  // marquee
+  // marquee: wide along the facade (z), overhanging the sidewalk (x)
   const marq = new THREE.Mesh(
-    new THREE.BoxGeometry(5.8, 1.3, 2.6),
+    new THREE.BoxGeometry(2.2, 1.3, 5.8),
     new THREE.MeshStandardMaterial({
       map: signTex(era.key === 'living' ? 'WELCOME' : (era.key === 'paper' ? 'OPEN — STILL' : 'TONIGHT'), { bg: '#26201a', fg: '#ffe9b8', font: 'bold 56px Georgia' }),
       color: 0xffffff, emissive: new THREE.Color('#ffd27a'), emissiveIntensity: 0, roughness: 0.5,
     })
   );
-  marq.position.set(-3.2, 4.4, 0);
+  marq.position.set(-4.0, 4.3, -1.2);
   g.add(marq);
   world.marqueeMats.push(marq.material);
-  if (era.key === 'paper') world.flickerMats.push(marq.material, blade.material);
+  if (era.key === 'paper') {
+    // the lighting pass reads this flag and makes them stutter at night
+    marq.material.userData.flicker = true;
+    blade.material.userData.flicker = true;
+  }
 
   // sits in the gap left in the east storefront row; blade & marquee are on
   // the local -x side, so the front faces the Mall to the west
@@ -1107,10 +1111,10 @@ function buildFlats(era, world) {
       g.add(stripe);
     }
     // one muck corner breaking through
-    const breakthough = new THREE.Mesh(new THREE.CircleGeometry(1.8, 9), M({ color: 0x241d16, roughness: 1 }));
-    breakthough.rotation.x = -Math.PI / 2;
-    breakthough.position.set(cx + 8.5, 0.08, cz + 5.5);
-    g.add(breakthough);
+    const muckBreak = new THREE.Mesh(new THREE.CircleGeometry(1.8, 9), M({ color: 0x241d16, roughness: 1 }));
+    muckBreak.rotation.x = -Math.PI / 2;
+    muckBreak.position.set(cx + 8.5, 0.08, cz + 5.5);
+    g.add(muckBreak);
     const sprig = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.5, 0.5), M({ color: 0x86b35c, roughness: 0.9 }));
     sprig.position.set(cx + 8.5, 0.3, cz + 5.5);
     g.add(sprig);
@@ -1518,7 +1522,7 @@ export function buildEraWorld(era) {
   const world = {
     era, scene,
     agents: [], cruisers: [], particles: [],
-    windowMats: [], lampMats: [], lampLights: [], marqueeMats: [], stringMats: [], flickerMats: [],
+    windowMats: [], lampMats: [], lampLights: [], marqueeMats: [], stringMats: [],
     crossingLights: [], stringLightRuns: [], hearths: [],
     pickLandmarks: [],
     drifters: [], water: null, train: null, onTrain: null,
@@ -1646,15 +1650,15 @@ export function buildEraWorld(era) {
   const ANCHOR_SETS = {
     boiling: [
       { x: 0, z: -6, r: 9 }, { x: -16, z: -24, r: 7 }, { x: 20, z: -14, r: 8 },
-      { x: 30, z: -36, r: 8 }, { x: -26, z: 10, r: 6 }, { x: 34, z: 24, r: 8 }, { x: 12, z: 42, r: 6 },
+      { x: 30, z: -36, r: 8 }, { x: -21, z: 10, r: 5 }, { x: 34, z: 24, r: 8 }, { x: 12, z: 42.5, r: 4 },
     ],
     celery: [
       { x: 0, z: -10, r: 9 }, { x: 0, z: -10, r: 9 }, { x: -14, z: -24, r: 7 },
-      { x: 20, z: -14, r: 8 }, { x: 12, z: 42, r: 7 }, { x: 34, z: -38, r: 9 }, { x: -10, z: 50, r: 7 },
+      { x: 20, z: -14, r: 8 }, { x: 12, z: 42.5, r: 4 }, { x: 34, z: -38, r: 9 }, { x: -10, z: 50, r: 7 },
     ],
     mall: [
       { x: 0, z: -10, r: 8 }, { x: 0, z: -2, r: 8 }, { x: 0, z: -18, r: 8 },
-      { x: 20, z: -14, r: 8 }, { x: 10, z: -10, r: 5 }, { x: 12, z: 42, r: 6 }, { x: 30, z: 20, r: 8 },
+      { x: 20, z: -14, r: 8 }, { x: 10, z: -10, r: 5 }, { x: 12, z: 42.5, r: 4 }, { x: 30, z: 20, r: 8 },
     ],
     paper: [
       { x: 0, z: -8, r: 9 }, { x: -14, z: -24, r: 7 }, { x: 20, z: -14, r: 8 },
@@ -1662,11 +1666,11 @@ export function buildEraWorld(era) {
     ],
     living: [
       { x: 0, z: -10, r: 8 }, { x: 0, z: -2, r: 8 }, { x: -18, z: -17, r: 7 },
-      { x: 20, z: -14, r: 8 }, { x: 34, z: -38, r: 8 }, { x: -26, z: 8, r: 6 }, { x: 10, z: -10, r: 5 },
+      { x: 20, z: -14, r: 8 }, { x: 34, z: -38, r: 8 }, { x: -21, z: 8, r: 5 }, { x: 10, z: -10, r: 5 },
     ],
     returns: [
-      { x: -24, z: -2, r: 8 }, { x: 0, z: -10, r: 8 }, { x: 34, z: -38, r: 8 },
-      { x: -20, z: -22, r: 7 }, { x: 20, z: -14, r: 8 }, { x: -28, z: 16, r: 7 }, { x: 0, z: 0, r: 9 },
+      { x: -21, z: -2, r: 5 }, { x: 0, z: -10, r: 8 }, { x: 34, z: -38, r: 8 },
+      { x: -19, z: -20, r: 6 }, { x: 20, z: -14, r: 8 }, { x: -21, z: 16, r: 5 }, { x: 0, z: 0, r: 9 },
     ],
   };
   const anchors = ANCHOR_SETS[era.key];
@@ -1679,6 +1683,7 @@ export function buildEraWorld(era) {
     world.agents.push(agent);
     group.add(agent.mesh);
   });
+  world.agentMeshes = world.agents.map(a => a.mesh);
 
   // ---- vehicles
   const loopA = { x1: -14, z1: -26, x2: 22, z2: 10 };
@@ -1733,11 +1738,6 @@ export function buildEraWorld(era) {
     if (world.sturgeon) {
       world.sturgeon.position.z = -20 + Math.sin(t * 0.05) * 55;
       world.sturgeon.position.x = -34 + Math.sin(t * 0.11) * 3;
-    }
-    // 1985 marquee flicker
-    if (world.flickerMats.length && nightAmt > 0.3) {
-      const flick = (Math.sin(t * 13) > 0.92 || Math.sin(t * 7.3) < -0.97) ? 0.25 : 1;
-      world.flickerMats.forEach(m => { m.emissiveIntensity = 1.6 * nightAmt * flick; });
     }
   };
 

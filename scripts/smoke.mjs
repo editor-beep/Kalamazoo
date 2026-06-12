@@ -75,6 +75,20 @@ for (const era of ERAS) {
     for (let i = 0; i < 30; i++) w.update(1 / 30, i / 30, i % 2 ? 0.8 : 0.1);
     // exercise a train pass
     w.train.start(); for (let i = 0; i < 10; i++) w.train.update(0.5);
+    // nobody gathers in the river or on the rails
+    const inRiver = (x) => x > -46 && x < -22.5;
+    const onRails = (z) => z > 38 && z < 42;
+    for (const a of w.anchors) {
+      if (inRiver(a.x)) fail(`${era.key}: anchor (${a.x},${a.z}) is in the river`);
+      if (onRails(a.z)) fail(`${era.key}: anchor (${a.x},${a.z}) is on the rails`);
+    }
+    // fuzz wander targets through the safety clamp
+    const scout = w.agents[0];
+    for (let i = 0; i < 400; i++) {
+      scout.pickTarget();
+      if (inRiver(scout.target.x)) fail(`${era.key}: wander target walked on water (x=${scout.target.x.toFixed(1)})`);
+      if (onRails(scout.target.z)) fail(`${era.key}: wander target loiters on rails (z=${scout.target.z.toFixed(1)})`);
+    }
     w.dispose();
     ok(`${era.year} ${era.name}: built, simulated 30 frames, disposed (${w.pickLandmarks.length} landmarks, ${w.agents.length} residents)`);
   } catch (e) {

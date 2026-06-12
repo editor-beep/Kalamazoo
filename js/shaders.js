@@ -133,7 +133,6 @@ export const WaterShader = {
       col = murkCol;
 
       // sun glint
-      vec3 viewDir = normalize(-vViewPos);
       vec3 normal = normalize(vec3(vWave * 1.6, 1.0, vWave * 1.2));
       vec3 worldView = normalize(cameraPosition - vWorldPos);
       vec3 halfDir = normalize(normalize(uSunDir) + worldView);
