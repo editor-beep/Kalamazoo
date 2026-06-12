@@ -4,12 +4,12 @@
 // (Enoch Harris, Orville Gibson, Caroline Bartlett Crane), used with respect.
 
 export const LINEAGES = {
-  doorn:    { mark: '❧', label: 'The Doorns — celery people since 1872. Find them in 1905, 1985, 2050.' },
-  harris:   { mark: '❧', label: 'The Harrises — landowners since 1830. Find them in 1855, 1959, 2026.' },
+  doorn:    { mark: '❧', label: 'The Doorns — celery people since 1872. Find them in 1905, 1995, 2050.' },
+  harris:   { mark: '❧', label: 'The Harrises — landowners since 1830. Find them in 1855, 1975, 2026.' },
   water:    { mark: '〜', label: 'The water-keepers — here before the town, here after. 1855, 2026, 2050.' },
-  luthiers: { mark: '♪', label: 'The luthiers — wood and song since Orville. 1905, 1985, 2050.' },
+  luthiers: { mark: '♪', label: 'The luthiers — wood and song since Orville. 1905, 1975, 1985, 2050.' },
   destiny:  { mark: '✶', label: 'Destiny Alvarez — the same person, twice. Meet her at 19 in 2026 and at 43 in 2050.' },
-  whitlock: { mark: '❧', label: 'The Whitlocks — glass-sweepers and poets. 1985, 2026, 2050.' },
+  whitlock: { mark: '❧', label: 'The Whitlocks — glass-sweepers and poets. 1995, 2026, 2050.' },
 };
 
 export const ERAS = [
@@ -490,9 +490,30 @@ export const ERAS = [
     ],
   },
 
+  // ───────────────────────────── 1975 ─────────────────────────────
+  {
+    key: 'seventies', id: 3, year: '1975', name: 'The Main Street Years', tagline: 'Head shops • Hospital hill • Mall afterglow', blurb: 'The Mall is still the city’s experiment, but the seams show: gas lines, empty upstairs rooms, college posters, and a sanatorium on Blakeslee becoming the Northwest Unit.', accent: '#d97706', accentText: '#f59e0b', grad: 'linear-gradient(135deg,#7c3f1d,#2f2418)', pulse: 74, defaultTime: 0.7,
+    epigraph: { lines: 'The brick street hums through platform shoes.\nEvery window is a little republic —\nrecords, newspapers, pills, prayers —\nand every republic is short on rent.', attrib: null },
+    welcome: '1975: the Mall is sixteen years old, Upjohn still signs paychecks, and on Blakeslee the old TB sanatorium has become Kalamazoo Psychiatric Hospital’s Northwest Unit.',
+    vis: { ground: ['#59503b', '#464432'], road: '#3f3c35', skyDay: ['#9ab0bf', '#e0c392'], skyGold: ['#c77736', '#f0c66b'], skyNight: ['#09111d', '#251828'], fogDay: '#b8a88f', fogNight: '#0b0d12', fogDensity: 0.0062, water: { a: '#556f6d', b: '#394f51', murk: 0.68, drift: 'foam' }, lamp: '#ffc36b', exposure: 0.96, grade: { tint: [1.10, 0.96, 0.77], tintAmt: 0.66, desat: 0.24, vignette: 0.50, grain: 0.13 }, foliage: ['#6f743b', '#7a6c36', '#4f5d31'], treeCount: 50, fireflies: false, smoke: 'mill' },
+    activities: ['crossing the Mall under amber globes', 'climbing Blakeslee for second shift', 'buying imports near Eleanor'],
+    riverLines: ['You have taught me the alphabet of chemicals. I spell it back in fish bone.', 'The young lean over my railing and call the future by band names.', 'The mills say work. The hospital says wait. The water says remember both.'],
+    echoes: ['The Gazette presses shake across from the State like a second thunderstorm.', 'On North Burdick a future record store is already gathering dust motes and opinions.', 'The old sanatorium windows face the city with the patience of lungs learning air again.'],
+    events: [{ kind: 'bright', text: 'A WMU jazz combo sets up on the Mall and makes the planters sound briefly like New Orleans.' }, { kind: 'ache', text: 'Another paper-machine rumor goes around at lunch; nobody repeats it at supper, which is how you know it is serious.' }, { kind: 'wonder', text: 'The State lobby smells like popcorn, damp wool, and one impossible note from the Barton organ.' }, { kind: 'bright', text: 'Upjohn hired two hundred this quarter. Every landlord in Vine knows before the paper does.' }, { kind: 'ache', text: 'A Blakeslee nurse writes twelve discharge plans for people with nowhere ready to receive them.' }],
+    people: [
+      { name: 'Denise Veld', role: 'Clerk at a Mall head shop', age: 24, look: { body: '#9a5a2f', skin: 1, hat: 'none', prop: 'book' }, mood: 'wry, incense-bright', roots: 61, doing: ['lettering a PLANET CLAIRE window card', 'arguing about whether cities can have auras'], memory: 'She sells candles, posters, beads, and the feeling that Kalamazoo is secretly less square than it acts. Her lease is short; her customer list is long.', lines: ['“People come in for incense and leave with a map of who they might be. Retail, if you do it right, is amateur astronomy.”', '“The Mall was supposed to save downtown. Maybe saving a place means letting the weird kids rent a narrow storefront.”'] },
+      { name: 'Marvin Bellamy', role: 'Gazette night pressman', age: 49, look: { body: '#3f4a55', skin: 3, hat: 'cap', prop: 'pail' }, mood: 'inked, exact', roots: 74, doing: ['checking the front page plate', 'walking across Burdick to smoke under the State marquee'], memory: 'The Gazette building at 401 South Burdick faces the State across the street. He says the presses and the marquee keep each other honest.', lines: ['“At midnight the presses make the sidewalk tremble. Across the street the State sign trembles back. That is a conversation.”', '“Newsprint gets under your nails like guilt. You learn to stop scrubbing and call it proof of employment.”'] },
+      { name: 'Rita Sifuentes', role: 'Northwest Unit aide, Blakeslee Avenue', age: 33, look: { body: '#d8d2c4', skin: 2, hat: 'none', prop: 'clipboard' }, mood: 'tender, exhausted', roots: 68, doing: ['turning beds toward the city view', 'leading a memory group after lunch'], memory: 'The former tuberculosis sanatorium on Blakeslee has become a geriatric psychiatric unit. The work is quiet and bodily and too easy for the city not to see.', lines: ['“The building was made for lungs and became a place for memories. Either way, we open the windows when we can.”', '“Normalcy is not a program title to me. It is Mrs. K. remembering the words to a hymn after six silent Tuesdays.”'] },
+      { name: 'Paul Okeson', role: 'Upjohn patent clerk', age: 28, look: { body: '#5f6f7a', skin: 0, hat: 'none', prop: 'briefcase' }, mood: 'careful, proud', roots: 52, doing: ['carrying files from John Street', 'typing molecule names perfectly'], memory: 'Building 24 downtown still carries Upjohn research and patent work even as the company’s administrative gravity keeps sliding south to Portage.', lines: ['“A patent file is a love letter with claims. Kalamazoo writes more of them than anyone outside can imagine.”', '“People say Portage like it is exile. I say it like it is a very long hallway attached to the same town.”'] },
+      { name: 'Earl Yoder', role: 'Gibson neck sander', age: 36, thread: 'luthiers', look: { body: '#6b4f38', skin: 0, hat: 'cap', prop: 'guitar' }, mood: 'quiet, tuned', roots: 79, doing: ['sighting a maple neck against the light', 'counting layoffs by the silence of benches'], memory: 'The Parsons Street factory still sings, but Nashville has started to sound like a threat men can hear over the sanders.', lines: ['“You can feel a bad neck before you see it. Same with a company decision, if your hands are honest.”', '“The wood does not care about headquarters. It cares whether you listened.”'] },
+      { name: 'Althea Harris', role: 'County clerk trainee', age: 22, thread: 'harris', look: { body: '#665a7a', skin: 3, hat: 'none', prop: 'clipboard' }, mood: 'ambitious, polite until needed', roots: 73, doing: ['filing deeds under fluorescent lights', 'eating lunch in Bronson Park'], memory: 'A Harris descendant learning the city through parcel numbers. Every lot has a story; every story has a tax bill.', lines: ['“Land records are gossip with page numbers. Kalamazoo tells on itself beautifully.”', '“My family kept orchards. Now I keep indexes. Both require patience and rain.”'] },
+      { name: 'Billy Ransom', role: 'WMU commuter with a crate of LPs', age: 20, look: { body: '#2f5f6b', skin: 1, hat: 'none', prop: 'book' }, mood: 'restless, headphone-loud', roots: 44, doing: ['waiting for the bus at Eleanor', 'trading imports behind the museum'], memory: 'Before Flipside opens, the need for Flipside is already present: students with lists, cash, and a theory about every bass line.', lines: ['“If downtown had one perfect record store, I would spend every dollar there and still call it civic investment.”', '“The best music sounds like a place you have not earned yet. Kalamazoo keeps trying to earn itself.”'] },
+    ],
+  },
+
   // ───────────────────────────── 1985 ─────────────────────────────
   {
-    key: 'paper', id: 3, year: '1985', name: 'Paper City Peak',
+    key: 'paper', id: 4, year: '1985', name: 'Paper City Peak',
     tagline: 'The peak is behind it. Nobody says so.',
     blurb: 'Gibson left in June. Checker built its last cab in ’82. The mills cough, the river carries a secret called PCB, and the tornado of 1980 is still in everyone’s hands. And in a soup kettle on Kalamazoo Avenue, somebody named Larry is brewing the future.',
     accent: '#7c5bd1', accentText: '#a78bfa',
@@ -681,9 +702,27 @@ export const ERAS = [
     ],
   },
 
+  // ───────────────────────────── 1995 ─────────────────────────────
+  {
+    key: 'nineties', id: 5, year: '1995', name: 'The Independent City', tagline: 'Flipside • Club Soda • After Upjohn', blurb: 'The paper mills are quieter, Upjohn merges into a new name, and downtown survives on bands, record bins, coffee, and stubborn rooms that refuse to act finished.', accent: '#7c3aed', accentText: '#a78bfa', grad: 'linear-gradient(135deg,#3b256b,#17151f)', pulse: 82, defaultTime: 0.78,
+    epigraph: { lines: 'A flyer taped over another flyer\nbecomes a kind of bark.\nThe old trees downtown are brick.\nThey shed music all night.', attrib: null }, welcome: '1995: Flipside is across Eleanor on North Burdick, Club Soda is loud at 1 Main, Upjohn’s name is changing, and the Northwest Unit on Blakeslee has gone quiet.',
+    vis: { ground: ['#4b4a42', '#373a35'], road: '#2f3135', skyDay: ['#8fa4b8', '#d7bd9a'], skyGold: ['#b6683b', '#e0b36b'], skyNight: ['#060912', '#181426'], fogDay: '#a9a49a', fogNight: '#090911', fogDensity: 0.0068, water: { a: '#4f6768', b: '#334a4f', murk: 0.72, drift: 'foam' }, lamp: '#ffbf7a', exposure: 0.92, grade: { tint: [1.02, 0.96, 1.08], tintAmt: 0.52, desat: 0.18, vignette: 0.44, grain: 0.12 }, foliage: ['#4f6b3d', '#64733d', '#3c5635'], treeCount: 54, fireflies: false, smoke: 'half' },
+    activities: ['lining up outside Club Soda', 'flipping bins at 309 North Burdick', 'reading merger news twice'], riverLines: ['You renamed companies faster than you cleaned me.', 'At closing time the music walks to my bridge and cools its ears.', 'I know every flyer that blew from Eleanor Street into my weeds.'], echoes: ['Flipside’s speakers leak jazz, punk, reggae, rap — a municipal curriculum with no tuition.', 'The old Northwest Unit looks down from Blakeslee with broken windows and too many stories.', 'Upjohn’s downtown buildings learn new uses before the people learn the new name.'],
+    events: [{ kind: 'wonder', text: 'Henry Rollins stood in a record store and the walls at Flipside decided they were load-bearing for culture.' }, { kind: 'bright', text: 'A Club Soda line wraps the corner at 1 Main; three bands, two vans, one amp held together by tape and faith.' }, { kind: 'ache', text: 'Upjohn and Pharmacia are in the paper. At breakfast, nobody knows whether to say merger or goodbye.' }, { kind: 'bright', text: 'Hands Across Eleanor becomes less fundraiser than neighborhood oath: we are still here, we are still strange, we are still open.' }, { kind: 'ache', text: 'Kids sneak into the vacant Northwest Unit and come out quieter than they went in.' }],
+    people: [
+      { name: 'Neil Juhl', role: 'Owner, Flipside Records', age: 43, look: { body: '#1f2933', skin: 0, hat: 'none', prop: 'guitar' }, mood: 'dry, encyclopedic', roots: 69, doing: ['pricing used jazz', 'selling concert tickets'], memory: 'Flipside opened in 1977 and moved across the street in 1990. By 1995 the North Burdick store is a downtown compass: gritty, generous, and louder than the malls.', lines: ['“If the chains do not stock it, we probably do. If we do not, somebody at the counter can argue about it convincingly.”', '“A record store is not inventory. It is a room where lonely taste becomes a public utility.”'] },
+      { name: 'Tasha Monroe', role: 'Club Soda door stamp', age: 26, look: { body: '#5b244d', skin: 3, hat: 'none', prop: 'clipboard' }, mood: 'unimpressed, protective', roots: 57, doing: ['inking wrists at 1 Main', 'counting cash by bass vibration'], memory: 'Club Soda is not polished; polish would ruin it. Bands remember the room because the floor remembers every boot.', lines: ['“If the ceiling is sweating, the show is going fine. If the ceiling stops, check the fuse box.”', '“Downtown gets called dead by people who are asleep by ten. They are missing all the evidence.”'] },
+      { name: 'Mara Dombrowski', role: 'Pharmacia & Upjohn research chemist', age: 38, look: { body: '#e8e3d8', skin: 1, hat: 'none', prop: 'briefcase' }, mood: 'brilliant, braced', roots: 63, doing: ['boxing old Upjohn stationery', 'checking a freezer alarm'], memory: 'Her father said Upjohn bottled mercy. In 1995 she learns mercy can merge, rebrand, and still need the same hands in the lab at 3 a.m.', lines: ['“The molecule does not know the logo changed. That is the comfort. Also the insult.”', '“Kalamazoo hears merger and thinks payroll. I hear freezer inventory and everyone’s initials on the samples.”'] },
+      { name: 'Derek Whitlock', role: 'Club flyer poet', age: 19, thread: 'whitlock', look: { body: '#34495e', skin: 2, hat: 'cap', prop: 'book' }, mood: 'romantic, broke', roots: 49, doing: ['wheat-pasting a show poster', 'writing poems on rejected handbills'], memory: 'Son of a glass-sweeper, he writes the city onto paper that gets stapled to poles and rained into pulp.', lines: ['“A flyer is a poem with a date, a price, and the threat of feedback.”', '“I want to write something that lasts. So naturally I print it on paper and tape it outside in Michigan.”'] },
+      { name: 'Janice Pike', role: 'Former Northwest Unit nurse', age: 58, look: { body: '#8a7a5c', skin: 0, hat: 'none', prop: 'clipboard' }, mood: 'guarded, soft at the edges', roots: 71, doing: ['driving past Blakeslee slowly', 'keeping a ring of old keys'], memory: 'The Northwest Unit closed in 1990 after patient counts fell. To teenagers it is a haunted building; to her it is hallways of names.', lines: ['“Buildings are not abandoned all at once. First the patients leave, then the beds, then the official story. The echoes stay employed.”', '“Do not call it spooky to me. I knew who liked pudding, who hated the noon news, who sang in German.”'] },
+      { name: 'Samira Bell', role: 'Planet Claire buyer', age: 31, look: { body: '#7c4d8a', skin: 3, hat: 'none', prop: 'basket' }, mood: 'cosmic, practical', roots: 54, doing: ['ordering candles by fax', 'hanging moon earrings by the window'], memory: 'The little alternative shops downtown sell more than things; they sell permission. Hers is spelled like a B-52s song and stocked like a dorm room learning magic.', lines: ['“Yes, the earrings are cheap. No, the blessing is not included. You do your own blessing; it works better.”', '“College towns need stores where a person can become slightly more themselves for under twelve dollars.”'] },
+      { name: 'Owen Doorn', role: 'Produce truck driver', age: 44, thread: 'doorn', look: { body: '#4a5a3a', skin: 0, hat: 'cap', prop: 'pail' }, mood: 'steady, road-tired', roots: 80, doing: ['backing into a restaurant alley', 'checking celery labels out of habit'], memory: 'He hauls California produce over the ground his family once farmed. His grandmother kept seed jars; he keeps delivery receipts. Both are proof.', lines: ['“The boxes say Salinas. My hands still smell Kalamazoo when it rains.”', '“A family can leave a field and still have a field inside it. That is not poetry. That is bookkeeping.”'] },
+    ],
+  },
+
   // ───────────────────────────── 2026 ─────────────────────────────
   {
-    key: 'living', id: 4, year: '2026', name: 'The Living City',
+    key: 'living', id: 6, year: '2026', name: 'The Living City',
     tagline: 'Breweries in the mills • The Promise • Cleaner water',
     blurb: 'Stout where they cooked pulp. Strangers pay every child’s tuition. The vaccine that circled the world came off a line here. Candles on the Mall every February. The otters came back before the paperwork did.',
     accent: '#059669', accentText: '#34d399',
@@ -862,7 +901,7 @@ export const ERAS = [
 
   // ───────────────────────────── 2050 ─────────────────────────────
   {
-    key: 'returns', id: 5, year: '2050', name: 'The River Returns',
+    key: 'returns', id: 7, year: '2050', name: 'The River Returns',
     tagline: 'Rewilded water • Solar meadows • Kept promises',
     blurb: 'The dams came out and the sturgeon came back. Solar blooms on the poison cap. Heirloom celery in the old muck. Nobody calls it a comeback — they kept the dead in the conversation and the door unlocked.',
     accent: '#0891b2', accentText: '#22d3ee',
@@ -1028,6 +1067,7 @@ export const STRATA = {
       boiling: 'Clear and cold, full of grayling. It powers the first mills and keeps its own name.',
       celery: 'A working river: log rafts, mill intakes, dye and acid going in where nobody looks.',
       mall:   'The town turns its back — parking lots to the banks. The mills still feed it gray.',
+      seventies: 'Gas-crisis water and paper-mill foam. Teenagers lean over bridges anyway.',
       paper:  'Carrying PCBs and fish advisories. Declared a Superfund site. Still, herons.',
       living: 'Forty years into the slowest apology in America. Otters back. Kids on the trail.',
       returns:'Dams out, sturgeon home, the town rebuilt facing the water. Loudest sound downtown.',
@@ -1036,6 +1076,7 @@ export const STRATA = {
       boiling: 'Everything here is because of this water — the mills, the muck, the name. The Potawatomi word it approximates was never fully agreed on by the people who replaced it: boiling pot, bubbling springs, mirage. The river declines to settle the argument.',
       celery: 'The mills drink it and exhale it gray. The celery drinks it through eighteen feet of black muck. The whole economy is this river wearing different clothes.',
       mall: 'The new optimism faces the shops, not the water. You can stand on the Mall all day and forget there’s a river two blocks west, doing all the work.',
+      seventies: 'The river is two blocks and a thousand decisions away. Club flyers blow toward it; so do receipts; so does every unnamed discharge pipe. The herons make no comment.',
       paper: 'PCBs from eighty years of paper-making have been found in the sediment, the fish, the food chain. The signs say do not eat the fish. The herons can’t read, and stay.',
       living: 'One of America’s largest Superfund cleanups grinds on, measured in parts per billion and decades. Last spring an otter ate a crayfish on the Allied cap while a state engineer cried into her clipboard.',
       returns: 'They took the dams out, daylighted the creek, and rebuilt downtown to face the water. This spring a lake sturgeon passed under the Michigan Avenue bridge — first in a century and a half.',
@@ -1048,6 +1089,7 @@ export const STRATA = {
       boiling: 'A grist and saw mill on the race. The village’s loud, floury heart.',
       celery: 'A paper mill in full roar — the whitest paper in America, the grayest water.',
       mall:   'Still running, three shifts. Paper City pays for the optimism.',
+      seventies: 'Still running, but the confidence has a hairline crack.',
       paper:  'Half-idle. Auction notices on the gate. One stack still smoking.',
       living: 'A brewery in the mill shell. Stout where they cooked pulp. The walls still sweat steam.',
       returns:'Stabilized ruins and an amphitheater. Poems on third Thursdays. The river audible again.',
@@ -1056,6 +1098,7 @@ export const STRATA = {
       boiling: 'Jonas Clay gave this wheel two fingers and it gave the village flour and boards. The river works for Mr. Burdick now — nobody told the river.',
       celery: 'A paper machine never stops: Christmas, funerals, weddings. The wet end doesn’t care. The men belong to it like sailors to the sea, and nobody writes songs about them.',
       mall: 'The mills bankroll the whole shining decade — the Mall, the bonuses, the butter on everything. The bill is accruing quietly in the sediment.',
+      seventies: 'The mill is still loud enough to organize a day around, but everybody has learned to listen between whistles for what might stop next.',
       paper: 'A mill makes two sounds: running, and never again. You can hear the second one from here all day now. It is very quiet and it is the loudest thing in town.',
       living: 'They didn’t demolish it; they poured stout in it. On cold mornings the walls sweat steam — the building dreaming about its old job. Fridays, the cellarman leaves a glass on the foreman’s ledge.',
       returns: 'The walls they could save, they saved; the rest is sky. Third Thursdays the poet laureate reads here and the river — audible now over everything — keeps time.',
@@ -1068,7 +1111,9 @@ export const STRATA = {
       boiling: 'A plank road of mud and stagecoaches, ambitiously named a street.',
       celery: 'Victorian brick canyon — streetcars, awnings, everything for sale.',
       mall:   'August 1959: closed to cars. The first pedestrian mall in America.',
+      seventies: 'Amber globe lamps, planters, students, head shops — the experiment gets weird enough to live.',
       paper:  'Quieter. Papered windows. Crossroads Mall pulls the shoppers south.',
+      nineties: 'Flipside, Club Soda, coffee, zines: the independent rooms keep downtown plugged in.',
       living: 'Reopened to slow traffic, patios overflowing, string lights, February candles.',
       returns:'A linear commons — market stalls, shade trees, the city’s living room.',
     },
@@ -1076,7 +1121,9 @@ export const STRATA = {
       boiling: 'Mud to the axles in April, dust by July. Cyrus the newspaperman swears it will be “a boulevard to rival anything in Detroit.” The oxen remain skeptical.',
       celery: 'Linus McGee drives the same mile of it forty times a day and swears it is never the same mile twice. The street changes clothes. That’s a town for you.',
       mall: 'Victor Gruen’s experiment: give the street back to people and people give it back to the street. A hundred cities will copy it. A young architect’s assistant has her thumbprint in planter twelve.',
+      seventies: 'The Mall has outgrown its dedication speeches. Planet Claire window cards, student guitars, and office workers with Upjohn badges make it less a plan than an ecosystem.',
       paper: 'The optimism moved to Portage with the parking. What stays: the State marquee, Frances at her counter, and everyone — still, always — coming downtown when the sky turns.',
+      nineties: 'Nobody sensible would bet on downtown by the spreadsheet. The bands, record clerks, bartenders, and odd little stores bet in cash anyway — small bills, many nights running.',
       living: 'String lights, patios, buskers, and every February a field of candles for the six of 2016. The street holds celebration and grief with the same two hands. It has had practice.',
       returns: 'They never widened it again. Markets, shade, the long table festival every solstice. The street that was an experiment in 1959 is just how cities are built now. It was right the whole time.',
     },
@@ -1127,13 +1174,17 @@ export const STRATA = {
     layers: {
       celery: '(Not yet — vaudeville plays the Academy down the block.)',
       mall:   'The 1927 atmospheric palace, marquee blazing over the new Mall.',
+      seventies: 'Second-run films, organ stories, and a lobby where the decade looks briefly glamorous.',
       paper:  'Marquee flickering, roof patched since the tornado, still open. Stubborn.',
+      nineties: 'Concert posters and preservation talk under the fake stars.',
       living: 'Restored. Chandelier relit. Grown men wept in the mezzanine.',
       returns:'A century-plus old and booked solid. Two seats always empty, reserved for 1927.',
     },
     body: {
       mall: 'Spanish courtyard walls, a ceiling of fake stars that everyone agrees are better than real ones. When the marquee comes on at dusk, every face on Burdick turns gold and fifteen years old.',
+      seventies: 'The State is still fancy enough to make a cheap date feel planned. Across Burdick, the Gazette presses answer the marquee in ink and thunder.',
       paper: 'It survived the tornado that took the roofs off its neighbors. It runs second-run movies and church benefits and refuses, on the record, to close. A town keeps one room fancy so it remembers what it’s worth.',
+      nineties: 'The State is too ornate for the decade and that is exactly its use. After Club Soda, kids stand under the marquee and look briefly like they inherited a palace.',
       living: 'Carmen Reyes-Silva books mariachi and metal under the same fake stars her grandmother saw, new to town in 1959. Some Fridays the marquee says just one word: WELCOME.',
       returns: 'The chandelier’s ten thousand crystals have been counted and kept since 1927. The fake stars outlasted three economies. Nobody calls them fake anymore; the word didn’t survive the affection.',
     },
@@ -1220,16 +1271,92 @@ export const STRATA = {
     layers: {
       celery: 'The new Normal School on Prospect Hill, training teachers since 1903.',
       mall:   'A university now — first in family, climbing with books.',
+      seventies: 'Dorm posters, commuter lots, protest tables, and night classes on the ground, not floating above it.',
       paper:  'Bronco country: cheap tuition, night classes for the laid-off.',
+      nineties: 'Students make Flipside and Club Soda part of the unofficial core curriculum.',
       living: 'Aviation, jazz, hockey; leaner years, open doors.',
       returns:'The hill teaches water management to the world. The world needed it.',
     },
     body: {
       celery: 'A trolley hauls future teachers up Prospect Hill. The town that taxed itself for high schools — and won the right to in court, for the whole country — keeps investing in the same bet: that learning compounds.',
       mall: 'Ruthie Calloway is the first of her name up the hill with books instead of a mop. The hill doesn’t know what’s coming. The hill is about to find out.',
+      seventies: 'Western is a campus of commuters, dorm stereos, and practical ambition. The model now plants its buildings on the ground because even a symbolic hill has to hold weight.',
       paper: 'Night classes fill with men retraining off the lines — machinists at midnight learning circuits. Marcus Calloway drives members to enrollment like it’s a union benefit, because he’s made it one.',
+      nineties: 'The unofficial syllabus runs downhill after class: Flipside for music history, Club Soda for acoustics, the coffee shop for philosophy with refills.',
       living: 'Promise kids walk the hill tuition-free. Destiny Alvarez studies education up here, deciding weekly whether to stay. (She stays.)',
       returns: 'The world started needing what a Great Lakes town knows: how to live with water, lose it, poison it, and earn it back. The hill exports the whole curriculum now. Tuition for locals: still covered, still anonymous.',
+    },
+  },
+
+  gazette: {
+    title: 'The Kalamazoo Gazette Building',
+    kicker: 'INK ACROSS FROM THE MARQUEE',
+    layers: {
+      mall: '401 South Burdick, directly across from the State at 404.',
+      seventies: 'Presses shaking the sidewalk while the State sign blinks back.',
+      paper: 'The old newsroom watches downtown lose stores and keeps taking notes.',
+      nineties: 'Merger headlines, music listings, and the stubborn daily ritual of ink.',
+      living: 'The old newspaper corner becomes medical and office space; the reliefs still remember printing.',
+    },
+    body: {
+      mall: 'The Gazette building sits at 401 South Burdick, across from the State Theatre at 404. One building sells the day’s facts; the other sells two hours under fake stars. Kalamazoo needs both.',
+      seventies: 'Marvin Bellamy says the presses and the marquee talk after midnight. The Albert Kahn building’s reliefs hold pens, books, hourglasses, and printing symbols like a sermon in limestone.',
+      paper: 'The newsroom covers layoffs, closings, fish advisories, and every claim that downtown is finished. The building is across from the State, which is helpful: reporters can look out and see counterevidence lit in bulbs.',
+      nineties: 'The Gazette prints Upjohn merger stories and Club Soda listings in the same civic bloodstream. A city is the grief and the gig calendar together, or it is not honestly described.',
+      living: 'The newspaper era moved on, the building changed hands, but 401 South Burdick still faces the State like a memory with an address. The old reliefs keep marking time.',
+    },
+  },
+  clubsoda: {
+    title: 'Club Soda / 1 Main',
+    kicker: 'THE LOUD ROOM',
+    layers: { seventies: 'A Main Street edge beginning to want a night life.', paper: 'Downtown gets louder after the stores go quiet.', nineties: 'Bands, wrist stamps, sweating ceiling, 1 Main as civic amplifier.' },
+    body: {
+      seventies: 'The corner at Main is not polished yet; that becomes its future advantage. Every empty-looking downtown needs one room where the young can test whether it is actually empty.',
+      paper: 'Club Soda is the sort of room people cite when they mean downtown still has a pulse. It is not pretty. A pulse does not have to be pretty.',
+      nineties: 'At 1 Main, Club Soda turns vans, flyers, patched amps, and late-night bodies into proof. People who call downtown dead are usually asleep during the evidence.',
+    },
+  },
+  flipside: {
+    title: 'Flipside Records',
+    kicker: 'THE UNCORPORATE ARCHIVE',
+    layers: { seventies: 'The need is already here: students trading records before the store opens.', paper: 'Opened in 1977, becoming the North Burdick compass for taste.', nineties: '309 North Burdick after the 1990 move; tickets, in-stores, bins, arguments.' },
+    body: {
+      seventies: 'Before Flipside opens, Kalamazoo has already invented its customers: students with lists, jazz heads, punks in rehearsal, and people who know the mall chains will never carry the weird thing they need.',
+      paper: 'Flipside has become the city’s record-store brain: used bins, clerk recommendations, posters, and the happy risk of hearing something too strange to leave behind.',
+      nineties: 'After moving across the street in 1990, Flipside thrives at 309 North Burdick near Eleanor. It sells tickets, hosts in-store performances, and treats obscure taste like a public service.',
+    },
+  },
+  planetclaire: {
+    title: 'Planet Claire',
+    kicker: 'ODDITIES, CANDLES, PERMISSION',
+    layers: { seventies: 'A narrow alternative storefront in the Mall ecosystem.', paper: 'Posters, beads, moon earrings, and the town trying on a stranger self.', nineties: 'A small shop doing large emotional work for students and downtown wanderers.' },
+    body: {
+      seventies: 'Planet Claire stands in for the Mall’s little alternative shops: narrow, bright, aromatic, half retail and half permission slip. The true-to-life part is the ecosystem, not the square footage.',
+      paper: 'The shop sells objects, but the useful product is possibility. A downtown survives partly because someone can buy a candle, a poster, or a pair of earrings and feel the day turn slightly.',
+      nineties: 'By 1995, Planet Claire belongs to the same constellation as Flipside and Club Soda: small independent rooms where students, clerks, and night people keep downtown from becoming only a memory.',
+    },
+  },
+  northwest: {
+    title: 'KPH Northwest Unit / Blakeslee',
+    kicker: 'THE HILL THAT LOOKED BACK',
+    layers: { seventies: 'The 1954 tuberculosis sanatorium now serves geriatric psychiatric patients.', paper: 'A quiet state facility on Blakeslee while the wards empty elsewhere.', nineties: 'Closed in 1990; fenced, broken-windowed, and wrongly called empty.' },
+    body: {
+      seventies: 'The building on Blakeslee began as the Southwestern Michigan Tuberculosis Sanatorium in 1954 and became part of Kalamazoo Psychiatric Hospital after TB treatment changed. By 1975 it is a place of bed care, memory work, and city views.',
+      paper: 'The Northwest Unit is the asylum story’s quieter annex: elderly patients, long institutional histories, staff trying to make normalcy practical one afternoon group at a time.',
+      nineties: 'The unit closed in 1990 after patient counts fell. Chain link, broken windows, and teenage dares cannot make it empty; Janice Pike can still name who preferred pudding and who sang in German.',
+    },
+  },
+  upjohn: {
+    title: 'The Upjohn Footprint',
+    kicker: 'MERCY, BOTTLED AND BRANDED',
+    layers: { celery: 'Friable pills and a company beginning to pay the town.', mall: 'Downtown Building 24 and Portage growth: research, patents, payroll.', seventies: 'John Street files, Portage buses, the company-town bet still paying.', paper: 'Still powerful, still local, even as corporate weather changes.', nineties: '1995 merger into Pharmacia & Upjohn: the molecule ignores the logo.', living: 'Pfizer, Zoetis, WMed, Bronson: old facilities under new names.' },
+    body: {
+      celery: 'Dr. Upjohn’s friable pill — medicine designed to dissolve instead of pass through — is becoming a payroll, a civic identity, and a thumbprint on the town’s future.',
+      mall: 'The Albert Kahn-designed Building 24 at 301 John Street was built in 1935 for headquarters ambitions, then used heavily for research, international work, and patent law as Portage grew.',
+      seventies: 'Upjohn still feels local enough that a hiring notice changes supper-table moods. Downtown files and Portage labs are one long hallway of the same company-town bet.',
+      paper: 'The company remains one of Kalamazoo’s load-bearing names. A town can be proud of bottled mercy and still worry what happens if the bottle gets shipped somewhere else.',
+      nineties: 'In 1995 the Upjohn name merges into Pharmacia & Upjohn. The lab freezers, batch records, and workers’ initials keep doing what logos cannot: the actual work.',
+      living: 'The names changed — Pfizer, Zoetis, WMed, Bronson — but the old footprint still organizes jobs, buildings, memory, and the idea that medicine is one of Kalamazoo’s dialects.',
     },
   },
   bridge: {

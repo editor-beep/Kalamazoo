@@ -2,8 +2,8 @@
 
 Live: **https://kalamazoo.vercel.app/**
 
-A living elegy in six eras. One city — Kalamazoo, Michigan — remembered six times
-(1855, 1905, 1959, 1985, 2026, 2050). The river, Burdick Street, Bronson Park, the
+A living elegy in eight eras. One city — Kalamazoo, Michigan — remembered eight times
+(1855, 1905, 1959, 1975, 1985, 1995, 2026, 2050). The river, Burdick Street, Bronson Park, the
 rail line, the mill ground, and the celery flats hold their coordinates in every
 era; only time changes their clothes. Hand-written residents carry the city's real
 history. The river speaks when clicked. The emotional brief, in order: **the
@@ -23,7 +23,7 @@ index.html          UI shell + import map ("three" → vendored module)
 css/style.css       hand-rolled glassmorphism; Fraunces (serif/poetry) + Inter (UI)
 js/data.js          THE HEART — all content (see below)
 js/shaders.js       sky dome, animated water, film-grade post pass (GLSL)
-js/world.js         shared geography assembled six ways → EraWorld objects
+js/world.js         shared geography assembled eight ways → EraWorld objects
 js/agents.js        people (walk cycles, hats, props, chats), vehicles, train, particles
 js/ui.js            DOM layer (cards, HUD, modals, toasts, story panel)
 js/main.js          engine: lighting/day-night, picking, events, compare mode, input
@@ -35,11 +35,11 @@ vercel.json         caching + headers
 
 ```bash
 python3 -m http.server 8000        # or: npx serve .   (ES modules need HTTP)
-node scripts/smoke.mjs             # builds + simulates all six eras in Node, no browser
+node scripts/smoke.mjs             # builds + simulates all eight eras in Node, no browser
 ```
 
 The smoke test validates every resident record, every landmark stratum, builds all
-six worlds, simulates 30 frames each, fuzzes 400 wander targets per era against
+eight worlds, simulates 30 frames each, fuzzes 400 wander targets per era against
 the safety bands, and cross-checks every DOM id referenced from JS against
 `index.html`. **Run it after every change.** There is no browser in some dev
 environments — the code is structured so this is meaningful verification.
@@ -79,7 +79,7 @@ environments — the code is structured so this is meaningful verification.
 
 ## Content model (`js/data.js`)
 
-- `ERAS[6]` — each: card text, `epigraph` (the transition poem), `welcome` toast,
+- `ERAS[8]` — each: card text, `epigraph` (the transition poem), `welcome` toast,
   `vis` (full visual config: sky/fog/water/grade/foliage/lamps), `riverLines`
   (the river's spoken lines), `events` (kind: `bright | ache | wonder` — ache
   triggers the grief desaturation pulse), `echoes` (≥2 ambient one-line whispers

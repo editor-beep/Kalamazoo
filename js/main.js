@@ -41,7 +41,9 @@ const TRAIN_LINES = {
   boiling: 'The cars roll through and the whole village stops chewing to listen.',
   celery: 'A celery special thunders toward Chicago, iced and silver. The depot smells like harvest.',
   mall: 'A freight rolls through downtown. Conversation pauses, mid-sentence, the way it always has.',
+  seventies: 'A freight rolls through under amber lamps. Someone on the Mall mistakes the rhythm for a bass line.',
   paper: 'The freight sounds different over empty mills — longer, somehow. Everyone pretends not to notice.',
+  nineties: 'The freight cuts through last call. Outside Club Soda, everybody talks louder for thirty seconds.',
   living: 'The Wolverine rolls through. Somewhere aboard, a conductor sings out the name, and somebody smiles.',
   returns: 'The quiet electric freight slides through. The town voted to keep the horn. Some sounds are load-bearing.',
 };
@@ -50,7 +52,9 @@ const CAMERA_DEFAULTS = {
   boiling: { pos: [44, 27, 50], tgt: [-6, 3, -6] },
   celery: { pos: [38, 25, 46], tgt: [-2, 4, -6] },
   mall: { pos: [32, 22, 42], tgt: [2, 3, -8] },
+  seventies: { pos: [34, 23, 44], tgt: [-2, 3, -6] },
   paper: { pos: [34, 24, 44], tgt: [-2, 3, -8] },
+  nineties: { pos: [30, 22, 40], tgt: [0, 3, 8] },
   living: { pos: [32, 21, 42], tgt: [0, 3, -6] },
   returns: { pos: [40, 24, 46], tgt: [-10, 3, -4] },
 };

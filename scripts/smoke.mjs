@@ -1,4 +1,4 @@
-// Headless smoke test: validates the data layer and builds all six era worlds
+// Headless smoke test: validates the data layer and builds all eight era worlds
 // in Node (no DOM, no WebGL — canvas textures are guarded off).
 // Run: node scripts/smoke.mjs
 
@@ -15,7 +15,7 @@ const ok = msg => console.log('  ✓', msg);
 const { ERAS, STRATA, LINEAGES, SKIN_TONES } = await import('../js/data.js');
 
 console.log('\n[data]');
-if (ERAS.length !== 6) fail(`expected 6 eras, got ${ERAS.length}`);
+if (ERAS.length !== 8) fail(`expected 8 eras, got ${ERAS.length}`);
 const KINDS = new Set(['bright', 'ache', 'wonder']);
 const VIS_KEYS = ['ground', 'road', 'skyDay', 'skyGold', 'skyNight', 'fogDay', 'fogNight', 'fogDensity', 'water', 'exposure', 'grade', 'foliage', 'treeCount', 'smoke'];
 
@@ -40,7 +40,7 @@ for (const era of ERAS) {
     if (p.thread && !LINEAGES[p.thread]) fail(`${pw}: unknown thread ${p.thread}`);
   }
 }
-ok(`6 eras, ${ERAS.reduce((s, e) => s + e.people.length, 0)} residents, all records complete`);
+ok(`8 eras, ${ERAS.reduce((s, e) => s + e.people.length, 0)} residents, all records complete`);
 
 for (const [key, s] of Object.entries(STRATA)) {
   if (!s.title || !s.kicker || !s.body || !s.layers) fail(`strata ${key}: incomplete`);
@@ -85,7 +85,7 @@ for (const era of ERAS) {
       if (!(phase2Counts['wmu-banner'] >= 3 && phase2Counts['wmu-student'] >= 3)) fail(`${era.key}: WMU hill lacks banner/student energy`);
       if (!(phase2Counts['bronco-shuttle'] >= 1)) fail(`${era.key}: missing Bronco shuttle`);
     }
-    if (['paper', 'living', 'returns'].includes(era.key) && !(phase2Counts['office-slab'] >= 1)) fail(`${era.key}: missing 1970s downtown office slab`);
+    if (['paper', 'nineties', 'living', 'returns'].includes(era.key) && !(phase2Counts['office-slab'] >= 1)) fail(`${era.key}: missing 1970s downtown office slab`);
     // run the simulation a few steps to shake out runtime errors
     for (let i = 0; i < 30; i++) w.update(1 / 30, i / 30, i % 2 ? 0.8 : 0.1);
     // exercise a train pass
@@ -128,7 +128,7 @@ console.log('\n[determinism]');
     walk(w.scene);
     return `${n}:${h.toFixed(2)}`;
   };
-  for (const era of [ERAS[0], ERAS[3]]) {
+  for (const era of [ERAS[0], ERAS[4]]) {
     const a = buildEraWorld(era), ha = hashWorld(a); a.dispose();
     const b = buildEraWorld(era), hb = hashWorld(b); b.dispose();
     if (ha !== hb) fail(`${era.key}: two builds differ (${ha} vs ${hb}) — the city forgot itself`);
