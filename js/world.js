@@ -14,8 +14,25 @@ const since = (era, key) => stage(era.key) >= stage(key);
 const only = (era, ...keys) => keys.includes(era.key);
 
 const M = opts => new THREE.MeshStandardMaterial(opts);
-const rand = (a, b) => a + Math.random() * (b - a);
-const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+// Per-era seeded PRNG: construction is deterministic, so the city is the
+// *same city* every visit. Agent wander (agents.js) stays truly random.
+function mulberry32(seed) {
+  return () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const seedFrom = str => {
+  let h = 2166136261;
+  for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+};
+let R = Math.random;
+const rand = (a, b) => a + R() * (b - a);
+const pick = arr => arr[Math.floor(R() * arr.length)];
 
 // ------------------------------------------------------------- canvas textures
 // All guarded so the module stays importable in Node (smoke tests).
@@ -43,7 +60,7 @@ function brickTex(base, mortar, rows = 12) {
     for (let r = 0; r < rows; r++) {
       const off = (r % 2) * bw * 0.5;
       for (let c = -1; c < 7; c++) {
-        const jitter = (Math.random() - 0.5) * 14;
+        const jitter = (R() - 0.5) * 14;
         ctx.fillStyle = shade(base, jitter);
         ctx.fillRect(c * bw + off + 1, r * bh + 1, bw - 2, bh - 2);
       }
@@ -55,11 +72,11 @@ function groundTex(c1, c2) {
   return canvasTex(256, 256, (ctx, w, h) => {
     ctx.fillStyle = c1; ctx.fillRect(0, 0, w, h);
     for (let i = 0; i < 520; i++) {
-      ctx.fillStyle = Math.random() < 0.5 ? c2 : shade(c1, (Math.random() - 0.5) * 22);
+      ctx.fillStyle = R() < 0.5 ? c2 : shade(c1, (R() - 0.5) * 22);
       const r = rand(3, 16);
       ctx.globalAlpha = rand(0.1, 0.4);
       ctx.beginPath();
-      ctx.arc(Math.random() * w, Math.random() * h, r, 0, Math.PI * 2);
+      ctx.arc(R() * w, R() * h, r, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.globalAlpha = 1;
@@ -169,7 +186,7 @@ function makeTree(x, z, scale, foliagePalette, kind = 'round') {
     });
   }
   g.position.set(x, 0, z);
-  g.rotation.y = Math.random() * Math.PI * 2;
+  g.rotation.y = R() * Math.PI * 2;
   return g;
 }
 
@@ -547,7 +564,7 @@ function buildStorefronts(era, world) {
     while (z < row.to) {
       const bw = rand(5.2, 7.2);
       if (z + bw > row.to + 2.5) break;
-      const floors = wood ? 1 : (Math.random() < 0.4 ? 3 : 2);
+      const floors = wood ? 1 : (R() < 0.4 ? 3 : 2);
       const bh = wood ? rand(3.4, 4.2) : 3.1 * floors + 0.8;
       const bd = rand(7, 9);
       const base = pick(palette);
@@ -583,7 +600,7 @@ function buildStorefronts(era, world) {
         color: 0x2c3844, roughness: 0.25, metalness: 0.2,
         emissive: new THREE.Color(era.vis.lamp || '#ffd9a0'), emissiveIntensity: 0,
       });
-      const boarded = era.key === 'paper' && Math.random() < 0.34;
+      const boarded = era.key === 'paper' && R() < 0.34;
       if (!boarded) world.windowMats.push(winMat);
       const paneMat = boarded ? M({ color: 0x7a6a4e, roughness: 0.95 }) : winMat;
 
@@ -613,7 +630,7 @@ function buildStorefronts(era, world) {
       sign.position.set(wallX + row.facing * 0.07, 2.55, cz);
       bld.add(sign);
 
-      if (!boarded && (only(era, 'mall', 'living', 'returns') || (era.key === 'celery' && Math.random() < 0.6))) {
+      if (!boarded && (only(era, 'mall', 'living', 'returns') || (era.key === 'celery' && R() < 0.6))) {
         const awnColors = era.key === 'mall' ? [0xc23a3a, 0x2f6b8a, 0x3a8a5c, 0xc28a2f] : [0x735c44, 0x5c6b58, 0x6b5544];
         const awn = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.09, bw * 0.72), M({ color: pick(awnColors), roughness: 0.85 }));
         awn.position.set(row.faceX + row.facing * 0.62, 2.1, cz);
@@ -623,7 +640,7 @@ function buildStorefronts(era, world) {
       }
 
       // mural on a 2026 end wall
-      if (era.key === 'living' && Math.random() < 0.18) {
+      if (era.key === 'living' && R() < 0.18) {
         const mural = new THREE.Mesh(
           new THREE.PlaneGeometry(bd * 0.7, bh * 0.62),
           new THREE.MeshStandardMaterial({ map: muralTex(), color: 0xffffff, roughness: 0.9 })
@@ -749,7 +766,7 @@ function buildMillSite(era, world) {
       const win = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.2, 0.08), winMat);
       win.position.set(pos.x - 6.5 + i * 2.6, 4.6, pos.z + 5.56);
       g.add(win);
-      if (dead && Math.random() < 0.5) {
+      if (dead && R() < 0.5) {
         // broken pane boards
         const board = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.4, 0.1), M({ color: 0x7a6a4e, roughness: 1 }));
         board.position.set(win.position.x, 4.3 + rand(-0.6, 0.8), pos.z + 5.6);
@@ -1223,7 +1240,7 @@ function buildSuperfund(era, world) {
       }
     }
     for (let i = 0; i < 16; i++) {
-      const a = Math.random() * Math.PI * 2, r = rand(3, 9.5);
+      const a = R() * Math.PI * 2, r = rand(3, 9.5);
       const flower = new THREE.Mesh(new THREE.SphereGeometry(0.14, 5, 4),
         M({ color: pick(['#d9b23a', '#c26d8a', '#e8e3d8', '#8a6dc2']), roughness: 0.7 }));
       flower.position.set(cx + Math.cos(a) * r, 1.75, cz + Math.sin(a) * r);
@@ -1426,8 +1443,8 @@ function buildHouses(era, world) {
         wall: M({ color: pick(palettes[era.key]), roughness: 0.88 }),
         roof: M({ color: 0x3f3832, roughness: 0.85 }),
         windowMat: winMat,
-        porch: era.key === 'celery' || (era.key === 'living' && Math.random() < 0.5),
-        solar: since(era, 'living') && (era.key === 'returns' || Math.random() < 0.4),
+        porch: era.key === 'celery' || (era.key === 'living' && R() < 0.5),
+        solar: since(era, 'living') && (era.key === 'returns' || R() < 0.4),
       });
     }
     house.position.set(lot.x, 0, lot.z);
@@ -1513,9 +1530,89 @@ function buildStringLights(era, world) {
   return g;
 }
 
+// ------------------------------------------------------------- echoes
+// The palimpsest pass: every era carries faint remnants of the other layers,
+// pressed into the ground like writing under writing. Opacity is owned by the
+// lighting pass (applyEnvironment) — echoes breathe in at dusk, memory hour.
+// Echoes run forward as well as back: 1905 already dreams the Mall's stakes.
+
+function buildEchoes(era, world) {
+  const g = new THREE.Group();
+
+  const echoMat = (color, base) => {
+    const m = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: base, depthWrite: false });
+    m.userData.echoBase = base;
+    world.echoMats.push(m);
+    return m;
+  };
+  // a flat strip/ring laid on the ground; rotZ spins it in-plane
+  const flat = (geo, mat, x, z, y = 0.06, rotZ = 0) => {
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.rotation.z = rotZ;
+    mesh.position.set(x, y, z);
+    g.add(mesh);
+    return mesh;
+  };
+  // ghost streetcar rails inlaid in the Mall paving — the cars stopped in
+  // 1932; the bricks still remember the gauge
+  const ghostRails = () => {
+    const m = echoMat(0x8a9097, 0.15);
+    [-0.75, 0.75].forEach(x => flat(new THREE.PlaneGeometry(0.16, 29), m, x, -9, 0.055));
+  };
+
+  if (only(era, 'boiling')) {
+    // the portage trail — older than any deed, headed for the ford
+    const trail = echoMat(0xd8cfb6, 0.13);
+    const from = { x: 30, z: -34 }, to = { x: -30, z: 9 };
+    const dx = to.x - from.x, dz = to.z - from.z;
+    flat(new THREE.PlaneGeometry(1.0, Math.hypot(dx, dz)), trail,
+      (from.x + to.x) / 2, (from.z + to.z) / 2, 0.055, Math.atan2(-dx, -dz));
+    // gathering ground under the park oaks: a wide ring nobody planted
+    flat(new THREE.RingGeometry(3.6, 4.1, 28), echoMat(0xd8cfb6, 0.11), 20, -14, 0.055);
+  } else if (only(era, 'celery')) {
+    // pale survey stakes of the future Mall — an echo running forward
+    const stakeMat = echoMat(0xe8e3d8, 0.16);
+    for (let i = 0; i < 6; i++) {
+      const stake = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.7, 0.08), stakeMat);
+      stake.position.set(i % 2 ? 3.4 : -3.4, 0.35, -22 + i * 5.2);
+      g.add(stake);
+    }
+    // the thread of the pedestrian street to come
+    flat(new THREE.PlaneGeometry(0.2, 30), echoMat(0xe8e3d8, 0.08), 0, -9, 0.05);
+  } else if (only(era, 'mall')) {
+    // the old Burdick centerline, still driving home under the new bricks
+    const m = echoMat(0xd8d2c4, 0.12);
+    for (let z = -21; z <= 3; z += 4) flat(new THREE.PlaneGeometry(0.18, 2.0), m, 0, z, 0.055);
+  } else if (only(era, 'paper')) {
+    // celery-row striping bleeding through the parking lot — Greta's scene,
+    // literalized: the field correcting a typo
+    const m = echoMat(0x7fa05f, 0.13);
+    for (let r = 0; r < 5; r++) flat(new THREE.PlaneGeometry(21, 0.5), m, 36, -46 + r * 3, 0.075);
+  } else if (only(era, 'living')) {
+    ghostRails();
+    // the Fountain of the Pioneers' ring, a pale circle in the park bed —
+    // removal leaves a mark too
+    flat(new THREE.RingGeometry(3.1, 3.5, 26), echoMat(0xcfc6b0, 0.13), 20, -14, 0.06);
+  } else {
+    ghostRails();
+    // mill foundation outline in the ruins lawn: the amphitheater sits
+    // exactly where the beaters thundered
+    const m = echoMat(0xb8a890, 0.15);
+    flat(new THREE.PlaneGeometry(16, 0.3), m, -22, -32.5, 0.06);
+    flat(new THREE.PlaneGeometry(16, 0.3), m, -22, -21.5, 0.06);
+    flat(new THREE.PlaneGeometry(0.3, 11), m, -30, -27, 0.06);
+    flat(new THREE.PlaneGeometry(0.3, 11), m, -14, -27, 0.06);
+  }
+
+  return g;
+}
+
 // ------------------------------------------------------------- the era world
 
 export function buildEraWorld(era) {
+  R = mulberry32(seedFrom(era.key));   // deterministic construction per era
+
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(new THREE.Color(era.vis.fogDay), era.vis.fogDensity);
 
@@ -1523,7 +1620,7 @@ export function buildEraWorld(era) {
     era, scene,
     agents: [], cruisers: [], particles: [],
     windowMats: [], lampMats: [], lampLights: [], marqueeMats: [], stringMats: [],
-    crossingLights: [], stringLightRuns: [], hearths: [],
+    crossingLights: [], stringLightRuns: [], hearths: [], echoMats: [],
     pickLandmarks: [],
     drifters: [], water: null, train: null, onTrain: null,
     time: 0,
@@ -1587,6 +1684,7 @@ export function buildEraWorld(era) {
   group.add(buildTower(era, world));
   group.add(buildLamps(era, world));
   group.add(buildStringLights(era, world));
+  group.add(buildEchoes(era, world));
   const theatre = buildTheatre(era, world); if (theatre) group.add(theatre);
   const superfund = buildSuperfund(era, world); if (superfund) group.add(superfund);
   const wmu = buildWMU(era, world); if (wmu) group.add(wmu);
@@ -1754,6 +1852,8 @@ export function buildEraWorld(era) {
       }
     });
   };
+
+  R = Math.random;   // construction over; runtime randomness stays random
 
   return world;
 }

@@ -42,6 +42,11 @@ export const ERAS = [
       'The marsh you are draining remembers being mine. So do I.',
       'Boiling pot, mirage, bubbling water — your translations argue. I just keep moving.',
     ],
+    echoes: [
+      'The plank road follows a footpath older than any deed. The feet knew the way to the ford first.',
+      'Under the oaks in the park, the grass grows in a wide ring nobody planted. Gatherings leave marks.',
+      'Some nights the marsh exhales, and the whole village dreams in a language it never learned.',
+    ],
     events: [
       { kind: 'bright', text: 'A wagon family from Ohio just rolled in with seed, a plow, and a fiddle. The fiddle matters most.' },
       { kind: 'bright', text: 'Taylor’s celery sold at the hotel table today. Guests called it “a curious salad.” He is beside himself.' },
@@ -179,6 +184,11 @@ export const ERAS = [
       'I carry your paper’s whiteness downstream as a gray you’ve agreed not to see.',
       'Twenty trains a day and not one of them can do what I do: arrive constantly.',
       'Your celery drinks me through black ground. At least the celery says thank you.',
+    ],
+    echoes: [
+      'Pale stakes stand along Burdick at night that no surveyor will drive for fifty years. The street is already dreaming of being walked on.',
+      'The muck under the pavement is eighteen feet deep and not finished. Old swamp, old leaves, old time — the river’s memory, holding the town up.',
+      'Look down between the streetcar rails sometime. The gauge will outlive the cars by a century.',
     ],
     events: [
       { kind: 'bright', text: 'A celery special left the yards for Chicago — forty cars iced and silver. Tonight Kalamazoo is on a thousand menus.' },
@@ -342,6 +352,11 @@ export const ERAS = [
       'The mills still feed me their gray. Your new optimism tastes like the old smoke, downstream.',
       'Enjoy the new planters. I grew this whole valley without a single committee.',
     ],
+    echoes: [
+      'Under the new bricks, the streetcar rails are still true to gauge, running both directions at once.',
+      'The bricklayers found horseshoe nails under Burdick and set them back where they lay. You don’t evict the past. You pave around it.',
+      'A faint centerline ghosts through the Mall paving at dusk — the street it used to be, still driving home.',
+    ],
     events: [
       { kind: 'bright', text: 'Opening week on the Mall: a crowd three planters deep to watch a man demonstrate a blender. The blender is also amazed.' },
       { kind: 'bright', text: 'A flock of new Impalas just cruised Michigan Avenue, tailfins catching sun like a school of chrome fish.' },
@@ -503,6 +518,11 @@ export const ERAS = [
       'The fish are not safe to eat. You knew before the signs went up. The herons can’t read.',
       'Even now: herons. Even now, kingfishers. I keep more faith than I am owed.',
       'The mills go quiet one by one and leave me holding eighty years of their breath.',
+    ],
+    echoes: [
+      'Under the asphalt, the muck still breathes. Someone planted these rows once.',
+      'At shift change, half the town still glances toward the mill. The whistle has been quiet for years. The necks remember.',
+      'In the right slant of evening the parking lot goes green in stripes, row on row, like the field correcting a typo.',
     ],
     events: [
       { kind: 'ache',   text: 'Another auction notice on a mill gate. Men stand reading it with their hands in their pockets, translating it into mortgages.' },
@@ -690,6 +710,11 @@ export const ERAS = [
       'Forty years you have been unsaying one century. Keep talking. I’m listening all the way down.',
       'I held what you poured in me and I held the herons too. Both. That was the hard part — both.',
     ],
+    echoes: [
+      'Two pale rails surface in the Mall bricks at dusk. The streetcars stopped in 1932. The gauge declines to.',
+      'Where the fountain stood, the park keeps a circle. Removal leaves a ring too — the land double-books.',
+      'Stand by the old mill at golden hour and you can almost hear paper drying: a sound like the river turning pages.',
+    ],
     events: [
       { kind: 'bright', text: 'A Promise class just toured campus — forty ninth-graders walking like the future owes them bus fare. It does. It’s funded.' },
       { kind: 'wonder', text: 'An otter surfaced by the river trail and the whole footbridge went silent, then stranger-hugged, then called everyone they knew.' },
@@ -863,6 +888,11 @@ export const ERAS = [
       'You finally built your town facing me again. I noticed. I notice everything. It’s my whole job.',
       'Boiling pot, you called me. Watch me run cold and clear and patient as the first morning.',
       'Two centuries of your noise, and in the end what you wanted was my sound. I kept it for you. Here.',
+    ],
+    echoes: [
+      'The amphitheater follows the mill’s foundation line exactly. People sit where the beaters thundered and listen to nothing, on purpose.',
+      'At memory hour the Mall shows its rails, the lawn shows its walls, and the city wears every one of its years at once, lightly.',
+      'After rain, the celery rows still stripe the commons — the muck signing its name under the newest lease.',
     ],
     events: [
       { kind: 'wonder', text: 'A sturgeon passed under the Michigan Avenue bridge at 7:14 this morning. Eleven strangers saw it. None of them have fully resumed their day.' },

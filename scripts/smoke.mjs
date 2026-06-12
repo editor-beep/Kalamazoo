@@ -26,6 +26,7 @@ for (const era of ERAS) {
   if (!(era.people?.length >= 7 && era.people.length <= 13)) fail(`${where}: ${era.people?.length} people (want 7–13)`);
   if (!(era.events?.length >= 5)) fail(`${where}: only ${era.events?.length} events`);
   if (!(era.riverLines?.length >= 3)) fail(`${where}: river needs more lines`);
+  if (!(era.echoes?.length >= 2)) fail(`${where}: needs >=2 echoes — the palimpsest must speak`);
   for (const k of VIS_KEYS) if (era.vis?.[k] === undefined) fail(`${where}: vis.${k} missing`);
   for (const ev of era.events) if (!KINDS.has(ev.kind)) fail(`${where}: bad event kind ${ev.kind}`);
   for (const p of era.people) {
@@ -70,6 +71,8 @@ for (const era of ERAS) {
     if (!w.water) fail(`${era.key}: no river`);
     if (!w.train) fail(`${era.key}: no train — the rails are non-negotiable`);
     if (!(w.pickLandmarks.length >= 8)) fail(`${era.key}: only ${w.pickLandmarks.length} clickable landmarks`);
+    if (!(w.echoMats?.length >= 1)) fail(`${era.key}: no echo layers — the palimpsest is missing`);
+    for (const m of w.echoMats) if (!(m.userData.echoBase > 0 && m.userData.echoBase <= 0.2)) fail(`${era.key}: echo opacity ${m.userData.echoBase} outside the faint band`);
     if (!(w.scene.children.length >= 5)) fail(`${era.key}: scene suspiciously empty`);
     // run the simulation a few steps to shake out runtime errors
     for (let i = 0; i < 30; i++) w.update(1 / 30, i / 30, i % 2 ? 0.8 : 0.1);
@@ -93,6 +96,31 @@ for (const era of ERAS) {
     ok(`${era.year} ${era.name}: built, simulated 30 frames, disposed (${w.pickLandmarks.length} landmarks, ${w.agents.length} residents)`);
   } catch (e) {
     fail(`${era.key} threw: ${e.stack?.split('\n').slice(0, 3).join(' | ')}`);
+  }
+}
+
+// ---------------------------------------------------------------- determinism
+// Seeded construction: the same era must produce the same city, mesh for mesh.
+// Agents/vehicles/train are excluded — their runtime life stays random.
+console.log('\n[determinism]');
+{
+  const hashWorld = w => {
+    const skip = new Set([...w.agents.map(a => a.mesh), ...w.cruisers.map(c => c.mesh), w.train?.group]);
+    let h = 0, n = 0;
+    const walk = o => {
+      if (skip.has(o)) return;
+      h += o.position.x * 31.7 + o.position.y * 7.3 + o.position.z * 13.1 + o.rotation.y * 3.1;
+      n++;
+      o.children.forEach(walk);
+    };
+    walk(w.scene);
+    return `${n}:${h.toFixed(2)}`;
+  };
+  for (const era of [ERAS[0], ERAS[3]]) {
+    const a = buildEraWorld(era), ha = hashWorld(a); a.dispose();
+    const b = buildEraWorld(era), hb = hashWorld(b); b.dispose();
+    if (ha !== hb) fail(`${era.key}: two builds differ (${ha} vs ${hb}) — the city forgot itself`);
+    else ok(`${era.key}: built twice, identical (${ha.split(':')[0]} static objects)`);
   }
 }
 

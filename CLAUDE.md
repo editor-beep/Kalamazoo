@@ -82,7 +82,9 @@ environments — the code is structured so this is meaningful verification.
 - `ERAS[6]` — each: card text, `epigraph` (the transition poem), `welcome` toast,
   `vis` (full visual config: sky/fog/water/grade/foliage/lamps), `riverLines`
   (the river's spoken lines), `events` (kind: `bright | ache | wonder` — ache
-  triggers the grief desaturation pulse), and `people`.
+  triggers the grief desaturation pulse), `echoes` (≥2 ambient one-line whispers
+  of other layers, surfaced rarely by the idle loop as `echo` toasts), and
+  `people`.
 - **People** (7–13/era): `name, role, age, look {body, skin, hat, prop}, mood,
   roots (0–100), doing[≥2], memory (what they carry), lines[≥2] (spoken via
   typewriter), thread?` — threads are lineages recurring across eras (`LINEAGES`:
@@ -115,22 +117,19 @@ fits the actual city; City Event + time-of-day give replay value. Golden hour
 Ranked by alignment with the project's taste. Each item lists concrete first
 moves mapped to files. Keep the smoke test green; extend it with each feature.
 
-### 1. Deeper layered mythic feel — *the palimpsest pass* (highest priority)
-Make eras visibly stacked on each other, not just swapped.
-- `world.js`: new `buildEchoes(era, world)` builder — faint remnants of other
-  layers, opacity ~0.10–0.18, slightly desaturated: ghost streetcar rails inlaid
-  in the 2026/2050 Mall paving; mill foundation outlines in the 2050 ruins lawn;
-  the Fountain of the Pioneers' ring as a pale circle in the 2026 park bed;
-  celery-row striping bleeding through the 1985 parking lot (the Greta scene,
-  literalized); pale survey stakes of the *future* mall visible in 1905 at night
-  (echoes can run forward, not just back).
-- Tie echo opacity to golden hour / night (`applyEnvironment` already computes
-  `eveAmt` — echoes shimmer in at dusk: "memory hour").
-- `data.js`: add `era.echoes[]` — ambient one-line toasts surfaced rarely by the
-  idle loop ("Under the asphalt, the muck still breathes. Someone planted these
-  rows once."). Residents already reference old layers in `lines`; echoes make
-  the *city* do it unprompted.
-- Smoke: assert every era has ≥2 echoes once added.
+### 1. Deeper layered mythic feel — *the palimpsest pass* — ✅ shipped
+Eras are visibly stacked, not just swapped. `buildEchoes(era, world)` in
+`world.js` lays faint remnants (opacity 0.08–0.16, collected in
+`world.echoMats`) into every era: ghost streetcar rails in the 2026/2050 Mall
+paving; the mill foundation outline in the 2050 ruins lawn; the Fountain of the
+Pioneers' ring in the 2026 park bed; celery rows bleeding through the 1985 lot;
+the future Mall's survey stakes in 1905 (echoes run forward, not just back);
+the portage trail and a gathering ring in 1855 (back before the deeds, too).
+The lighting pass breathes them in at dusk via `eveAmt` ("memory hour"), per
+invariant 6. `era.echoes[]` whispers surface rarely from the idle loop in
+`main.js` (`echo` toast kind — quiet, serif, italic). Smoke asserts ≥2 echo
+lines and ≥1 echo layer per era, and that bases stay in the faint band.
+Still open here: raise echo frequency with dwell time (see item 6).
 
 ### 2. Stronger Kalamazoo specificity
 - Street-name signs at intersections (`signTex` already exists — small green
@@ -166,9 +165,12 @@ Make eras visibly stacked on each other, not just swapped.
   ("Two Doorns on the same corner, a century apart in their pockets.").
 
 ### 5. Visual & performance polish
-- **Seeded determinism (do this first):** replace `Math.random()` in `world.js`
-  with a per-era mulberry32 PRNG so the city is *the same city* every visit —
-  philosophically load-bearing, not just tidy. (Agent wander stays random.)
+- **Seeded determinism — ✅ shipped:** `world.js` construction runs on a
+  per-era mulberry32 PRNG (`R`, seeded from `era.key`, restored to
+  `Math.random` after build), so the city is *the same city* every visit.
+  Agent wander (`agents.js`) stays truly random. Smoke builds two eras twice
+  and compares position hashes. New builders must use `rand`/`pick`/`R()`,
+  never `Math.random()`, for anything constructed.
 - Houses: shutters, porch rails, foundation skirts per era; tighter palettes.
 - Shadows: tighten the shadow camera to downtown; consider a second static-bake
   pass for far landmarks.
