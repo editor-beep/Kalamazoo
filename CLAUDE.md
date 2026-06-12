@@ -131,17 +131,25 @@ invariant 6. `era.echoes[]` whispers surface rarely from the idle loop in
 lines and ≥1 echo layer per era, and that bases stay in the faint band.
 Still open here: raise echo frequency with dwell time (see item 6).
 
-### 2. Stronger Kalamazoo specificity
-- Street-name signs at intersections (`signTex` already exists — small green
-  blades: BURDICK · MICHIGAN · ROSE · SOUTH · PORTAGE).
-- Riverwalk in 2026/2050: boardwalk strip + benches + overlook rail along the
-  east bank (`buildRiver`, `since(era,'living')`) — the bank the anchors already
-  point at.
-- WMU energy in 2026/2050: brown-and-gold lamp banners, more `book`-prop
-  students near the hill anchor, a Bronco shuttle on the loop.
-- One tall 1970s office slab downtown for 1985+ (massing honesty: downtown
-  wasn't all 3 stories by then).
-- A few more era-true storefront names in `SIGNS` (keep real brands light).
+### 2. Stronger Kalamazoo specificity — ✅ shipped
+- Street-name blades at five corners (`buildStreetSigns`): BURDICK · MICHIGAN ·
+  ROSE · SOUTH · PORTAGE — porcelain black in 1905, municipal green from 1959.
+- Riverwalk in 2026/2050 (`buildRiver`, `since(era,'living')`): boardwalk with
+  plank seams, lean rail at the water's edge, benches facing the river on the
+  east bank. Note: the boardwalk itself sits inside the river safety band —
+  it's scenery; residents stand beside it at the anchors, never on it.
+- WMU energy in 2026/2050: brown-and-gold banners on the Michigan Ave approach
+  (`buildWMU`), a brown Bronco shuttle on the downtown loop, and one `book`-prop
+  student per era in `data.js` (Theo Okafor, paper engineering 2026; Noor
+  Hassan, watershed restoration 2050). Agents never path west of the river —
+  campus longing stays in their `doing`/`lines`, not their anchors.
+- `buildOfficeSlab` (1985+): an 8-floor 1970s slab at (30, 2) — glass core,
+  concrete spandrels, era-named rooftop sign (FIRST OF AMERICA → THE EXCHANGE),
+  solar in 2050. Tree planting excludes its block.
+- Two more era-true storefront names per era in `SIGNS` (Ihling Bros.,
+  Jacobson's, Checker Parts… real brands kept light).
+- Smoke asserts: ≥8 sign blades (1905+), riverwalk (2026+), slab (1985+),
+  ≥4 vehicles incl. the Bronco shuttle (2026+).
 
 ### 3. Better time-travel UX
 - **In-scene era scrubber:** a 6-dot timeline rail in the bottom HUD. Switching

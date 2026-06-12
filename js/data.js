@@ -857,6 +857,18 @@ export const ERAS = [
           '“People on this train are always going somewhere bigger. I watch them look up from their phones when I sing out the name. Bigger isn’t the only direction. That’s all I’m saying with my two syllables of showmanship.”',
         ],
       },
+      {
+        name: 'Theo Okafor', role: 'WMU junior — paper engineering', age: 21,
+        look: { body: '#6c4023', skin: 4, hat: 'none', prop: 'book' },
+        mood: 'wry, note-taking', roots: 31,
+        doing: ['walking down from campus with cold coffee and a heat-transfer problem', 'reading by the brewery windows where the beaters used to run', 'explaining to his roommate, again, that paper school is real'],
+        memory: 'Came from Lagos by way of Houston for one of the last great paper programs in America, in a city that no longer makes much paper. His professors learned from people who learned in the mills along this river. The work left; the knowing stayed. He intends to carry it somewhere it’s needed.',
+        lines: [
+          '“People laugh — paper engineering, in Paper City, after the paper left. But the mills didn’t take the knowing with them when they closed. The knowing stayed up on the hill. I came across an ocean to pick it up.”',
+          '“My professor can stand at any ruin on this river and tell you what it made and what it ruined while making it. That’s the real curriculum: both columns of the ledger, no skipping.”',
+          '“Brown and gold on my jacket, mud on my boots. Ten years from now some mill far from here runs cleaner because Kalamazoo remembered how. That’s the bet I’m making with four winters of my life.”',
+        ],
+      },
     ],
   },
 
@@ -1010,6 +1022,18 @@ export const ERAS = [
           '“Phoenix gave them a one-way summer. Kalamazoo means boiling pot — but for the new families it means cool water and a porch with their name on the chalkboard. We keep coats ready in August. Ask anyone: the coats are load-bearing.”',
           '“A town that lost half its jobs a hundred years ago knows the exact face of somebody who lost a sky. We don’t say ‘welcome to paradise.’ We say ‘welcome to anyway.’ It’s the old toast. It travels.”',
           '“My side followed cherries and celery north; Lev’s side tuned pianos and fixed archtops. Every family here is two or three arrivals deep. The city’s one true industry was never paper. It was second chances. Paper was just practice.”',
+        ],
+      },
+      {
+        name: 'Noor Hassan', role: 'WMU student — watershed restoration', age: 20,
+        look: { body: '#3a6b5c', skin: 3, hat: 'none', prop: 'book' },
+        mood: 'bright, field-notebook serious', roots: 18,
+        doing: ['counting mayflies along the riverwalk rail', 'riding the brown-and-gold shuttle with wet boots', 'sketching the sturgeon she has not seen yet'],
+        memory: 'Chose Kalamazoo over three coasts because this is where a poisoned river was talked back to life, and she wants to learn the talking. Her thesis is sixty pages on parts per billion, and one page, unsubmitted, about what the water sounds like at dusk.',
+        lines: [
+          '“Everywhere else, restoration is a chapter in a textbook. Here it’s the river outside the lab window. You can check your homework against the actual forgiveness.”',
+          '“My advisor says never write that the river healed — write recovering, ongoing, monitored. Fine. I’ll use the careful words. The otters can keep the official terminology.”',
+          '“I came for four years. The upperclassmen warn me nobody leaves on schedule — the muck holds a boot, they say. I’ve started to hope they’re right.”',
         ],
       },
     ],

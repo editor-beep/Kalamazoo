@@ -307,6 +307,42 @@ function buildRiver(era, world) {
     g.add(bank);
   });
 
+  // riverwalk (2026+): the city turns to face the water again — boardwalk,
+  // lean rail, benches on the east bank, where the anchors already point
+  if (since(era, 'living')) {
+    world.riverwalk = true;
+    const edge = -34 + width / 2;               // the water's east edge
+    const deckMat = M({ color: 0x8a7355, roughness: 0.9 });
+    const deck = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 92), deckMat);
+    deck.rotation.x = -Math.PI / 2;
+    deck.position.set(edge + 1.9, 0.08, -8);
+    deck.receiveShadow = true;
+    g.add(deck);
+    const seamMat = M({ color: 0x6e5a42, roughness: 0.95 });
+    for (let z = -52; z <= 36; z += 4) {
+      const seam = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 0.07), seamMat);
+      seam.rotation.x = -Math.PI / 2;
+      seam.position.set(edge + 1.9, 0.085, z);
+      g.add(seam);
+    }
+    const walkRailMat = M({ color: 0x4a4438, roughness: 0.55, metalness: 0.45 });
+    const leanRail = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.09, 92), walkRailMat);
+    leanRail.position.set(edge + 0.5, 1.02, -8);
+    g.add(leanRail);
+    for (let z = -52; z <= 36; z += 5.5) {
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 1.0, 5), walkRailMat);
+      post.position.set(edge + 0.5, 0.5, z);
+      g.add(post);
+    }
+    // benches turned toward the water (the bridge keeps z ≈ 7..13 for itself)
+    [-44, -28, -10, 20].forEach(z => {
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.42, 2.0), M({ color: 0x5c4f40, roughness: 0.85 }));
+      bench.position.set(edge + 3.4, 0.21, z);
+      bench.castShadow = true;
+      g.add(bench);
+    });
+  }
+
   // sandbars in the rewilded future
   if (only(era, 'returns', 'boiling')) {
     for (let i = 0; i < 4; i++) {
@@ -529,12 +565,12 @@ function buildRoads(era, world) {
 function buildStorefronts(era, world) {
   const g = new THREE.Group();
   const SIGNS = {
-    boiling: ['GENERAL STORE', 'LAND OFFICE', 'KALAMAZOO HOUSE', 'TELEGRAPH', 'HARNESS'],
-    celery: ['GILMORE BROS.', 'DRY GOODS', 'OAKLAND PHARMACY', 'MILLINERY', 'GAZETTE', 'CORSETS', 'HARDWARE'],
-    mall: ['GILMORE BROTHERS', 'S.S. KRESGE', 'WOOLWORTH', 'SHOES', 'RECORDS', 'LUNCH', 'CAMERA SHOP'],
-    paper: ['FOR LEASE', 'GILMORE BROTHERS', 'CLUB SODA', 'DINER', 'RESALE', 'TV REPAIR', 'PAWN'],
-    living: ['COFFEE & POEMS', 'MICHIGAN NEWS', 'TAQUERIA', 'BIKE SHOP', 'GALLERY', 'BOOKS', 'BREWPUB'],
-    returns: ['SEED LIBRARY', 'RIVER OUTFITTERS', 'REPAIR CAFE', 'BAKERY', 'STUDIO', 'MARKET HALL', 'TOOL SHARE'],
+    boiling: ['GENERAL STORE', 'LAND OFFICE', 'KALAMAZOO HOUSE', 'TELEGRAPH', 'HARNESS', 'STOVES & TIN', 'BOOT MAKER'],
+    celery: ['GILMORE BROS.', 'DRY GOODS', 'OAKLAND PHARMACY', 'MILLINERY', 'GAZETTE', 'CORSETS', 'HARDWARE', 'IHLING BROS.', 'BICYCLES'],
+    mall: ['GILMORE BROTHERS', 'S.S. KRESGE', 'WOOLWORTH', 'SHOES', 'RECORDS', 'LUNCH', 'CAMERA SHOP', 'JACOBSON’S', 'SODA FOUNTAIN'],
+    paper: ['FOR LEASE', 'GILMORE BROTHERS', 'CLUB SODA', 'DINER', 'RESALE', 'TV REPAIR', 'PAWN', 'CHECKER PARTS', 'ARCADE'],
+    living: ['COFFEE & POEMS', 'MICHIGAN NEWS', 'TAQUERIA', 'BIKE SHOP', 'GALLERY', 'BOOKS', 'BREWPUB', 'CLIMBING GYM', 'RECORD STORE'],
+    returns: ['SEED LIBRARY', 'RIVER OUTFITTERS', 'REPAIR CAFE', 'BAKERY', 'STUDIO', 'MARKET HALL', 'TOOL SHARE', 'FIBER MILL', 'CANOE LIVERY'],
   };
   const signs = SIGNS[era.key];
   let signIdx = 0;
@@ -1334,6 +1370,24 @@ function buildWMU(era, world) {
     g.add(tower);
   }
 
+  // brown-and-gold banners down the hill approach (2026+): the Broncos claim
+  // their stretch of Michigan Ave between campus and the bridge
+  if (since(era, 'living')) {
+    const gold = M({ color: 0xffae00, roughness: 0.7 });
+    const brown = M({ color: 0x6c4023, roughness: 0.7 });
+    const bannerPoleMat = M({ color: 0x2a2c30, roughness: 0.6, metalness: 0.5 });
+    [-58, -52.5, -47].forEach(px => {
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 4.6, 6), bannerPoleMat);
+      pole.position.set(px, 2.3, 14.5);
+      g.add(pole);
+      const top = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.55, 0.72), gold);
+      top.position.set(px, 4.0, 14.5);
+      const fall = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.25, 0.72), brown);
+      fall.position.set(px, 3.05, 14.5);
+      g.add(top, fall);
+    });
+  }
+
   world.pickLandmarks.push(g);
   return g;
 }
@@ -1530,6 +1584,104 @@ function buildStringLights(era, world) {
   return g;
 }
 
+// ------------------------------------------------------------- street signs
+// Small blades at the corners: the names locals navigate by. Porcelain black
+// in the Victorian city, municipal green from the Mall era on.
+
+function buildStreetSigns(era, world) {
+  const g = new THREE.Group();
+  world.streetSigns = [];
+  if (!since(era, 'celery')) return g;   // the village points with its hands
+
+  const modern = since(era, 'mall');
+  const style = modern
+    ? { bg: '#1d5232', fg: '#f3f5f0', font: 'bold 58px Georgia' }
+    : { bg: '#14161a', fg: '#e8e3d8', font: 'bold 58px Georgia' };
+
+  // [pole x, pole z, E-W street, N-S street]
+  const corners = [
+    [4.6, 14.2, 'MICHIGAN', 'BURDICK'],
+    [-10.6, 14.2, 'MICHIGAN', 'ROSE'],
+    [18.6, 14.2, 'MICHIGAN', 'PORTAGE'],
+    [4.6, -22.6, 'SOUTH', 'BURDICK'],
+    [18.6, -22.6, 'SOUTH', 'PORTAGE'],
+  ];
+  const poleMat = M({ color: 0x2a2c30, roughness: 0.6, metalness: 0.5 });
+  corners.forEach(([x, z, ew, ns]) => {
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 3.0, 6), poleMat);
+    pole.position.set(x, 1.5, z);
+    g.add(pole);
+    // each blade runs parallel to the street it names
+    [[ew, 0, 2.86], [ns, Math.PI / 2, 2.52]].forEach(([name, rotY, h]) => {
+      const blade = new THREE.Mesh(
+        new THREE.BoxGeometry(1.5, 0.34, 0.05),
+        new THREE.MeshStandardMaterial({ map: signTex(name, style), color: 0xffffff, roughness: 0.55 })
+      );
+      blade.position.set(x, h, z);
+      blade.rotation.y = rotY;
+      g.add(blade);
+      world.streetSigns.push(blade);
+    });
+  });
+  return g;
+}
+
+// ------------------------------------------------------------- office slab
+// One tall 1970s slab east of the core (1985+): massing honesty — downtown
+// wasn't all three-story brick by then. Banks built it; eras rename it.
+
+function buildOfficeSlab(era, world) {
+  if (!since(era, 'paper')) return null;
+  const g = new THREE.Group();
+  world.officeSlab = true;
+  const cx = 30, cz = 2;
+  const floors = 8, fh = 2.7, w = 7.6;
+
+  const concrete = M({ color: 0xa19a8e, roughness: 0.92 });
+  const glassMat = new THREE.MeshStandardMaterial({
+    color: 0x1e2830, roughness: 0.2, metalness: 0.45,
+    emissive: new THREE.Color('#ffd9a0'), emissiveIntensity: 0,
+  });
+  world.windowMats.push(glassMat);
+
+  const core = new THREE.Mesh(new THREE.BoxGeometry(w, floors * fh, w), glassMat);
+  core.position.set(cx, floors * fh / 2 + 0.5, cz);
+  core.castShadow = true; core.receiveShadow = true;
+  g.add(core);
+  for (let f = 0; f <= floors; f++) {
+    const band = new THREE.Mesh(new THREE.BoxGeometry(w + 0.5, 0.55, w + 0.5), concrete);
+    band.position.set(cx, 0.5 + f * fh, cz);
+    g.add(band);
+  }
+  const plinth = new THREE.Mesh(new THREE.BoxGeometry(w + 1.6, 1.0, w + 1.6), concrete);
+  plinth.position.set(cx, 0.5, cz);
+  plinth.castShadow = true; plinth.receiveShadow = true;
+  g.add(plinth);
+  const mech = new THREE.Mesh(new THREE.BoxGeometry(3.4, 1.4, 3.0), M({ color: 0x7d776d, roughness: 0.9 }));
+  mech.position.set(cx - 1.4, floors * fh + 1.2, cz + 1.6);
+  g.add(mech);
+
+  // rooftop sign faces the core; the building outlives its tenants
+  const label = { paper: 'FIRST OF AMERICA', living: 'THE EXCHANGE', returns: 'THE EXCHANGE' }[era.key];
+  const signMat = new THREE.MeshStandardMaterial({
+    map: signTex(label, { bg: '#15181d', fg: '#e8e3d8', font: 'bold 50px Georgia' }),
+    color: 0xffffff, emissive: new THREE.Color('#ffd9a0'), emissiveIntensity: 0, roughness: 0.6,
+  });
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(5.6, 1.1, 0.18), signMat);
+  sign.position.set(cx, floors * fh + 1.3, cz - w / 2 - 0.1);
+  g.add(sign);
+  world.marqueeMats.push(signMat);
+
+  if (only(era, 'returns')) {
+    const panel = new THREE.Mesh(new THREE.BoxGeometry(5.4, 0.08, 3.4), M({ color: 0x14253a, roughness: 0.25, metalness: 0.55 }));
+    panel.position.set(cx + 1.2, floors * fh + 0.75, cz - 2.0);
+    panel.rotation.x = -0.3;
+    g.add(panel);
+  }
+
+  return g;
+}
+
 // ------------------------------------------------------------- echoes
 // The palimpsest pass: every era carries faint remnants of the other layers,
 // pressed into the ground like writing under writing. Opacity is owned by the
@@ -1684,7 +1836,9 @@ export function buildEraWorld(era) {
   group.add(buildTower(era, world));
   group.add(buildLamps(era, world));
   group.add(buildStringLights(era, world));
+  group.add(buildStreetSigns(era, world));
   group.add(buildEchoes(era, world));
+  const slab = buildOfficeSlab(era, world); if (slab) group.add(slab);
   const theatre = buildTheatre(era, world); if (theatre) group.add(theatre);
   const superfund = buildSuperfund(era, world); if (superfund) group.add(superfund);
   const wmu = buildWMU(era, world); if (wmu) group.add(wmu);
@@ -1701,6 +1855,7 @@ export function buildEraWorld(era) {
     if (Math.abs(z - 40) < 5) continue;                        // rails
     if (Math.abs(z - 10) < 5 || Math.abs(z + 26) < 4) continue;// streets
     if (x > 22 && x < 50 && z > -50 && z < -28) continue;      // flats
+    if (x > 24 && x < 36 && z > -4 && z < 8) continue;         // office slab block
     const kind = pick(kinds);
     group.add(makeTree(x, z, rand(0.7, 1.25), era.vis.foliage, kind));
     planted++;
@@ -1802,10 +1957,12 @@ export function buildEraWorld(era) {
     world.cruisers.push(new Cruiser('ev', 0x4a6b8a, loopA, 6.2, 0));
     world.cruisers.push(new Cruiser('bus', 0x3a7a5f, loopA, 5.2, 80));
     world.cruisers.push(new Cruiser('bike', 0x2a9d8f, loopA, 3.4, 40));
+    world.cruisers.push(new Cruiser('bus', 0x6c4023, loopA, 5.0, 120));  // Bronco shuttle, brown & gold
   } else {
     world.cruisers.push(new Shuttle('bus', 0x4f8a6b, { x: -10, z: 10 }, { x: 42, z: 10 }, 4.5));
     world.cruisers.push(new Cruiser('bike', 0x2a9d8f, loopA, 3.2, 0));
     world.cruisers.push(new Cruiser('bike', 0xc28a2f, loopA, 3.6, 70));
+    world.cruisers.push(new Cruiser('bus', 0x6c4023, loopA, 5.0, 110));  // the Bronco shuttle persists
   }
   world.cruisers.forEach(c => {
     c.mesh.traverse(o => { if (o.isMesh) o.castShadow = true; });

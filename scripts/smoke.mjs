@@ -62,7 +62,7 @@ ok('sky, water, grade shaders present');
 
 // ---------------------------------------------------------------- worlds
 console.log('\n[worlds]');
-const { buildEraWorld } = await import('../js/world.js');
+const { buildEraWorld, since } = await import('../js/world.js');
 
 for (const era of ERAS) {
   try {
@@ -73,6 +73,10 @@ for (const era of ERAS) {
     if (!(w.pickLandmarks.length >= 8)) fail(`${era.key}: only ${w.pickLandmarks.length} clickable landmarks`);
     if (!(w.echoMats?.length >= 1)) fail(`${era.key}: no echo layers — the palimpsest is missing`);
     for (const m of w.echoMats) if (!(m.userData.echoBase > 0 && m.userData.echoBase <= 0.2)) fail(`${era.key}: echo opacity ${m.userData.echoBase} outside the faint band`);
+    if (since(era, 'celery') && !(w.streetSigns?.length >= 8)) fail(`${era.key}: street corners unnamed (${w.streetSigns?.length || 0} blades)`);
+    if (since(era, 'living') && !w.riverwalk) fail(`${era.key}: no riverwalk — the city must face the water`);
+    if (since(era, 'paper') && !w.officeSlab) fail(`${era.key}: downtown massing dishonest — the office slab is missing`);
+    if (since(era, 'living') && !(w.cruisers.length >= 4)) fail(`${era.key}: where is the Bronco shuttle? (${w.cruisers.length} vehicles)`);
     if (!(w.scene.children.length >= 5)) fail(`${era.key}: scene suspiciously empty`);
     // run the simulation a few steps to shake out runtime errors
     for (let i = 0; i < 30; i++) w.update(1 / 30, i / 30, i % 2 ? 0.8 : 0.1);
