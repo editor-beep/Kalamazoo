@@ -1,4 +1,4 @@
-// World building: one shared geography, six skins of time.
+// World building: one shared geography, eight skins of time.
 // Anchored places hold their coordinates in every era — only time moves.
 
 import * as THREE from '../vendor/three/three.module.min.js';
@@ -8,7 +8,7 @@ import {
   makeSmokeColumn, makeFireflies, makeMotes, updateChats,
 } from './agents.js';
 
-const ERA_ORDER = ['boiling', 'celery', 'mall', 'paper', 'living', 'returns'];
+const ERA_ORDER = ['boiling', 'celery', 'mall', 'seventies', 'paper', 'nineties', 'living', 'returns'];
 const stage = key => ERA_ORDER.indexOf(key);
 const since = (era, key) => stage(era.key) >= stage(key);
 const only = (era, ...keys) => keys.includes(era.key);
@@ -647,7 +647,9 @@ function buildStorefronts(era, world) {
     boiling: ['GENERAL STORE', 'LAND OFFICE', 'KALAMAZOO HOUSE', 'TELEGRAPH', 'HARNESS'],
     celery: ['GILMORE BROS.', 'DRY GOODS', 'OAKLAND PHARMACY', 'MILLINERY', 'GAZETTE', 'CORSETS', 'HARDWARE'],
     mall: ['GILMORE BROTHERS', 'S.S. KRESGE', 'WOOLWORTH', 'SHOES', 'RECORDS', 'LUNCH', 'CAMERA SHOP'],
+    seventies: ['PLANET CLAIRE', 'GAZETTE', 'UPJOHN', 'HEAD SHOP', 'LUNCH', 'CAMERA SHOP', 'BOOKS'],
     paper: ['FOR LEASE', 'GILMORE BROTHERS', 'CLUB SODA', 'DINER', 'RESALE', 'TV REPAIR', 'PAWN'],
+    nineties: ['FLIPSIDE', 'CLUB SODA', 'PLANET CLAIRE', 'COFFEE', 'ZINES', 'USED CDS', 'TATTOO'],
     living: ['WATER STREET COFFEE', 'MICHIGAN NEWS', 'SHAWARMA KING', 'BIKE SHOP', 'KIA GALLERY', 'BOOKBUG', "BELL'S TAPROOM"],
     returns: ['SEED LIBRARY', 'RIVER OUTFITTERS', 'REPAIR CAFE', 'BAKERY', 'STUDIO', 'MARKET HALL', 'TOOL SHARE'],
   };
@@ -659,7 +661,9 @@ function buildStorefronts(era, world) {
     boiling: ['#a8916b', '#8f7a58', '#b5a079'],
     celery: ['#7d4030', '#8a5a3a', '#6b4438', '#96604a'],
     mall: ['#8a5a3a', '#9b8a74', '#7d4030', '#a89a85'],
+    seventies: ['#7a5a3d', '#8a6a4a', '#6e5648', '#9b8a74'],
     paper: ['#6e5648', '#5c5048', '#7d6a58', '#665043'],
+    nineties: ['#5c5048', '#6e5648', '#7d4030', '#3f4650'],
     living: ['#8a5a3a', '#7d4030', '#9b8a74', '#b08968'],
     returns: ['#8a5a3a', '#9b8a74', '#a8916b', '#7d6a58'],
   };
@@ -715,7 +719,7 @@ function buildStorefronts(era, world) {
         color: 0x2c3844, roughness: 0.25, metalness: 0.2,
         emissive: new THREE.Color(era.vis.lamp || '#ffd9a0'), emissiveIntensity: 0,
       });
-      const boarded = era.key === 'paper' && R() < 0.34;
+      const boarded = ['paper', 'nineties'].includes(era.key) && R() < (era.key === 'paper' ? 0.34 : 0.18);
       if (!boarded) world.windowMats.push(winMat);
       const paneMat = boarded ? M({ color: 0x7a6a4e, roughness: 0.95 }) : winMat;
 
@@ -745,7 +749,7 @@ function buildStorefronts(era, world) {
       sign.position.set(wallX + row.facing * 0.07, 2.55, cz);
       bld.add(sign);
 
-      if (!boarded && (only(era, 'mall', 'living', 'returns') || (era.key === 'celery' && R() < 0.6))) {
+      if (!boarded && (only(era, 'mall', 'seventies', 'nineties', 'living', 'returns') || (era.key === 'celery' && R() < 0.6))) {
         const awnColors = era.key === 'mall' ? [0xc23a3a, 0x2f6b8a, 0x3a8a5c, 0xc28a2f] : [0x735c44, 0x5c6b58, 0x6b5544];
         const awn = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.09, bw * 0.72), M({ color: pick(awnColors), roughness: 0.85 }));
         awn.position.set(row.faceX + row.facing * 0.62, 2.1, cz);
@@ -776,7 +780,7 @@ function buildStorefronts(era, world) {
     slab.userData.phase2 = 'office-slab';
     const body = new THREE.Mesh(
       new THREE.BoxGeometry(7.2, 21, 9.4),
-      M({ color: only(era, 'paper') ? 0x6e746f : 0x7b827d, roughness: 0.72, metalness: 0.12 })
+      M({ color: only(era, 'paper', 'nineties') ? 0x6e746f : 0x7b827d, roughness: 0.72, metalness: 0.12 })
     );
     body.position.set(14.2, 10.5, 4.6);
     body.castShadow = true;
@@ -838,14 +842,14 @@ function buildTheatre(era, world) {
   const marq = new THREE.Mesh(
     new THREE.BoxGeometry(2.2, 1.3, 5.8),
     new THREE.MeshStandardMaterial({
-      map: signTex(era.key === 'living' ? 'WELCOME' : (era.key === 'paper' ? 'OPEN — STILL' : 'TONIGHT'), { bg: '#26201a', fg: '#ffe9b8', font: 'bold 56px Georgia' }),
+      map: signTex(era.key === 'living' ? 'WELCOME' : (era.key === 'paper' ? 'OPEN — STILL' : (era.key === 'nineties' ? 'BANDS' : 'TONIGHT')), { bg: '#26201a', fg: '#ffe9b8', font: 'bold 56px Georgia' }),
       color: 0xffffff, emissive: new THREE.Color('#ffd27a'), emissiveIntensity: 0, roughness: 0.5,
     })
   );
   marq.position.set(-4.0, 4.3, -1.2);
   g.add(marq);
   world.marqueeMats.push(marq.material);
-  if (era.key === 'paper') {
+  if (['paper', 'nineties'].includes(era.key)) {
     // the lighting pass reads this flag and makes them stutter at night
     marq.material.userData.flicker = true;
     blade.material.userData.flicker = true;
@@ -854,6 +858,133 @@ function buildTheatre(era, world) {
   // sits in the gap left in the east storefront row; blade & marquee are on
   // the local -x side, so the front faces the Mall to the west
   g.position.set(10, 0, -10.5);
+  world.pickLandmarks.push(g);
+  return g;
+}
+
+
+function buildGazette(era, world) {
+  if (!since(era, 'mall') || era.key === 'returns') return null;
+  const g = new THREE.Group();
+  g.userData.landmark = 'gazette';
+  const cx = -10.2, cz = -10.5;
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(7.8, 8.8, 8.8),
+    new THREE.MeshStandardMaterial({ map: brickTex('#8f7b61', '#5f5243', 16), color: 0xffffff, roughness: 0.86 })
+  );
+  body.position.set(cx, 4.4, cz);
+  body.castShadow = true; body.receiveShadow = true;
+  g.add(body);
+  const press = new THREE.Mesh(new THREE.BoxGeometry(5.5, 2.0, 5.2), M({ color: 0x2a2d31, roughness: 0.65, metalness: 0.25 }));
+  press.position.set(cx - 0.2, 1.15, cz + 0.6);
+  press.userData.phase2 = 'gazette-press';
+  g.add(press);
+  const facade = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.4, 6.6), new THREE.MeshStandardMaterial({ map: signTex('KALAMAZOO GAZETTE', { bg: '#2e2a24', fg: '#eadfcf', font: 'bold 38px Georgia' }), color: 0xffffff, roughness: 0.7 }));
+  facade.position.set(cx + 4.02, 5.6, cz);
+  g.add(facade);
+  const reliefMat = M({ color: 0xd7c7a8, roughness: 0.75 });
+  [-2.5, 2.5].forEach(dz => {
+    const pil = new THREE.Mesh(new THREE.BoxGeometry(0.16, 5.6, 0.42), reliefMat);
+    pil.position.set(cx + 4.08, 3.3, cz + dz);
+    g.add(pil);
+  });
+  world.pickLandmarks.push(g);
+  return g;
+}
+
+function buildNightlifeAndShops(era, world) {
+  if (!since(era, 'seventies') || era.key === 'returns') return null;
+  const g = new THREE.Group();
+  const makeVenue = ({ key, label, sub, x, z, w = 5.8, d = 5.2, h = 4.2, color = '#6e5648', neon = '#ff6bd6' }) => {
+    const v = new THREE.Group();
+    v.userData.landmark = key;
+    const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ map: brickTex(color, shade(color, -34), 10), color: 0xffffff, roughness: 0.9 }));
+    body.position.y = h / 2;
+    body.castShadow = true; body.receiveShadow = true;
+    v.add(body);
+    const sign = new THREE.Mesh(new THREE.BoxGeometry(w * 0.72, 0.9, 0.12), new THREE.MeshStandardMaterial({
+      map: signTex(label, { bg: '#17131d', fg: neon, font: 'bold 44px Georgia', sub }),
+      color: 0xffffff, emissive: new THREE.Color(neon), emissiveIntensity: 0, roughness: 0.42,
+    }));
+    sign.position.set(0, h - 0.85, -d / 2 - 0.08);
+    v.add(sign);
+    world.marqueeMats.push(sign.material);
+    const door = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.0, 0.12), M({ color: 0x24272b, roughness: 0.55 }));
+    door.position.set(-w * 0.25, 1.0, -d / 2 - 0.09);
+    v.add(door);
+    v.position.set(x, 0, z);
+    world.pickLandmarks.push(v);
+    g.add(v);
+    return v;
+  };
+
+  // 1 Main is compressed to the Michigan/Main edge of the model, near the bridge.
+  makeVenue({ key: 'clubsoda', label: 'CLUB SODA', sub: '1 MAIN', x: -8.5, z: 13.4, w: 6.2, d: 5.4, h: 4.8, color: '#4b3b45', neon: '#7de3ff' });
+  if (since(era, 'nineties')) {
+    // Flipside's 1990 move lands it near N. Burdick/Eleanor; north is +z here.
+    makeVenue({ key: 'flipside', label: 'FLIPSIDE', sub: '309 N. BURDICK', x: 7.6, z: 25.6, w: 6.8, d: 5.8, h: 4.4, color: '#5a4638', neon: '#ffd24d' });
+  }
+  if (only(era, 'seventies', 'paper', 'nineties')) {
+    makeVenue({ key: 'planetclaire', label: 'PLANET CLAIRE', sub: 'imports • candles • oddities', x: -7.6, z: 20.6, w: 6.0, d: 5.0, h: 4.1, color: '#4b3d5c', neon: '#e68cff' });
+  }
+  return g;
+}
+
+function buildNorthwestUnit(era, world) {
+  if (!since(era, 'seventies') || since(era, 'living')) return null;
+  const g = new THREE.Group();
+  g.userData.landmark = 'northwest';
+  const cx = -72, cz = -16;
+  const lawn = new THREE.Mesh(new THREE.CircleGeometry(12, 24), M({ color: 0x4d5a3d, roughness: 1 }));
+  lawn.rotation.x = -Math.PI / 2;
+  lawn.position.set(cx, 0.08, cz);
+  g.add(lawn);
+  const vacant = era.key === 'nineties';
+  const body = new THREE.Mesh(new THREE.BoxGeometry(16, 8, 6), M({ color: vacant ? 0x68665f : 0xd6d2c3, roughness: 0.82 }));
+  body.position.set(cx, 4.0, cz);
+  body.castShadow = true; body.receiveShadow = true;
+  g.add(body);
+  const wing = new THREE.Mesh(new THREE.BoxGeometry(5.2, 5.6, 12), M({ color: vacant ? 0x5b5a54 : 0xc8c3b6, roughness: 0.85 }));
+  wing.position.set(cx + 8.2, 2.8, cz);
+  wing.castShadow = true; wing.receiveShadow = true;
+  g.add(wing);
+  const winMat = M({ color: vacant ? 0x1f2428 : 0x557286, roughness: 0.35 });
+  for (let floor = 0; floor < 3; floor++) for (let col = -3; col <= 3; col++) {
+    const win = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.8, 0.72), winMat);
+    win.position.set(cx - 8.05, 2.0 + floor * 1.8, cz + col * 0.78);
+    g.add(win);
+  }
+  if (vacant) {
+    const fence = new THREE.Mesh(new THREE.CylinderGeometry(12.8, 12.8, 1.4, 24, 1, true), M({ color: 0x9aa0a0, roughness: 0.6, metalness: 0.35, transparent: true, opacity: 0.36, side: THREE.DoubleSide }));
+    fence.position.set(cx, 0.7, cz);
+    g.add(fence);
+  }
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(3.8, 1.0, 0.1), new THREE.MeshStandardMaterial({ map: signTex(vacant ? 'NORTHWEST UNIT' : 'KPH NORTHWEST', { bg: '#26342d', fg: '#e8e3d8', font: 'bold 40px Georgia', sub: vacant ? 'CLOSED 1990' : 'BLAKESLEE AVE' }), color: 0xffffff }));
+  sign.position.set(cx, 1.3, cz + 8.2);
+  g.add(sign);
+  world.pickLandmarks.push(g);
+  return g;
+}
+
+function buildUpjohn(era, world) {
+  if (!since(era, 'celery') || era.key === 'returns') return null;
+  const g = new THREE.Group();
+  g.userData.landmark = 'upjohn';
+  const cx = 30, cz = 18;
+  const modern = since(era, 'mall');
+  const body = new THREE.Mesh(new THREE.BoxGeometry(modern ? 13 : 7, modern ? 7 : 4.6, modern ? 7 : 5), new THREE.MeshStandardMaterial({ map: brickTex(modern ? '#9a856f' : '#8a5a3a', modern ? '#6f6354' : '#5f3a2e', 12), color: 0xffffff, roughness: 0.86 }));
+  body.position.set(cx, (modern ? 7 : 4.6) / 2, cz);
+  body.castShadow = true; body.receiveShadow = true;
+  g.add(body);
+  if (modern) {
+    const tower = new THREE.Mesh(new THREE.BoxGeometry(4.4, 13, 4.4), M({ color: 0xc9bea8, roughness: 0.72 }));
+    tower.position.set(cx + 4.8, 6.5, cz + 1.4);
+    tower.castShadow = true;
+    g.add(tower);
+  }
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(6.6, 1.1, 0.12), new THREE.MeshStandardMaterial({ map: signTex(since(era, 'nineties') ? 'PHARMACIA & UPJOHN' : 'UPJOHN', { bg: '#efe8dc', fg: '#2d3942', font: 'bold 42px Georgia', sub: modern ? 'research • patents • pills' : 'friable pills' }), color: 0xffffff }));
+  sign.position.set(cx, modern ? 3.2 : 2.6, cz - (modern ? 3.58 : 2.58));
+  g.add(sign);
   world.pickLandmarks.push(g);
   return g;
 }
@@ -883,8 +1014,8 @@ function buildMillSite(era, world) {
     world.millWheel = wheel;
     mill.position.copy(pos);
     g.add(mill);
-  } else if (only(era, 'celery', 'mall', 'paper')) {
-    const dead = era.key === 'paper';
+  } else if (only(era, 'celery', 'mall', 'seventies', 'paper', 'nineties')) {
+    const dead = ['paper', 'nineties'].includes(era.key);
     const base = dead ? '#6e5648' : '#7d4030';
     const mat = new THREE.MeshStandardMaterial({ map: brickTex(base, shade(base, -38), 20), color: 0xffffff, roughness: 0.9 });
     const body = new THREE.Mesh(new THREE.BoxGeometry(16, 9, 11), mat);
@@ -1049,7 +1180,7 @@ function buildPark(era, world) {
   });
 
   // the oaks that heard Lincoln
-  const oakScale = { boiling: 0.85, celery: 1.1, mall: 1.35, paper: 1.45, living: 1.6, returns: 1.2 }[era.key];
+  const oakScale = { boiling: 0.85, celery: 1.1, mall: 1.35, seventies: 1.4, paper: 1.45, nineties: 1.52, living: 1.6, returns: 1.2 }[era.key];
   [[-6.5, -6], [6.5, -6.5], [-6, 6.5], [7, 6]].forEach(([ox, oz], i) => {
     const s = (era.key === 'returns' && i > 1) ? 0.7 : oakScale; // great-grandchildren oaks
     g.add(makeTree(center.x + ox, center.z + oz, s, era.vis.foliage, 'oak'));
@@ -1197,7 +1328,7 @@ function buildRail(era, world) {
   g.add(crossing);
 
   // the train itself
-  const styles = { boiling: 'steam', celery: 'steam', mall: 'freight', paper: 'freight', living: 'amtrak', returns: 'electric' };
+  const styles = { boiling: 'steam', celery: 'steam', mall: 'freight', seventies: 'freight', paper: 'freight', nineties: 'freight', living: 'amtrak', returns: 'electric' };
   world.train = new Train(styles[era.key], z, () => world.onTrain && world.onTrain());
   g.add(world.train.group);
 
@@ -1234,7 +1365,7 @@ function buildFlats(era, world) {
       row.position.set(cx - 8, 0.15, cz + 5 + r * 1.1);
       g.add(row);
     }
-  } else if (only(era, 'celery', 'mall')) {
+  } else if (only(era, 'celery', 'mall', 'seventies')) {
     const rows = era.key === 'celery' ? 9 : 5;
     for (let r = 0; r < rows; r++) {
       const row = new THREE.Mesh(new THREE.BoxGeometry(22, 0.34, 0.6), M({ color: 0x86b35c, roughness: 0.9 }));
@@ -1249,7 +1380,7 @@ function buildFlats(era, world) {
     });
     barn.position.set(cx + 9.5, 0, cz - 6);
     g.add(barn);
-    if (era.key === 'mall') {
+    if (only(era, 'mall', 'seventies')) {
       // suburbs encroaching: surveyor stakes
       for (let i = 0; i < 6; i++) {
         const stake = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.9, 0.1), M({ color: 0xd9622a, roughness: 0.8 }));
@@ -1257,7 +1388,7 @@ function buildFlats(era, world) {
         g.add(stake);
       }
     }
-  } else if (only(era, 'paper')) {
+  } else if (only(era, 'paper', 'nineties')) {
     // the parking lot that smells like harvest
     const lot = new THREE.Mesh(new THREE.PlaneGeometry(24, 16), M({ color: 0x3c3f44, roughness: 0.95 }));
     lot.rotation.x = -Math.PI / 2;
@@ -1319,7 +1450,7 @@ function buildSuperfund(era, world) {
   g.userData.landmark = 'superfund';
   const cx = -18, cz = -52;
 
-  if (only(era, 'celery', 'mall')) {
+  if (only(era, 'celery', 'mall', 'seventies')) {
     // settling lagoons, unquestioned
     for (let i = 0; i < 3; i++) {
       const pool = new THREE.Mesh(new THREE.CircleGeometry(2.6 - i * 0.4, 12), M({ color: 0x3a3c34, roughness: 0.25 }));
@@ -1327,7 +1458,7 @@ function buildSuperfund(era, world) {
       pool.position.set(cx - 4 + i * 5.5, 0.05, cz + (i % 2) * 3);
       g.add(pool);
     }
-  } else if (only(era, 'paper')) {
+  } else if (only(era, 'paper', 'nineties')) {
     const mound = new THREE.Mesh(new THREE.CylinderGeometry(7.5, 9.5, 2.2, 14), M({ color: 0x595549, roughness: 1 }));
     mound.position.set(cx, 1.1, cz);
     mound.castShadow = true; mound.receiveShadow = true;
@@ -1455,15 +1586,18 @@ function buildWMU(era, world) {
   g.userData.landmark = 'wmu';
   const cx = -64, cz = 36;
 
-  const hill = new THREE.Mesh(new THREE.ConeGeometry(18, 6, 14), M({ color: 0x42603a, roughness: 1 }));
-  hill.position.set(cx, 2.9, cz);
+  // Western sits on Prospect Hill in real life, but in this compressed
+  // diorama the campus must stay physically planted on the shared ground.
+  const hill = new THREE.Mesh(new THREE.CircleGeometry(18, 28), M({ color: 0x42603a, roughness: 1 }));
+  hill.rotation.x = -Math.PI / 2;
+  hill.position.set(cx, 0.07, cz);
   hill.receiveShadow = true;
   g.add(hill);
 
   const mkHall = (x, z, w, h, d, color) => {
     const hall = new THREE.Mesh(new THREE.BoxGeometry(w, h, d),
       new THREE.MeshStandardMaterial({ map: brickTex(color, shade(color, -36), 10), color: 0xffffff, roughness: 0.88 }));
-    hall.position.set(x, 5.9 + h / 2, z);
+    hall.position.set(x, h / 2 + 0.08, z);
     hall.castShadow = true;
     g.add(hall);
   };
@@ -1472,7 +1606,7 @@ function buildWMU(era, world) {
     mkHall(cx - 6, cz + 4, 5, 4.4, 4, '#8a7a5c');
     mkHall(cx + 6.5, cz + 3, 5, 5.6, 4, '#7d6a58');
     const tower = new THREE.Mesh(new THREE.BoxGeometry(2.2, 8, 2.2), M({ color: 0xb8ab90, roughness: 0.8 }));
-    tower.position.set(cx + 1, 9.9, cz + 6);
+    tower.position.set(cx + 1, 4.08, cz + 6);
     tower.castShadow = true;
     g.add(tower);
   }
@@ -1481,7 +1615,7 @@ function buildWMU(era, world) {
       .forEach(([x, z, text]) => g.add(makeBanner(x, z, text)));
     const plaza = new THREE.Mesh(new THREE.CircleGeometry(4.2, 18), M({ color: 0x6d6252, roughness: 0.9 }));
     plaza.rotation.x = -Math.PI / 2;
-    plaza.position.set(cx - 2, 6.05, cz - 2.8);
+    plaza.position.set(cx - 2, 0.10, cz - 2.8);
     plaza.userData.phase2 = 'wmu-plaza';
     g.add(plaza);
     [
@@ -1490,7 +1624,7 @@ function buildWMU(era, world) {
       { x: cx + 1.6, z: cz - 3.0, body: '#3f4f6f' },
     ].forEach((stu, i) => {
       const { group: student } = makePersonMesh({ body: stu.body, skin: i % 4, hat: i === 1 ? 'cap' : 'none', prop: 'book' });
-      student.position.set(stu.x, 6.08, stu.z);
+      student.position.set(stu.x, 0.12, stu.z);
       student.rotation.y = rand(-0.6, 0.6);
       student.userData.phase2 = 'wmu-student';
       g.add(student);
@@ -1507,7 +1641,7 @@ function buildGibson(era, world) {
   g.userData.landmark = 'gibson';
   const cx = 28, cz = 50;
 
-  const dead = era.key === 'paper';
+  const dead = ['paper', 'nineties'].includes(era.key);
   const base = '#9b6a4a';
   const body = new THREE.Mesh(
     new THREE.BoxGeometry(13, 7, 8),
@@ -1528,7 +1662,7 @@ function buildGibson(era, world) {
     g.add(win);
   }
 
-  const labels = { mall: ['GIBSON', 'Guitars & Mandolins'], paper: ['HERITAGE', 'est. 1985 — same benches'], living: ['HERITAGE GUITAR', '225 Parsons St.'], returns: ['YODER LUTHERIE', 'salvaged maple • since the floors danced'] };
+  const labels = { mall: ['GIBSON', 'Guitars & Mandolins'], seventies: ['GIBSON', 'Parsons St. still humming'], paper: ['HERITAGE', 'est. 1985 — same benches'], nineties: ['HERITAGE', 'same benches • new decade'], living: ['HERITAGE GUITAR', '225 Parsons St.'], returns: ['YODER LUTHERIE', 'salvaged maple • since the floors danced'] };
   const [t, s] = labels[era.key] || labels.living;
   const sign = new THREE.Mesh(new THREE.BoxGeometry(7, 1.6, 0.15),
     new THREE.MeshStandardMaterial({ map: signTex(t, { bg: '#26201a', fg: '#e8d9b8', sub: s }), color: 0xffffff }));
@@ -1584,7 +1718,9 @@ function buildHouses(era, world) {
     boiling: ['#c9b896', '#b5a079', '#a8916b'],
     celery: ['#8a5a3a', '#6b4438', '#7a6248', '#5c6b58'],
     mall: ['#d4c3a8', '#c2b49a', '#8a9a8a', '#b8a888'],
+    seventies: ['#c0aa85', '#9f8a6d', '#8a7a5c', '#b8a888'],
     paper: ['#6b5b4f', '#7d6a58', '#5c5048', '#8a7a68'],
+    nineties: ['#8a7a68', '#7d6a58', '#6b5b4f', '#9b8a74'],
     living: ['#ded5c8', '#c5b8a8', '#8a9a8a', '#b08968'],
     returns: ['#8fb89f', '#b8ab90', '#9aa88a', '#c5b8a8'],
   };
@@ -1849,12 +1985,16 @@ export function buildEraWorld(era) {
   group.add(buildStringLights(era, world));
   group.add(buildEchoes(era, world));
   const theatre = buildTheatre(era, world); if (theatre) group.add(theatre);
+  const gazette = buildGazette(era, world); if (gazette) group.add(gazette);
+  const nightlife = buildNightlifeAndShops(era, world); if (nightlife) group.add(nightlife);
+  const northwest = buildNorthwestUnit(era, world); if (northwest) group.add(northwest);
+  const upjohn = buildUpjohn(era, world); if (upjohn) group.add(upjohn);
   const superfund = buildSuperfund(era, world); if (superfund) group.add(superfund);
   const wmu = buildWMU(era, world); if (wmu) group.add(wmu);
   const gibson = buildGibson(era, world); if (gibson) group.add(gibson);
 
   // ---- trees
-  const treeKinds = { boiling: ['round', 'oak', 'pine'], celery: ['round', 'round', 'oak'], mall: ['round', 'round'], paper: ['sapling', 'round'], living: ['round', 'round', 'oak'], returns: ['round', 'oak', 'willow', 'pine'] };
+  const treeKinds = { boiling: ['round', 'oak', 'pine'], celery: ['round', 'round', 'oak'], mall: ['round', 'round'], seventies: ['round', 'round'], paper: ['sapling', 'round'], nineties: ['sapling', 'round'], living: ['round', 'round', 'oak'], returns: ['round', 'oak', 'willow', 'pine'] };
   const kinds = treeKinds[era.key];
   let planted = 0, guard = 0;
   while (planted < era.vis.treeCount && guard++ < 400) {
@@ -1921,9 +2061,17 @@ export function buildEraWorld(era) {
       { x: 0, z: -10, r: 8 }, { x: 0, z: -2, r: 8 }, { x: 0, z: -18, r: 8 },
       { x: 20, z: -14, r: 8 }, { x: 10, z: -10, r: 5 }, { x: 12, z: 42.5, r: 4 }, { x: 30, z: 20, r: 8 },
     ],
+    seventies: [
+      { x: 0, z: -8, r: 9 }, { x: -8, z: 13, r: 6 }, { x: -72, z: -16, r: 5 },
+      { x: -10, z: -10, r: 5 }, { x: 30, z: 18, r: 7 }, { x: -64, z: 36, r: 7 }, { x: 7, z: 25, r: 6 },
+    ],
     paper: [
       { x: 0, z: -8, r: 9 }, { x: -14, z: -24, r: 7 }, { x: 20, z: -14, r: 8 },
       { x: 0, z: 2, r: 6 }, { x: 30, z: 20, r: 8 }, { x: 36, z: -40, r: 7 }, { x: -16, z: -46, r: 5 },
+    ],
+    nineties: [
+      { x: 7, z: 25, r: 7 }, { x: -8, z: 13, r: 6 }, { x: -72, z: -16, r: 5 },
+      { x: 0, z: -8, r: 9 }, { x: 30, z: 18, r: 7 }, { x: 20, z: -14, r: 8 }, { x: 36, z: -40, r: 7 },
     ],
     living: [
       { x: 0, z: -10, r: 8 }, { x: 0, z: -2, r: 8 }, { x: -18, z: -17, r: 7 },

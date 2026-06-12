@@ -1,10 +1,10 @@
 # kalamazoo • through time
 
-*A living elegy in six eras.*
+*A living elegy in eight eras.*
 
-One city, remembered six times. The river, Burdick Street, Bronson Park, the rail
+One city, remembered eight times. The river, Burdick Street, Bronson Park, the rail
 line, the mill ground, the celery flats — every place holds its coordinates in every
-era. Only time moves. Walk through **1855, 1905, 1959, 1985, 2026, and 2050** and meet
+era. Only time moves. Walk through **1855, 1905, 1959, 1975, 1985, 1995, 2026, and 2050** and meet
 hand-written residents who carry the city's real history: the Potawatomi who stayed,
 the corset strike brewing, the first pedestrian mall in America, the tornado of 1980,
 the PCBs in the river, the guitars that left and the craftsmen who didn't, the
@@ -74,12 +74,12 @@ index.html          UI shell + import map
 css/style.css       glassmorphic UI, no framework
 js/data.js          THE HEART: ~60 residents, river voices, poems, landmark strata
 js/shaders.js       sky dome, living water, cinematic grade pass
-js/world.js         shared geography built six ways
+js/world.js         shared geography built eight ways
 js/agents.js        people (walk cycles, hats, chats), vehicles, the train, particles
 js/ui.js            DOM layer
 js/main.js          engine: lighting, picking, events, compare mode
 vendor/three/       three.js r165 (MIT), vendored — no CDN
-scripts/smoke.mjs   headless build-all-six-eras test (node scripts/smoke.mjs)
+scripts/smoke.mjs   headless build-all-eight-eras test (node scripts/smoke.mjs)
 ```
 
 ## Honesty notes
