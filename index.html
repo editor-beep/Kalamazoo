@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>kalamazoo • through time</title>
+  <meta name="description" content="A living elegy in six eras. Walk the same streets, the same river, through 1855, 1905, 1959, 1985, 2026 and 2050 — a procedurally alive Kalamazoo that remembers its own layers.">
+  <meta property="og:title" content="kalamazoo • through time">
+  <meta property="og:description" content="The same streets. The same river. Six layers of time.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌊</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three/three.module.min.js",
+        "three/addons/": "./vendor/three/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- WebGL canvas mount -->
+  <div id="three-container" aria-hidden="true"></div>
+
+  <!-- Top bar -->
+  <header id="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M2 13c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2"/>
+          <path d="M2 18c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2"/>
+          <path d="M12 3v5M9 6l3-3 3 3"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">kalamazoo</div>
+        <div class="brand-sub">THROUGH TIME</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="live-chip" id="live-chip"><span class="live-dot"></span><span>LIVING MEMORY • KALAMAZOO, MI</span></div>
+      <button class="btn ghost" id="btn-help" title="Keyboard shortcuts (?)">?</button>
+      <button class="btn ghost" id="btn-about">About this city</button>
+    </div>
+  </header>
+
+  <!-- ERA SELECTION -->
+  <main id="selection-screen">
+    <div class="selection-inner">
+      <div class="hero">
+        <div class="hero-chip"><span class="accent">KALAMAZOO, MICHIGAN</span><span class="dim">•</span><span>1855 — 2050</span></div>
+        <h1>Which Kalamazoo<br>will you walk into?</h1>
+        <p class="hero-sub">The same streets. The same river. Six layers of time.<br>
+        Every era keeps the wounds and the wonders of the ones before it.</p>
+      </div>
+      <div id="era-grid" class="era-grid"><!-- era cards rendered by ui.js --></div>
+      <div class="selection-foot">
+        A love letter, and an honest one — to the mills and the muck fields, to what the river carried
+        and what it carries still.<br>
+        <span class="dimmer">On the homelands of the Potawatomi, the Match-E-Be-Nash-She-Wish Band, and the Pokagon Band — who are still here.</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- IN-ERA HUD -->
+  <div id="hud" class="hidden">
+    <div class="hud-top glass">
+      <div class="hud-era">
+        <div id="hud-era-name">—</div>
+        <div id="hud-era-year" class="pill mono">—</div>
+      </div>
+      <div class="hud-stats">
+        <span class="hud-stat"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span id="hud-time" class="mono">7:30 AM</span></span>
+        <span class="sep"></span>
+        <span class="hud-stat"><span class="dim">City Pulse</span> <b id="hud-pulse">—</b></span>
+      </div>
+      <div class="hud-actions">
+        <button class="btn" id="btn-advance" title="Advance two hours (T)">⏩ 2h</button>
+        <button class="btn" id="btn-event" title="Let something happen (E)">✦ City Event</button>
+        <button class="btn" id="btn-compare" title="Hold two eras side by side (C)">⇆ Compare</button>
+      </div>
+      <button class="btn outline" id="btn-exit">← Eras</button>
+    </div>
+
+    <!-- residents -->
+    <aside class="hud-people glass" id="hud-people">
+      <div class="people-head">
+        <div class="people-title">People on the street</div>
+        <div class="pill" id="resident-count">—</div>
+      </div>
+      <div id="residents" class="people-list"></div>
+      <div class="people-foot">Click anyone — here or in the streets — to hear what they carry.</div>
+    </aside>
+
+    <!-- bottom controls -->
+    <div class="hud-bottom">
+      <div class="glass seg">
+        <button class="btn" data-tod="0.16" title="(M)">Morning</button>
+        <button class="btn" data-tod="0.42" title="(D)">Noon</button>
+        <button class="btn" data-tod="0.74" title="(G)">Golden hour</button>
+        <button class="btn" data-tod="0.97" title="(N)">Night</button>
+        <span class="sep"></span>
+        <button class="btn" id="btn-flow" title="Let time drift on its own">▸ Let time flow</button>
+      </div>
+      <button class="btn glass" id="btn-reset" title="(R)">⟲ View</button>
+    </div>
+    <div class="hud-hint">drag to orbit • scroll to zoom • click people, buildings, the river itself</div>
+  </div>
+
+  <!-- Landmark story panel -->
+  <aside id="story-panel" class="glass hidden" aria-live="polite">
+    <button class="x" id="story-close">×</button>
+    <div class="story-kicker" id="story-kicker">THIS GROUND REMEMBERS</div>
+    <div class="story-title" id="story-title">—</div>
+    <div class="story-body" id="story-body">—</div>
+    <div class="story-strata" id="story-strata"></div>
+  </aside>
+
+  <!-- River voice -->
+  <div id="river-voice" class="hidden"><span id="river-voice-text"></span></div>
+
+  <!-- Hover name tag -->
+  <div id="nametag" class="hidden"></div>
+
+  <!-- Person modal -->
+  <div id="person-modal" class="modal-backdrop hidden">
+    <div class="modal glass-strong">
+      <div class="modal-head">
+        <div class="portrait" id="modal-portrait"></div>
+        <div class="modal-id">
+          <div class="modal-name" id="modal-name">—</div>
+          <div class="modal-role" id="modal-role">—</div>
+          <div class="modal-thread hidden" id="modal-thread"></div>
+        </div>
+        <button class="x" id="modal-close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-block">
+          <div class="label">RIGHT NOW</div>
+          <div class="modal-now" id="modal-now">—</div>
+        </div>
+        <div class="modal-cols">
+          <div><div class="label">MOOD</div><div id="modal-mood" class="modal-val">—</div></div>
+          <div><div class="label">ROOTS IN THIS PLACE</div><div class="modal-val"><b id="modal-roots">—</b><span class="dim"> / 100</span></div></div>
+        </div>
+        <div class="modal-block">
+          <div class="label">WHAT THEY CARRY</div>
+          <div class="modal-memory serif" id="modal-memory">—</div>
+        </div>
+        <div class="modal-speech hidden" id="modal-speech">
+          <div class="speech-text serif" id="speech-text"></div>
+          <div class="speech-attrib" id="speech-attrib"></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" id="modal-dismiss">Leave them be</button>
+        <button class="btn primary" id="modal-ask">Ask about their Kalamazoo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Era epigraph overlay (transition) -->
+  <div id="era-overlay" class="hidden">
+    <div class="overlay-inner">
+      <div class="overlay-year mono" id="overlay-year"></div>
+      <div class="overlay-name serif" id="overlay-name"></div>
+      <div class="overlay-poem serif" id="overlay-poem"></div>
+      <div class="overlay-attrib" id="overlay-attrib"></div>
+    </div>
+  </div>
+
+  <!-- Compare chooser -->
+  <div id="compare-chooser" class="modal-backdrop hidden">
+    <div class="modal glass-strong">
+      <div class="modal-head"><div class="modal-id"><div class="modal-name">Hold two eras to the light</div>
+        <div class="modal-role">Pick the era to set beside <b id="compare-current">—</b></div></div>
+        <button class="x" id="compare-cancel">×</button></div>
+      <div class="compare-grid" id="compare-grid"></div>
+    </div>
+  </div>
+
+  <!-- Compare HUD -->
+  <div id="compare-hud" class="hidden">
+    <div class="compare-label glass" id="compare-label-left">—</div>
+    <div class="compare-label glass right" id="compare-label-right">—</div>
+    <div class="compare-divider" id="compare-divider"><div class="divider-grip">⇆</div></div>
+    <div class="compare-exit"><button class="btn glass" id="btn-compare-exit">Close comparison (Esc)</button></div>
+  </div>
+
+  <!-- Help overlay -->
+  <div id="help-overlay" class="modal-backdrop hidden">
+    <div class="modal glass-strong help">
+      <div class="modal-head"><div class="modal-id"><div class="modal-name">Keys to the city</div></div><button class="x" id="help-close">×</button></div>
+      <div class="help-grid">
+        <div><kbd>1</kbd>–<kbd>6</kbd> jump between eras</div>
+        <div><kbd>T</kbd> advance two hours</div>
+        <div><kbd>M</kbd> <kbd>D</kbd> <kbd>G</kbd> <kbd>N</kbd> morning · noon · golden · night</div>
+        <div><kbd>E</kbd> let something happen</div>
+        <div><kbd>C</kbd> compare two eras</div>
+        <div><kbd>P</kbd> hear the era's poem again</div>
+        <div><kbd>R</kbd> reset the view</div>
+        <div><kbd>Esc</kbd> close · go back</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- About -->
+  <div id="about-overlay" class="modal-backdrop hidden">
+    <div class="modal glass-strong about">
+      <div class="modal-head"><div class="modal-id"><div class="modal-name">kalamazoo • through time</div>
+        <div class="modal-role">a living elegy in six eras</div></div><button class="x" id="about-close">×</button></div>
+      <div class="about-body">
+        <p>This is one city remembered six times. The river, the street called Burdick, the park with the
+        oaks, the rail line, the ground where the mill stood — they hold their places in every era.
+        Only time moves.</p>
+        <p>It is a love letter, but an honest one. Kalamazoo was the Boiling Pot, then Celery City, then
+        Paper City, then Mall City. It made corsets, mandolins, taxicabs, pills, and paper — and the paper
+        left PCBs in the river, and the factories left, and a tornado tore out the heart of downtown in
+        1980, and a February night in 2016 broke it again. And still: anonymous strangers pay every
+        child's college tuition. The vaccine that circled the world came off a line here. The otters came
+        back to the river before the paperwork did.</p>
+        <p>This simulation stands on the homelands of the Potawatomi people — the Match-E-Be-Nash-She-Wish
+        Band and the Pokagon Band among them — who endured removal and remain. The water kept its name.</p>
+        <p class="fine">The residents are fictional composites, except where history offers its own people
+        (Enoch Harris, Orville Gibson, Caroline Bartlett Crane). Nothing here is historically perfect;
+        everything is meant to be emotionally true. Built with Three.js, no engine, no assets — every
+        brick is procedural. Click the river. It has the longest memory of all.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div id="toasts"></div>
+
+  <!-- WebGL failure notice -->
+  <div id="no-webgl" class="hidden">
+    <div>
+      <div class="serif" style="font-size:28px">The projector won't start.</div>
+      <p>This experience needs WebGL, and your browser or device has it switched off.
+      The city will wait — it's good at that.</p>
+    </div>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
