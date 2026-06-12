@@ -276,7 +276,21 @@ kbd {
 .story-kicker { font-size: 9px; letter-spacing: 2.5px; color: #f59e0b; margin-bottom: 6px; }
 .story-title { font: 600 19px/1.2 'Fraunces', serif; margin-bottom: 9px; }
 .story-body { font-size: 12.5px; line-height: 1.62; color: rgba(231, 229, 223, 0.85); }
-.story-strata { margin-top: 13px; border-top: 1px solid var(--glass-line); padding-top: 11px; }
+.story-strata { margin-top: 11px; border-top: 1px solid var(--glass-line); padding-top: 11px; }
+.strata-toggle {
+  appearance: none; border: 0; cursor: pointer;
+  display: block; width: 100%; text-align: left;
+  margin-top: 13px; padding: 8px 10px;
+  border-radius: 11px;
+  background: rgba(231, 229, 223, 0.05);
+  border: 1px solid var(--glass-line);
+  color: var(--dim);
+  font: 500 11px/1 'Inter', sans-serif;
+  letter-spacing: 0.04em;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.strata-toggle:hover { background: rgba(231, 229, 223, 0.1); color: var(--text); }
+.strata-toggle.open { color: #f59e0b; }
 .stratum { display: flex; gap: 10px; font-size: 11px; line-height: 1.5; padding: 3px 0; }
 .stratum .y { color: #f59e0b; font-weight: 600; min-width: 34px; }
 .stratum .t { color: var(--dim); }

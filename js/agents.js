@@ -235,6 +235,12 @@ export class Agent {
     } else {
       this.target.set((Math.random() - 0.5) * 64, 0, (Math.random() - 0.5) * 64);
     }
+    // nobody walks on the river, nobody loiters on the rails
+    // (the depot platform at z≈42.5 stays reachable)
+    if (this.target.x > -46 && this.target.x < -22.5) this.target.x = -21.5;
+    if (this.target.z > 38 && this.target.z < 42) {
+      this.target.z = this.target.z < 40 ? 37.5 : 42.3;
+    }
   }
 
   startChat(partner, dur) {
@@ -253,7 +259,10 @@ export class Agent {
         const dx = this.chatPartner.pos.x - this.pos.x;
         const dz = this.chatPartner.pos.z - this.pos.z;
         const want = Math.atan2(dx, dz);
-        m.rotation.y += (want - m.rotation.y) * Math.min(1, dt * 5);
+        let dr = want - m.rotation.y;
+        while (dr > Math.PI) dr -= Math.PI * 2;
+        while (dr < -Math.PI) dr += Math.PI * 2;
+        m.rotation.y += dr * Math.min(1, dt * 5);
       }
       this.parts.armR.rotation.x = Math.sin(t * 3.1 + this.phase) * 0.3 - 0.25;
       this.parts.armL.rotation.x = Math.sin(t * 2.3 + this.phase) * 0.18;

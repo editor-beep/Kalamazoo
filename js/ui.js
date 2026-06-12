@@ -58,7 +58,10 @@ export function showHUD(era) {
   el('resident-count').textContent = `${era.people.length} residents`;
 }
 export function hideHUD() { hide('hud'); }
-export function setHUDTime(str) { el('hud-time').textContent = str; }
+export function setHUDTime(str) {
+  const t = el('hud-time');
+  if (t.textContent !== str) t.textContent = str;   // called every frame; write only on change
+}
 export function getPulse() { return parseInt(el('hud-pulse').textContent) || 50; }
 export function setPulse(v) { el('hud-pulse').textContent = Math.max(8, Math.min(99, Math.round(v))); }
 export function setFlowActive(on) { el('btn-flow').classList.toggle('active', on); el('btn-flow').textContent = on ? '❚❚ Time is flowing' : '▸ Let time flow'; }
@@ -175,19 +178,38 @@ export function showStory(key, era) {
   if (!s) return;
   const body = s.body[era.key];
   if (!body) return; // landmark has no story in this era
-  el('story-kicker').textContent = s.kicker;
+
+  // this era's story only — the deeper layers wait behind the toggle
+  el('story-kicker').textContent = `${s.kicker} • ${era.year}`;
   el('story-title').textContent = s.title;
   el('story-body').textContent = body;
+
   const strata = el('story-strata');
   strata.innerHTML = '';
+  let otherLayers = 0;
   ERAS.forEach(e => {
     const layer = s.layers?.[e.key];
     if (!layer) return;
+    if (e.key !== era.key) otherLayers++;
     const div = document.createElement('div');
     div.className = 'stratum' + (e.key === era.key ? ' now' : '');
     div.innerHTML = `<span class="y">${e.year}</span><span class="t">${layer}</span>`;
     strata.appendChild(div);
   });
+
+  const btn = el('story-layers-btn');
+  strata.classList.add('hidden');
+  btn.classList.toggle('hidden', otherLayers === 0);
+  btn.classList.remove('open');
+  btn.textContent = `⌄  What stood here in other years (${otherLayers})`;
+  btn.onclick = () => {
+    const opened = strata.classList.toggle('hidden') === false;
+    btn.classList.toggle('open', opened);
+    btn.textContent = opened
+      ? '⌃  Back to this era'
+      : `⌄  What stood here in other years (${otherLayers})`;
+  };
+
   show('story-panel');
 }
 export function hideStory() { hide('story-panel'); }

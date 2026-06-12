@@ -1217,7 +1217,7 @@ export const STRATA = {
       boiling: 'The village’s handshake with the far bank. Jonas Clay eats his dinner under it with his feet in the shallows, in the prettiest hard place God ever made.',
       celery: 'Linus rings the streetcar bell crossing it, sparks over gray water. Prettiest thing in the city and nobody looks up but him.',
       mall: 'Four lanes of progress. You can cross the river without ever knowing it’s there — which is, at the time, considered the point.',
-      paper: 'The advisisories are bolted at eye level: DO NOT EAT THE FISH. A grandfather reads one aloud to no one, twice. The herons, who cannot read, stay.',
+      paper: 'The advisories are bolted at eye level: DO NOT EAT THE FISH. A grandfather reads one aloud to no one, twice. The herons, who cannot read, stay.',
       living: 'The rebuild added overlooks, and people actually stand on them now, pointing at otters. An engineer cried here into a clipboard once, on the clock, and logged it as a site observation.',
       returns: 'At 7:14 one spring morning, a lake sturgeon passed beneath — first in a century and a half — like a returned letter: addressee found, after all, at this address.',
     },

@@ -379,7 +379,12 @@ function applyEnvironment(world, day) {
   world.windowMats.forEach(m => { if (m) m.emissiveIntensity = 1.5 * night; });
   world.lampMats.forEach(m => { m.emissiveIntensity = 2.4 * eveAmt; });
   world.lampLights.forEach(l => { l.intensity = 16 * night; });
-  world.marqueeMats.forEach(m => { m.emissiveIntensity = 1.7 * Math.max(eveAmt, 0.06); });
+  // dying signs stutter after dark (1985's marquee)
+  const flick = (Math.sin(elapsed * 13) > 0.92 || Math.sin(elapsed * 7.3) < -0.97) ? 0.2 : 1;
+  world.marqueeMats.forEach(m => {
+    const f = (m.userData.flicker && night > 0.3) ? flick : 1;
+    m.emissiveIntensity = 1.7 * Math.max(eveAmt, 0.06) * f;
+  });
   world.stringMats.forEach(m => { m.emissiveIntensity = 2.6 * eveAmt; });
 }
 
@@ -394,11 +399,12 @@ function cityEvent() {
   const flashColor = { bright: 0xffd27a, ache: 0x9aa3b8, wonder: 0x7adfff }[ev.kind] || 0xffd27a;
   const flash = new THREE.PointLight(flashColor, 60, 70, 1.6);
   flash.position.set(0, 18, -6);
-  state.world.scene.add(flash);
+  const scene = state.world.scene;   // capture: the era may change mid-fade
+  scene.add(flash);
   const t0 = elapsed;
   const fade = () => {
     const k = (elapsed - t0) / 1.1;
-    if (k >= 1) { state.world.scene.remove(flash); return; }
+    if (k >= 1) { scene.remove(flash); return; }
     flash.intensity = 60 * (1 - k);
     requestAnimationFrame(fade);
   };
@@ -454,7 +460,7 @@ function onPointerUp(e) {
   setPointer(e);
   raycaster.setFromCamera(pointer, camera);
 
-  const agentHits = raycaster.intersectObjects(state.world.agents.map(a => a.mesh), true);
+  const agentHits = raycaster.intersectObjects(state.world.agentMeshes, true);
   if (agentHits.length) {
     const agent = findAgent(agentHits[0].object);
     if (agent) { focusPerson(agent); return; }
@@ -484,7 +490,7 @@ function onPointerMove(e) {
   hoverThrottle = now;
   setPointer(e);
   raycaster.setFromCamera(pointer, camera);
-  const hits = raycaster.intersectObjects(state.world.agents.map(a => a.mesh), true);
+  const hits = raycaster.intersectObjects(state.world.agentMeshes, true);
   if (hits.length) {
     const agent = findAgent(hits[0].object);
     if (agent) {
@@ -509,6 +515,7 @@ function openCompare() {
     UI.hideStory();
     UI.hidePersonModal();
     UI.hideNametag();
+    renderer.domElement.style.cursor = '';
     UI.showCompareHUD(state.era, ERAS[otherId], f => { state.split = f; });
     UI.toast('Same streets, same river — drag the divider. Esc to come back.', 'info', 5200);
   });
