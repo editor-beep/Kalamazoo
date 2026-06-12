@@ -131,19 +131,19 @@ invariant 6. `era.echoes[]` whispers surface rarely from the idle loop in
 lines and ≥1 echo layer per era, and that bases stay in the faint band.
 Still open here: raise echo frequency with dwell time (see item 6).
 
-### 2. Stronger Kalamazoo specificity
-- Street-name signs at intersections (`signTex` already exists — small green
-  blades: BURDICK · MICHIGAN · ROSE · SOUTH · PORTAGE).
-- Riverwalk in 2026/2050: boardwalk strip + benches + overlook rail along the
-  east bank (`buildRiver`, `since(era,'living')`) — the bank the anchors already
-  point at.
-- WMU energy in 2026/2050: brown-and-gold lamp banners, more `book`-prop
-  students near the hill anchor, a Bronco shuttle on the loop.
-- One tall 1970s office slab downtown for 1985+ (massing honesty: downtown
-  wasn't all 3 stories by then).
-- A few more era-true storefront names in `SIGNS` (keep real brands light).
+### 2. Stronger Kalamazoo specificity — ✅ shipped
+Kalamazoo now names itself more plainly in-scene. `buildRoads()` adds green
+street-name blades for BURDICK · MICHIGAN · ROSE · SOUTH · PORTAGE in every
+post-frontier era. `buildRiver()` gives 2026/2050 an east-bank riverwalk:
+boardwalk planks, railings, benches, and overlook bulbs that make the city look
+at the water again. `buildWMU()` adds brown-and-gold banners plus book-carrying
+students on the hill, and 2026/2050 get a Bronco-colored shuttle between campus
+and downtown. `buildStorefronts()` now carries a tall 1970s office slab for
+1985+ so downtown's massing is less storybook and more honest, with a handful of
+more era-true storefront names in `SIGNS` (real brands still kept light). Smoke
+now asserts the phase-two visible markers so they do not quietly disappear.
 
-### 3. Better time-travel UX
+### 3. Better time-travel UX — ready next
 - **In-scene era scrubber:** a 6-dot timeline rail in the bottom HUD. Switching
   mid-scene keeps the camera where it stands (add `soft` option to `enterEra` —
   skip the camera reset, shorten the epigraph to a ~900ms veil). The payoff:
