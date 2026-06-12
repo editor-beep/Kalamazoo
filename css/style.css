@@ -457,6 +457,11 @@ kbd {
 .toast.bright { border-color: rgba(245, 158, 11, 0.4); }
 .toast.ache { border-color: rgba(148, 163, 184, 0.35); color: rgba(231, 229, 223, 0.8); }
 .toast.wonder { border-color: rgba(34, 211, 238, 0.4); }
+.toast.echo {
+  /* the city speaking unprompted: quieter than any event, serif, half-light */
+  border-color: rgba(196, 181, 153, 0.28); color: rgba(231, 229, 223, 0.72);
+  font-family: 'Fraunces', Georgia, serif; font-style: italic;
+}
 .toast .ti { flex-shrink: 0; margin-top: 1px; }
 .toast.gone { opacity: 0; transform: translateY(8px); }
 

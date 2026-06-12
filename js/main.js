@@ -180,6 +180,7 @@ function enterEra(id) {
       state.mode = 'era';
       state.timeOfDay = era.defaultTime;
       state.grief = 0;
+      echoIdle = 0;   // echoes reward dwelling, not arriving
       applyGrade(era);
       UI.showHUD(era);
       UI.renderResidents(state.world, focusPerson);
@@ -386,6 +387,12 @@ function applyEnvironment(world, day) {
     m.emissiveIntensity = 1.7 * Math.max(eveAmt, 0.06) * f;
   });
   world.stringMats.forEach(m => { m.emissiveIntensity = 2.6 * eveAmt; });
+
+  // memory hour: echoes of other layers shimmer in at dusk (palimpsest pass)
+  const echoAmt = 0.35 + eveAmt * 0.65;
+  world.echoMats.forEach((m, i) => {
+    m.opacity = m.userData.echoBase * echoAmt * (0.88 + 0.12 * Math.sin(elapsed * 0.6 + i * 1.7));
+  });
 }
 
 // ----------------------------------------------------------------- city events
@@ -568,6 +575,7 @@ function onResize() {
 // ----------------------------------------------------------------- loop
 
 let doingRefresh = 0;
+let echoIdle = 0, echoNext = 70 + Math.random() * 60;
 
 function animate() {
   requestAnimationFrame(animate);
@@ -621,6 +629,17 @@ function animate() {
   if (doingRefresh > 2.5) {
     doingRefresh = 0;
     if (state.mode === 'era') UI.refreshResidentDoings();
+  }
+
+  // the city remembers unprompted, rarely — one echo, then a long silence
+  if (state.mode === 'era' && state.era?.echoes?.length) {
+    echoIdle += dt;
+    if (echoIdle > echoNext) {
+      echoIdle = 0;
+      echoNext = 80 + Math.random() * 80;
+      const lines = state.era.echoes;
+      UI.toast(lines[Math.floor(Math.random() * lines.length)], 'echo', 7800);
+    }
   }
 }
 

@@ -230,7 +230,7 @@ export function riverVoice(line) {
 
 // ----------------------------------------------------------------- toasts
 
-const TOAST_ICONS = { bright: '✦', ache: '·', wonder: '✧', info: '○' };
+const TOAST_ICONS = { bright: '✦', ache: '·', wonder: '✧', info: '○', echo: '◌' };
 export function toast(text, kind = 'info', ms = 4200) {
   const box = el('toasts');
   const t = document.createElement('div');
