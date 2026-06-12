@@ -74,6 +74,18 @@ for (const era of ERAS) {
     if (!(w.echoMats?.length >= 1)) fail(`${era.key}: no echo layers — the palimpsest is missing`);
     for (const m of w.echoMats) if (!(m.userData.echoBase > 0 && m.userData.echoBase <= 0.2)) fail(`${era.key}: echo opacity ${m.userData.echoBase} outside the faint band`);
     if (!(w.scene.children.length >= 5)) fail(`${era.key}: scene suspiciously empty`);
+    const phase2Counts = {};
+    w.scene.traverse(o => {
+      const tag = o.userData?.phase2;
+      if (tag) phase2Counts[tag] = (phase2Counts[tag] || 0) + 1;
+    });
+    if (era.key !== 'boiling' && !(phase2Counts['street-sign'] >= 5)) fail(`${era.key}: missing street-name signs`);
+    if (['living', 'returns'].includes(era.key)) {
+      if (!(phase2Counts.riverwalk >= 1 && phase2Counts['riverwalk-overlook'] >= 2)) fail(`${era.key}: riverwalk/overlooks incomplete`);
+      if (!(phase2Counts['wmu-banner'] >= 3 && phase2Counts['wmu-student'] >= 3)) fail(`${era.key}: WMU hill lacks banner/student energy`);
+      if (!(phase2Counts['bronco-shuttle'] >= 1)) fail(`${era.key}: missing Bronco shuttle`);
+    }
+    if (['paper', 'living', 'returns'].includes(era.key) && !(phase2Counts['office-slab'] >= 1)) fail(`${era.key}: missing 1970s downtown office slab`);
     // run the simulation a few steps to shake out runtime errors
     for (let i = 0; i < 30; i++) w.update(1 / 30, i / 30, i % 2 ? 0.8 : 0.1);
     // exercise a train pass

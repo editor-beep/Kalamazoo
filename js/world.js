@@ -4,7 +4,7 @@
 import * as THREE from '../vendor/three/three.module.min.js';
 import { SkyShader, WaterShader } from './shaders.js';
 import {
-  Agent, Cruiser, Shuttle, Train,
+  Agent, Cruiser, Shuttle, Train, makePersonMesh,
   makeSmokeColumn, makeFireflies, makeMotes, updateChats,
 } from './agents.js';
 
@@ -95,6 +95,70 @@ function signTex(text, { bg = '#20242a', fg = '#f3ede2', font = 'bold 54px Georg
     ctx.fillText(text, w / 2, sub ? h / 2 - 16 : h / 2);
     if (sub) { ctx.font = '24px Georgia'; ctx.fillText(sub, w / 2, h / 2 + 32); }
   });
+}
+
+
+function makeStreetSign(name, x, z, rot = 0, sub = null) {
+  const g = new THREE.Group();
+  g.userData.phase2 = 'street-sign';
+  const pole = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.045, 0.045, 2.2, 8),
+    M({ color: 0x2c3330, roughness: 0.55, metalness: 0.35 })
+  );
+  pole.position.y = 1.1;
+  const blade = new THREE.Mesh(
+    new THREE.BoxGeometry(0.08, 0.42, 2.45),
+    new THREE.MeshStandardMaterial({
+      map: signTex(name, { bg: '#174d34', fg: '#f2f6ed', font: 'bold 42px Georgia', sub }),
+      color: 0xffffff,
+      roughness: 0.55,
+      metalness: 0.15,
+    })
+  );
+  blade.position.set(0, 2.15, 0);
+  g.add(pole, blade);
+  g.position.set(x, 0, z);
+  g.rotation.y = rot;
+  return g;
+}
+
+function makeBench(x, z, rot = 0, color = 0x4a4540) {
+  const g = new THREE.Group();
+  const mat = M({ color, roughness: 0.85 });
+  const seat = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.18, 0.48), mat);
+  seat.position.y = 0.42;
+  const back = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.65, 0.14), mat);
+  back.position.set(0, 0.76, -0.24);
+  [-0.7, 0.7].forEach(px => {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.42, 0.12), mat);
+    leg.position.set(px, 0.21, 0.12);
+    g.add(leg);
+  });
+  g.add(seat, back);
+  g.position.set(x, 0, z);
+  g.rotation.y = rot;
+  g.traverse(o => { if (o.isMesh) o.castShadow = true; });
+  return g;
+}
+
+function makeBanner(x, z, text) {
+  const g = new THREE.Group();
+  g.userData.phase2 = 'wmu-banner';
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 3.2, 8), M({ color: 0x2f2f2f, roughness: 0.5, metalness: 0.4 }));
+  pole.position.y = 1.6;
+  const banner = new THREE.Mesh(
+    new THREE.BoxGeometry(0.05, 1.05, 0.72),
+    new THREE.MeshStandardMaterial({
+      map: signTex(text, { bg: '#4b2e1f', fg: '#f1c232', font: 'bold 42px Georgia' }),
+      color: 0xffffff,
+      roughness: 0.7,
+    })
+  );
+  banner.position.set(0, 2.35, 0.38);
+  g.add(pole, banner);
+  g.position.set(x, 0, z);
+  g.rotation.y = -0.25;
+  return g;
 }
 
 function muralTex() {
@@ -307,6 +371,47 @@ function buildRiver(era, world) {
     g.add(bank);
   });
 
+  if (since(era, 'living')) {
+    const walkMat = M({ color: only(era, 'returns') ? 0x8f7a55 : 0x6d5940, roughness: 0.82 });
+    const boardwalk = new THREE.Mesh(new THREE.BoxGeometry(2.35, 0.22, 62), walkMat);
+    boardwalk.position.set(-24.1, 0.2, -13);
+    boardwalk.receiveShadow = true;
+    boardwalk.castShadow = true;
+    boardwalk.userData.phase2 = 'riverwalk';
+    g.add(boardwalk);
+
+    // Board seams keep it feeling hand-built, not poured.
+    for (let z = -42; z <= 16; z += 4) {
+      const seam = new THREE.Mesh(new THREE.BoxGeometry(2.45, 0.04, 0.045), M({ color: 0x3d3327, roughness: 0.9 }));
+      seam.position.set(-24.1, 0.34, z);
+      g.add(seam);
+    }
+
+    const railMat = M({ color: 0x3f493b, roughness: 0.72, metalness: 0.15 });
+    [-25.35, -22.85].forEach(x => {
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.15, 62), railMat);
+      rail.position.set(x, 0.95, -13);
+      g.add(rail);
+      for (let z = -42; z <= 16; z += 6) {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.95, 0.13), railMat);
+        post.position.set(x, 0.58, z);
+        g.add(post);
+      }
+    });
+
+    [-36, -22, -8, 8].forEach((z, i) => {
+      g.add(makeBench(-21.85, z, Math.PI / 2, i % 2 ? 0x5a5148 : 0x4a4540));
+    });
+
+    [-30, -2].forEach(z => {
+      const overlook = new THREE.Mesh(new THREE.CylinderGeometry(2.1, 2.1, 0.24, 16, 1, false, Math.PI * 0.5, Math.PI), walkMat);
+      overlook.position.set(-24.8, 0.23, z);
+      overlook.rotation.y = Math.PI;
+      overlook.userData.phase2 = 'riverwalk-overlook';
+      g.add(overlook);
+    });
+  }
+
   // sandbars in the rewilded future
   if (only(era, 'returns', 'boiling')) {
     for (let i = 0; i < 4; i++) {
@@ -459,6 +564,16 @@ function buildRoads(era, world) {
     });
   }
 
+  if (!only(era, 'boiling')) {
+    [
+      ['BURDICK', 5.9, 10.5, 0, 'ST'],
+      ['MICHIGAN', 2.5, 13.9, Math.PI / 2, 'AVE'],
+      ['ROSE', -13.7, 13.9, Math.PI / 2, 'ST'],
+      ['SOUTH', 5.9, -26.2, Math.PI / 2, 'ST'],
+      ['PORTAGE', 22.2, 13.9, 0, 'ST'],
+    ].forEach(([name, x, z, rot, sub]) => g.add(makeStreetSign(name, x, z, rot, sub)));
+  }
+
   // The Kalamazoo Mall: Burdick z -24..6, pedestrian from 1959 on
   if (since(era, 'mall')) {
     const pavTex = brickTex(only(era, 'returns') ? '#9a8f78' : '#9b8a74', '#6f6354', 16);
@@ -533,7 +648,7 @@ function buildStorefronts(era, world) {
     celery: ['GILMORE BROS.', 'DRY GOODS', 'OAKLAND PHARMACY', 'MILLINERY', 'GAZETTE', 'CORSETS', 'HARDWARE'],
     mall: ['GILMORE BROTHERS', 'S.S. KRESGE', 'WOOLWORTH', 'SHOES', 'RECORDS', 'LUNCH', 'CAMERA SHOP'],
     paper: ['FOR LEASE', 'GILMORE BROTHERS', 'CLUB SODA', 'DINER', 'RESALE', 'TV REPAIR', 'PAWN'],
-    living: ['COFFEE & POEMS', 'MICHIGAN NEWS', 'TAQUERIA', 'BIKE SHOP', 'GALLERY', 'BOOKS', 'BREWPUB'],
+    living: ['WATER STREET COFFEE', 'MICHIGAN NEWS', 'SHAWARMA KING', 'BIKE SHOP', 'KIA GALLERY', 'BOOKBUG', "BELL'S TAPROOM"],
     returns: ['SEED LIBRARY', 'RIVER OUTFITTERS', 'REPAIR CAFE', 'BAKERY', 'STUDIO', 'MARKET HALL', 'TOOL SHARE'],
   };
   const signs = SIGNS[era.key];
@@ -653,6 +768,34 @@ function buildStorefronts(era, world) {
       z += bw + (wood ? rand(0.8, 2.2) : 0.15);
     }
   });
+
+
+  if (since(era, 'paper')) {
+    // A little 1970s massing honesty: downtown is not only fine-grained brick.
+    const slab = new THREE.Group();
+    slab.userData.phase2 = 'office-slab';
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(7.2, 21, 9.4),
+      M({ color: only(era, 'paper') ? 0x6e746f : 0x7b827d, roughness: 0.72, metalness: 0.12 })
+    );
+    body.position.set(14.2, 10.5, 4.6);
+    body.castShadow = true;
+    body.receiveShadow = true;
+    slab.add(body);
+    const glassMat = new THREE.MeshStandardMaterial({ color: 0x385060, roughness: 0.2, metalness: 0.25, emissive: new THREE.Color(era.vis.lamp || '#ffd9a0'), emissiveIntensity: 0 });
+    world.windowMats.push(glassMat);
+    for (let floor = 0; floor < 7; floor++) {
+      for (let col = -1; col <= 1; col++) {
+        const win = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.15, 1.25), glassMat);
+        win.position.set(10.55, 2.0 + floor * 2.65, 4.6 + col * 2.45);
+        slab.add(win);
+      }
+    }
+    const crown = new THREE.Mesh(new THREE.BoxGeometry(7.7, 0.55, 9.8), M({ color: 0x424744, roughness: 0.8 }));
+    crown.position.set(14.2, 21.25, 4.6);
+    slab.add(crown);
+    g.add(slab);
+  }
 
   return g;
 }
@@ -1333,6 +1476,26 @@ function buildWMU(era, world) {
     tower.castShadow = true;
     g.add(tower);
   }
+  if (since(era, 'living')) {
+    [[cx - 10.5, cz - 2.5, 'WMU'], [cx + 10.2, cz - 0.5, 'BRONCOS'], [cx - 2, cz - 7.2, 'GOLD']]
+      .forEach(([x, z, text]) => g.add(makeBanner(x, z, text)));
+    const plaza = new THREE.Mesh(new THREE.CircleGeometry(4.2, 18), M({ color: 0x6d6252, roughness: 0.9 }));
+    plaza.rotation.x = -Math.PI / 2;
+    plaza.position.set(cx - 2, 6.05, cz - 2.8);
+    plaza.userData.phase2 = 'wmu-plaza';
+    g.add(plaza);
+    [
+      { x: cx - 4.2, z: cz - 3.6, body: '#5c3a21' },
+      { x: cx - 1.8, z: cz - 5.1, body: '#f1c232' },
+      { x: cx + 1.6, z: cz - 3.0, body: '#3f4f6f' },
+    ].forEach((stu, i) => {
+      const { group: student } = makePersonMesh({ body: stu.body, skin: i % 4, hat: i === 1 ? 'cap' : 'none', prop: 'book' });
+      student.position.set(stu.x, 6.08, stu.z);
+      student.rotation.y = rand(-0.6, 0.6);
+      student.userData.phase2 = 'wmu-student';
+      g.add(student);
+    });
+  }
 
   world.pickLandmarks.push(g);
   return g;
@@ -1802,7 +1965,13 @@ export function buildEraWorld(era) {
     world.cruisers.push(new Cruiser('ev', 0x4a6b8a, loopA, 6.2, 0));
     world.cruisers.push(new Cruiser('bus', 0x3a7a5f, loopA, 5.2, 80));
     world.cruisers.push(new Cruiser('bike', 0x2a9d8f, loopA, 3.4, 40));
+    const bronco = new Shuttle('bus', 0x5c3a21, { x: -70, z: 36 }, { x: -12, z: 10 }, 4.0);
+    bronco.mesh.userData.phase2 = 'bronco-shuttle';
+    world.cruisers.push(bronco);
   } else {
+    const bronco = new Shuttle('bus', 0x5c3a21, { x: -70, z: 36 }, { x: -12, z: 10 }, 4.2);
+    bronco.mesh.userData.phase2 = 'bronco-shuttle';
+    world.cruisers.push(bronco);
     world.cruisers.push(new Shuttle('bus', 0x4f8a6b, { x: -10, z: 10 }, { x: 42, z: 10 }, 4.5));
     world.cruisers.push(new Cruiser('bike', 0x2a9d8f, loopA, 3.2, 0));
     world.cruisers.push(new Cruiser('bike', 0xc28a2f, loopA, 3.6, 70));
