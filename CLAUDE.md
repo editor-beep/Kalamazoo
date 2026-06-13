@@ -21,6 +21,8 @@ suffering of Kalamazoo, and also the magic, and the poetry.**
 ```
 index.html          UI shell + import map ("three" → vendored module)
 css/style.css       hand-rolled glassmorphism; Fraunces (serif/poetry) + Inter (UI)
+js/geo.js           shared geography contract — spine coords + safety bands,
+                    imported by world.js, agents.js, smoke.mjs (one source of truth)
 js/data.js          THE HEART — all content (see below)
 js/shaders.js       sky dome, animated water, film-grade post pass (GLSL)
 js/world.js         shared geography assembled nine ways → EraWorld objects
@@ -56,17 +58,25 @@ environments — the code is structured so this is meaningful verification.
 3. **Three.js is imported via relative path** (`../vendor/three/three.module.min.js`)
    in every module; the import map resolves bare `three` (used by vendored addons)
    to the same URL, so there is exactly one THREE instance.
-4. **The shared geography.** Anchored coordinates, identical in every era:
+4. **The shared geography** (survey-true to the real map: +x East, +z North,
+   the river on the EAST — it sat on the west until the landmarks-layout pass
+   un-mirrored the city). Spine + bands live in `js/geo.js`; anchors are
+   identical in every era:
    | Place | Coords | Place | Coords |
    |---|---|---|---|
-   | River centerline | x ≈ −34 | Burdick St (the Mall z −24..6) | x = 0 |
+   | River centerline | x ≈ +34 (east) | Burdick St (the Mall z −24..6) | x = 0 |
    | Michigan Ave | z = 10 | Rail line | z = 40 |
-   | Bronson Park | (20, −14) | Mill ground | (−22, −27) |
-   | Celery flats | (36, −40) | Allied/superfund | (−18, −52) |
+   | Bronson Park | (−4, −2) | Mill ground | (−22, −27) |
+   | Celery flats | (−36, −40) | Allied/superfund | (−18, −52) |
    | Asylum tower hill | (−56, −54) | WMU hill | (−64, 36) |
-   | Gibson/Heritage | (28, 50) | State Theatre | (10, −10.5) |
-   | Depot | (12, ~45) | Bridge | (−34, 10) |
-5. **Safety bands.** Residents must never walk on the river (x ∈ −46..−22.5) or
+   | Gibson/Heritage | (16, 52) | State Theatre | (10, −10.5) |
+   | Depot | (12, ~45) | Bridge | (+34, 10) |
+   The downtown landmarks (`buildDowntownLandmarks`) place at the projected
+   positions from that map; Shakespeare's/Pro Co sit in the Michigan core, the
+   library at the foot of Rose. Off-map anchors (mill, flats, church, houses)
+   stay on the west/land side, consistent with the east river.
+5. **Safety bands** (defined once in `geo.js`, imported by `agents.js` and
+   `smoke.mjs`). Residents must never walk on the river (x ∈ 22.5..46, east) or
    loiter on the rails (z ∈ 38..42; depot platform z ≈ 42.3 stays reachable).
    `Agent.pickTarget()` clamps; the smoke test fuzzes it. New anchors/walk logic
    must respect these.
@@ -88,8 +98,10 @@ environments — the code is structured so this is meaningful verification.
    that skips registration gets residents walking through its walls. The rail
    crossing is a dynamic obstacle (`world.railBlock.active`, set by the train).
    Vehicles stay on drawn streets: the downtown loop runs Rose (x −12.8) → South
-   (z −26) → Portage (x 31, east of the park — never through it) → Michigan
-   (z 10); the campus shuttle crosses the river on the bridge deck, elevated.
+   (z −26) → Portage (x 20, pulled west of the east river) → Michigan (z 10).
+   The Michigan shuttle crosses the east river on the bridge deck at z 10 (the
+   bridge registers no wall — it's meant to be driven on); the campus shuttle
+   runs Stadium Dr in from the west and no longer crosses the water.
 
 ## Content model (`js/data.js`)
 

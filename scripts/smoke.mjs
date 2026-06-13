@@ -13,6 +13,7 @@ const ok = msg => console.log('  ✓', msg);
 
 // ---------------------------------------------------------------- data layer
 const { ERAS, STRATA, LINEAGES, SKIN_TONES } = await import('../js/data.js');
+const { GEO, inRiver, onRails } = await import('../js/geo.js');
 
 console.log('\n[data]');
 if (ERAS.length !== 9) fail(`expected 9 eras, got ${ERAS.length}`);
@@ -78,6 +79,8 @@ for (const era of ERAS) {
     const w = buildEraWorld(era);
     if (w.agents.length !== era.people.length) fail(`${era.key}: ${w.agents.length} agents vs ${era.people.length} people`);
     if (!w.water) fail(`${era.key}: no river`);
+    // survey-true: the river runs the EAST edge (it sat on the west pre-correction)
+    if (!(w.water.mesh.position.x === GEO.riverX && GEO.riverX > 0)) fail(`${era.key}: river is not on the east bank (x=${w.water.mesh.position.x})`);
     // the rails are non-negotiable from 1846 on; in 1831 they are a rumor
     if (era.key === 'founding') {
       if (w.train) fail('founding: a railroad fifteen years early');
@@ -124,9 +127,7 @@ for (const era of ERAS) {
     for (let i = 0; i < 30; i++) w.update(1 / 30, i / 30, i % 2 ? 0.8 : 0.1);
     // exercise a train pass (1831 has no train to exercise)
     if (w.train) { w.train.start(); for (let i = 0; i < 10; i++) w.train.update(0.5); }
-    // nobody gathers in the river or on the rails
-    const inRiver = (x) => x > -46 && x < -22.5;
-    const onRails = (z) => z > 38 && z < 42;
+    // nobody gathers in the river or on the rails (bands from geo.js)
     for (const a of w.anchors) {
       if (inRiver(a.x)) fail(`${era.key}: anchor (${a.x},${a.z}) is in the river`);
       if (onRails(a.z)) fail(`${era.key}: anchor (${a.x},${a.z}) is on the rails`);
