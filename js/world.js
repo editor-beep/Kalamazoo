@@ -15,6 +15,15 @@ const only = (era, ...keys) => keys.includes(era.key);
 
 const M = opts => new THREE.MeshStandardMaterial(opts);
 
+// Solid construction registers its footprint so people, vehicles, and trees
+// respect it (invariant 8). Center + size, or explicit bounds.
+const block = (world, cx, cz, w, d) =>
+  world.obstacles.push({ x1: cx - w / 2, z1: cz - d / 2, x2: cx + w / 2, z2: cz + d / 2 });
+const blockBounds = (world, x1, z1, x2, z2) =>
+  world.obstacles.push({ x1, z1, x2, z2 });
+const inFootprint = (world, x, z, pad = 0) =>
+  world.obstacles.some(b => x > b.x1 - pad && x < b.x2 + pad && z > b.z1 - pad && z < b.z2 + pad);
+
 // Per-era seeded PRNG: construction is deterministic, so the city is the
 // *same city* every visit. Agent wander (agents.js) stays truly random.
 function mulberry32(seed) {
@@ -527,6 +536,7 @@ function buildRiver(era, world) {
   bridge.position.set(-34, 0, 10);
   g.add(bridge);
   world.pickLandmarks.push(bridge);
+  block(world, -34, 10, bw, deck.geometry.parameters.depth);
 
   return g;
 }
@@ -549,8 +559,8 @@ function buildRoads(era, world) {
   mkRoad(7, 104, 0, 4);                      // Burdick (N-S)
   mkRoad(110, 7, -5, 10, Math.PI / 2);       // Michigan Ave (E-W)
   mkRoad(88, 6, 3, -26, Math.PI / 2);        // South St
-  mkRoad(6, 70, 22, -2);                     // East St
-  mkRoad(6, 72, -14, 0);                     // River Rd
+  mkRoad(6, 50, 31, -12);                    // Portage St — east of the park, not through it
+  mkRoad(6, 72, -14, 0);                     // Rose St / River Rd
 
   // sidewalks along Burdick + Michigan
   if (!only(era, 'boiling')) {
@@ -570,7 +580,7 @@ function buildRoads(era, world) {
       ['MICHIGAN', 2.5, 13.9, Math.PI / 2, 'AVE'],
       ['ROSE', -13.7, 13.9, Math.PI / 2, 'ST'],
       ['SOUTH', 5.9, -26.2, Math.PI / 2, 'ST'],
-      ['PORTAGE', 22.2, 13.9, 0, 'ST'],
+      ['PORTAGE', 34.3, 13.9, 0, 'ST'],
     ].forEach(([name, x, z, rot, sub]) => g.add(makeStreetSign(name, x, z, rot, sub)));
   }
 
@@ -596,6 +606,7 @@ function buildRoads(era, world) {
       planter.position.set(i % 2 === 0 ? -2.4 : 2.4, 0.3, z);
       planter.castShadow = true;
       g.add(planter);
+      block(world, planter.position.x, z, 2.1, 2.1);
       const bush = new THREE.Mesh(new THREE.SphereGeometry(0.8, 8, 6), M({ color: pick(era.vis.foliage), roughness: 0.9 }));
       bush.position.set(planter.position.x, 0.95, z);
       bush.castShadow = true;
@@ -671,12 +682,16 @@ function buildStorefronts(era, world) {
 
   // Each row: faceX = x of the street-facing wall; facing = +1 faces +x, -1 faces -x.
   // Buildings run along z; width bw is the z-extent, depth bd the x-extent.
+  // West rows stay shallow: the block between Burdick and Rose St is only
+  // ~5.8 deep, and deeper backs used to sit in the street the cars drive.
   const rows = [
-    { faceX: -5.4, facing: 1, from: -24, to: 4 },
+    { faceX: -5.4, facing: 1, from: -24, to: 4, depth: [4.6, 5.4] },
     { faceX: 5.4, facing: -1, from: -22, to: -16 },   // gap for the State Theatre
     { faceX: 5.4, facing: -1, from: -4, to: 6 },
   ];
-  if (!wood) rows.push({ faceX: -5.4, facing: 1, from: 14, to: 30 }, { faceX: 5.4, facing: -1, from: 15, to: 30 });
+  // North of Michigan: the west side keeps shops (Mission caps the block);
+  // the east side belongs to the hotel / Flipside / Rickman cluster.
+  if (!wood) rows.push({ faceX: -5.4, facing: 1, from: 14, to: 28, depth: [4.6, 5.4] });
 
   rows.forEach(row => {
     let z = row.from;
@@ -685,7 +700,7 @@ function buildStorefronts(era, world) {
       if (z + bw > row.to + 2.5) break;
       const floors = wood ? 1 : (R() < 0.4 ? 3 : 2);
       const bh = wood ? rand(3.4, 4.2) : 3.1 * floors + 0.8;
-      const bd = rand(7, 9);
+      const bd = row.depth ? rand(row.depth[0], row.depth[1]) : rand(7, 9);
       const base = pick(palette);
       const cx = row.faceX - row.facing * (bd / 2);   // body center x
       const cz = z + bw / 2;                          // body center z
@@ -701,6 +716,7 @@ function buildStorefronts(era, world) {
       body.position.set(cx, bh / 2, cz);
       body.castShadow = true; body.receiveShadow = true;
       bld.add(body);
+      block(world, cx, cz, bd, bw - 0.35);
 
       // cornice
       const cornice = new THREE.Mesh(new THREE.BoxGeometry(bd + 0.25, 0.35, bw - 0.2), M({ color: shade(base, -50), roughness: 0.8 }));
@@ -782,21 +798,22 @@ function buildStorefronts(era, world) {
       new THREE.BoxGeometry(7.2, 21, 9.4),
       M({ color: only(era, 'paper', 'nineties') ? 0x6e746f : 0x7b827d, roughness: 0.72, metalness: 0.12 })
     );
-    body.position.set(14.2, 10.5, 4.6);
+    body.position.set(14.2, 10.5, 1.8);   // flush to Michigan Ave, not on it
     body.castShadow = true;
     body.receiveShadow = true;
     slab.add(body);
+    block(world, 14.2, 1.8, 7.2, 9.4);
     const glassMat = new THREE.MeshStandardMaterial({ color: 0x385060, roughness: 0.2, metalness: 0.25, emissive: new THREE.Color(era.vis.lamp || '#ffd9a0'), emissiveIntensity: 0 });
     world.windowMats.push(glassMat);
     for (let floor = 0; floor < 7; floor++) {
       for (let col = -1; col <= 1; col++) {
         const win = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.15, 1.25), glassMat);
-        win.position.set(10.55, 2.0 + floor * 2.65, 4.6 + col * 2.45);
+        win.position.set(10.55, 2.0 + floor * 2.65, 1.8 + col * 2.45);
         slab.add(win);
       }
     }
     const crown = new THREE.Mesh(new THREE.BoxGeometry(7.7, 0.55, 9.8), M({ color: 0x424744, roughness: 0.8 }));
-    crown.position.set(14.2, 21.25, 4.6);
+    crown.position.set(14.2, 21.25, 1.8);
     slab.add(crown);
     g.add(slab);
   }
@@ -858,6 +875,7 @@ function buildTheatre(era, world) {
   // sits in the gap left in the east storefront row; blade & marquee are on
   // the local -x side, so the front faces the Mall to the west
   g.position.set(10, 0, -10.5);
+  block(world, 10, -10.5, 7.5, 9);
   world.pickLandmarks.push(g);
   return g;
 }
@@ -867,25 +885,27 @@ function buildGazette(era, world) {
   if (!since(era, 'mall') || era.key === 'returns') return null;
   const g = new THREE.Group();
   g.userData.landmark = 'gazette';
-  const cx = -10.2, cz = -10.5;
+  // slimmed and pulled east so its back wall no longer sits in Rose St
+  const cx = -8.2, cz = -10.5;
   const body = new THREE.Mesh(
-    new THREE.BoxGeometry(7.8, 8.8, 8.8),
+    new THREE.BoxGeometry(6.5, 8.8, 8.8),
     new THREE.MeshStandardMaterial({ map: brickTex('#8f7b61', '#5f5243', 16), color: 0xffffff, roughness: 0.86 })
   );
   body.position.set(cx, 4.4, cz);
   body.castShadow = true; body.receiveShadow = true;
   g.add(body);
-  const press = new THREE.Mesh(new THREE.BoxGeometry(5.5, 2.0, 5.2), M({ color: 0x2a2d31, roughness: 0.65, metalness: 0.25 }));
+  block(world, cx, cz, 6.5, 8.8);
+  const press = new THREE.Mesh(new THREE.BoxGeometry(5.0, 2.0, 5.2), M({ color: 0x2a2d31, roughness: 0.65, metalness: 0.25 }));
   press.position.set(cx - 0.2, 1.15, cz + 0.6);
   press.userData.phase2 = 'gazette-press';
   g.add(press);
   const facade = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.4, 6.6), new THREE.MeshStandardMaterial({ map: signTex('KALAMAZOO GAZETTE', { bg: '#2e2a24', fg: '#eadfcf', font: 'bold 38px Georgia' }), color: 0xffffff, roughness: 0.7 }));
-  facade.position.set(cx + 4.02, 5.6, cz);
+  facade.position.set(cx + 3.32, 5.6, cz);
   g.add(facade);
   const reliefMat = M({ color: 0xd7c7a8, roughness: 0.75 });
   [-2.5, 2.5].forEach(dz => {
     const pil = new THREE.Mesh(new THREE.BoxGeometry(0.16, 5.6, 0.42), reliefMat);
-    pil.position.set(cx + 4.08, 3.3, cz + dz);
+    pil.position.set(cx + 3.38, 3.3, cz + dz);
     g.add(pil);
   });
   world.pickLandmarks.push(g);
@@ -913,19 +933,21 @@ function buildNightlifeAndShops(era, world) {
     door.position.set(-w * 0.25, 1.0, -d / 2 - 0.09);
     v.add(door);
     v.position.set(x, 0, z);
+    block(world, x, z, w, d);
     world.pickLandmarks.push(v);
     g.add(v);
     return v;
   };
 
-  // 1 Main is compressed to the Michigan/Main edge of the model, near the bridge.
-  makeVenue({ key: 'clubsoda', label: 'CLUB SODA', sub: '1 MAIN', x: -8.5, z: 13.4, w: 6.2, d: 5.4, h: 4.8, color: '#4b3b45', neon: '#7de3ff' });
+  // 1 Main is compressed to the Michigan/Main edge of the model, near the
+  // bridge — west of Rose St, off the avenue itself, facing the corner.
+  makeVenue({ key: 'clubsoda', label: 'CLUB SODA', sub: '1 MAIN', x: -20.2, z: 16.6, w: 6.2, d: 5.4, h: 4.8, color: '#4b3b45', neon: '#7de3ff' });
   if (since(era, 'nineties')) {
     // Flipside's 1990 move lands it near N. Burdick/Eleanor; north is +z here.
-    makeVenue({ key: 'flipside', label: 'FLIPSIDE', sub: '309 N. BURDICK', x: 7.6, z: 25.6, w: 6.8, d: 5.8, h: 4.4, color: '#5a4638', neon: '#ffd24d' });
+    makeVenue({ key: 'flipside', label: 'FLIPSIDE', sub: '309 N. BURDICK', x: 8.8, z: 26, w: 6.8, d: 5.8, h: 4.4, color: '#5a4638', neon: '#ffd24d' });
   }
   if (only(era, 'seventies', 'paper', 'nineties')) {
-    makeVenue({ key: 'planetclaire', label: 'PLANET CLAIRE', sub: 'imports • candles • oddities', x: -7.6, z: 20.6, w: 6.0, d: 5.0, h: 4.1, color: '#4b3d5c', neon: '#e68cff' });
+    makeVenue({ key: 'planetclaire', label: 'PLANET CLAIRE', sub: 'imports • candles • oddities', x: -20.2, z: 22.5, w: 6.0, d: 5.0, h: 4.1, color: '#4b3d5c', neon: '#e68cff' });
   }
   return g;
 }
@@ -948,6 +970,8 @@ function buildNorthwestUnit(era, world) {
   wing.position.set(cx + 8.2, 2.8, cz);
   wing.castShadow = true; wing.receiveShadow = true;
   g.add(wing);
+  block(world, cx, cz, 16, 6);
+  block(world, cx + 8.2, cz, 5.2, 12);
   const winMat = M({ color: vacant ? 0x1f2428 : 0x557286, roughness: 0.35 });
   for (let floor = 0; floor < 3; floor++) for (let col = -3; col <= 3; col++) {
     const win = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.8, 0.72), winMat);
@@ -976,11 +1000,13 @@ function buildUpjohn(era, world) {
   body.position.set(cx, (modern ? 7 : 4.6) / 2, cz);
   body.castShadow = true; body.receiveShadow = true;
   g.add(body);
+  block(world, cx, cz, modern ? 13 : 7, modern ? 7 : 5);
   if (modern) {
     const tower = new THREE.Mesh(new THREE.BoxGeometry(4.4, 13, 4.4), M({ color: 0xc9bea8, roughness: 0.72 }));
     tower.position.set(cx + 4.8, 6.5, cz + 1.4);
     tower.castShadow = true;
     g.add(tower);
+    block(world, cx + 4.8, cz + 1.4, 4.4, 4.4);
   }
   const sign = new THREE.Mesh(new THREE.BoxGeometry(6.6, 1.1, 0.12), new THREE.MeshStandardMaterial({ map: signTex(since(era, 'nineties') ? 'PHARMACIA & UPJOHN' : 'UPJOHN', { bg: '#efe8dc', fg: '#2d3942', font: 'bold 42px Georgia', sub: modern ? 'research • patents • pills' : 'friable pills' }), color: 0xffffff }));
   sign.position.set(cx, modern ? 3.2 : 2.6, cz - (modern ? 3.58 : 2.58));
@@ -1014,19 +1040,24 @@ function buildMillSite(era, world) {
     world.millWheel = wheel;
     mill.position.copy(pos);
     g.add(mill);
+    block(world, pos.x, pos.z, 7, 6);
   } else if (only(era, 'celery', 'mall', 'seventies', 'paper', 'nineties')) {
     const dead = ['paper', 'nineties'].includes(era.key);
     const base = dead ? '#6e5648' : '#7d4030';
     const mat = new THREE.MeshStandardMaterial({ map: brickTex(base, shade(base, -38), 20), color: 0xffffff, roughness: 0.9 });
-    const body = new THREE.Mesh(new THREE.BoxGeometry(16, 9, 11), mat);
+    // body sits a step west of the anchor so its east wall clears the
+    // Rose St traffic that turns the loop's southwest corner
+    const body = new THREE.Mesh(new THREE.BoxGeometry(14, 9, 11), mat);
     body.position.y = 4.5;
     body.castShadow = true; body.receiveShadow = true;
     body.position.copy(pos).setY(4.5);
+    body.position.x = pos.x - 1;
     g.add(body);
+    block(world, pos.x - 1, pos.z, 14, 11);
     // sawtooth roof
     for (let i = 0; i < 4; i++) {
       const tooth = new THREE.Mesh(new THREE.BoxGeometry(3.6, 1.6, 11), M({ color: 0x3f3832, roughness: 0.85 }));
-      tooth.position.set(pos.x - 6 + i * 4, 9.6, pos.z);
+      tooth.position.set(pos.x - 6.8 + i * 3.4, 9.6, pos.z);
       tooth.rotation.z = 0.32;
       g.add(tooth);
     }
@@ -1038,7 +1069,7 @@ function buildMillSite(era, world) {
     if (!dead) world.windowMats.push(winMat);
     for (let i = 0; i < 6; i++) {
       const win = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.2, 0.08), winMat);
-      win.position.set(pos.x - 6.5 + i * 2.6, 4.6, pos.z + 5.56);
+      win.position.set(pos.x - 7.5 + i * 2.5, 4.6, pos.z + 5.56);
       g.add(win);
       if (dead && R() < 0.5) {
         // broken pane boards
@@ -1052,7 +1083,7 @@ function buildMillSite(era, world) {
     const stacks = dead ? 1 : 2;
     for (let i = 0; i < stacks; i++) {
       const stack = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.05, 12, 10), M({ color: 0x57423a, roughness: 0.9 }));
-      stack.position.set(pos.x + 5.5 - i * 3.4, 6, pos.z - 3.4);
+      stack.position.set(pos.x + 4.1 - i * 3.4, 6, pos.z - 3.4);
       stack.castShadow = true;
       g.add(stack);
       if (i === 0) world.stackTop = stack.position.clone().setY(12.4);
@@ -1061,21 +1092,23 @@ function buildMillSite(era, world) {
       new THREE.BoxGeometry(0.2, 1.4, 9),
       new THREE.MeshStandardMaterial({ map: signTex(dead ? 'PLANT FOR SALE' : 'KALAMAZOO PAPER CO.', { bg: '#2a241e' }), color: 0xffffff })
     );
-    millSign.position.set(pos.x + 8.1, 6.4, pos.z);
+    millSign.position.set(pos.x + 6.1, 6.4, pos.z);
     g.add(millSign);
     if (dead) {
-      const fence = new THREE.Mesh(new THREE.BoxGeometry(20, 1.5, 0.08), M({ color: 0x8a8a8a, roughness: 0.6, metalness: 0.6, transparent: true, opacity: 0.45 }));
-      fence.position.set(pos.x, 0.75, pos.z + 7.4);
+      const fence = new THREE.Mesh(new THREE.BoxGeometry(14, 1.5, 0.08), M({ color: 0x8a8a8a, roughness: 0.6, metalness: 0.6, transparent: true, opacity: 0.45 }));
+      fence.position.set(pos.x - 1, 0.75, pos.z + 7.4);
       g.add(fence);
     }
   } else if (only(era, 'living')) {
     // the brewery in the mill shell
     const base = '#7d4030';
     const mat = new THREE.MeshStandardMaterial({ map: brickTex(base, shade(base, -30), 20), color: 0xffffff, roughness: 0.8 });
-    const body = new THREE.Mesh(new THREE.BoxGeometry(16, 9, 11), mat);
+    const body = new THREE.Mesh(new THREE.BoxGeometry(14, 9, 11), mat);
     body.position.copy(pos).setY(4.5);
+    body.position.x = pos.x - 1;
     body.castShadow = true; body.receiveShadow = true;
     g.add(body);
+    block(world, pos.x - 1, pos.z, 14, 11);
     const winMat = new THREE.MeshStandardMaterial({
       color: 0x3a4a58, roughness: 0.2, metalness: 0.3,
       emissive: new THREE.Color('#ffd9a0'), emissiveIntensity: 0.15,
@@ -1083,11 +1116,11 @@ function buildMillSite(era, world) {
     world.windowMats.push(winMat);
     for (let i = 0; i < 6; i++) {
       const win = new THREE.Mesh(new THREE.BoxGeometry(1.7, 2.6, 0.08), winMat);
-      win.position.set(pos.x - 6.5 + i * 2.6, 4.6, pos.z + 5.56);
+      win.position.set(pos.x - 7.4 + i * 2.45, 4.6, pos.z + 5.56);
       g.add(win);
     }
     const stack = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.05, 12, 10), M({ color: 0x57423a, roughness: 0.9 }));
-    stack.position.set(pos.x + 5.5, 6, pos.z - 3.4);
+    stack.position.set(pos.x + 4.1, 6, pos.z - 3.4);
     g.add(stack);
     // tanks
     for (let i = 0; i < 3; i++) {
@@ -1100,7 +1133,7 @@ function buildMillSite(era, world) {
       new THREE.BoxGeometry(0.2, 1.6, 9),
       new THREE.MeshStandardMaterial({ map: signTex('OLD MILL BREWING', { bg: '#1d2a24', fg: '#ffd98a' }), color: 0xffffff, emissive: new THREE.Color('#ffd98a'), emissiveIntensity: 0 })
     );
-    sign.position.set(pos.x + 8.1, 6.4, pos.z);
+    sign.position.set(pos.x + 6.1, 6.4, pos.z);
     g.add(sign);
     world.marqueeMats.push(sign.material);
     // patio
@@ -1124,10 +1157,12 @@ function buildMillSite(era, world) {
     wall1.position.set(pos.x, 3, pos.z - 5);
     wall1.castShadow = true;
     g.add(wall1);
+    block(world, pos.x, pos.z - 5, 16, 0.8);
     const wall2 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 7.5, 8), wallMat);
     wall2.position.set(pos.x - 7.6, 3.75, pos.z - 1);
     wall2.castShadow = true;
     g.add(wall2);
+    block(world, pos.x - 7.6, pos.z - 1, 0.8, 8);
     // window openings as arches of sky: cut effect via dark frames
     for (let i = 0; i < 4; i++) {
       const frame = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.4, 0.9), M({ color: 0x2a2018, roughness: 1 }));
@@ -1164,7 +1199,8 @@ function buildPark(era, world) {
   g.userData.landmark = 'park';
   const center = new THREE.Vector3(20, 0, -14);
 
-  const lawn = new THREE.Mesh(new THREE.PlaneGeometry(19, 19), M({ color: only(era, 'paper') ? 0x4a5c3a : 0x3e6b35, roughness: 0.95 }));
+  // lawn ends flush at the Portage St curb (x = 28) instead of under it
+  const lawn = new THREE.Mesh(new THREE.PlaneGeometry(16, 19), M({ color: only(era, 'paper') ? 0x4a5c3a : 0x3e6b35, roughness: 0.95 }));
   lawn.rotation.x = -Math.PI / 2;
   lawn.position.set(center.x, 0.035, center.z);
   lawn.receiveShadow = true;
@@ -1172,7 +1208,7 @@ function buildPark(era, world) {
 
   // diagonal paths
   [-Math.PI / 4, Math.PI / 4].forEach(rot => {
-    const path = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 25), M({ color: 0x9b9484, roughness: 0.9 }));
+    const path = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 22), M({ color: 0x9b9484, roughness: 0.9 }));
     path.rotation.x = -Math.PI / 2;
     path.rotation.z = rot;
     path.position.set(center.x, 0.045, center.z);
@@ -1181,9 +1217,10 @@ function buildPark(era, world) {
 
   // the oaks that heard Lincoln
   const oakScale = { boiling: 0.85, celery: 1.1, mall: 1.35, seventies: 1.4, paper: 1.45, nineties: 1.52, living: 1.6, returns: 1.2 }[era.key];
-  [[-6.5, -6], [6.5, -6.5], [-6, 6.5], [7, 6]].forEach(([ox, oz], i) => {
+  [[-6.5, -6], [6.5, -6.5], [-6, 6.5], [5.8, 6]].forEach(([ox, oz], i) => {
     const s = (era.key === 'returns' && i > 1) ? 0.7 : oakScale; // great-grandchildren oaks
     g.add(makeTree(center.x + ox, center.z + oz, s, era.vis.foliage, 'oak'));
+    block(world, center.x + ox, center.z + oz, 1.3, 1.3);
   });
 
   // center feature
@@ -1201,6 +1238,7 @@ function buildPark(era, world) {
     f.position.set(center.x, 0, center.z);
     f.traverse(o => { if (o.isMesh) { o.castShadow = true; } });
     g.add(f);
+    block(world, center.x, center.z, 7, 7);   // nobody wades the fountain
   } else if (only(era, 'living')) {
     const ring = new THREE.Mesh(new THREE.TorusGeometry(2.6, 0.3, 8, 22), M({ color: 0x7a756a, roughness: 0.9 }));
     ring.rotation.x = -Math.PI / 2;
@@ -1217,6 +1255,7 @@ function buildPark(era, world) {
     const pool = new THREE.Mesh(new THREE.CylinderGeometry(3.0, 3.0, 0.3, 18), M({ color: 0x2e6b70, roughness: 0.2, metalness: 0.1 }));
     pool.position.set(center.x, 0.15, center.z);
     g.add(pool);
+    block(world, center.x, center.z, 6.4, 6.4);
     for (let i = 0; i < 8; i++) {
       const a = (i / 8) * Math.PI * 2;
       const reed = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.05, rand(0.9, 1.5), 5), M({ color: 0x4f7a3a, roughness: 0.9 }));
@@ -1242,6 +1281,7 @@ function buildPark(era, world) {
     b.add(deck, roof);
     b.position.set(center.x + 5.5, 0, center.z - 5.5);
     g.add(b);
+    block(world, center.x + 5.5, center.z - 5.5, 4.8, 4.8);
   }
 
   // benches
@@ -1307,9 +1347,25 @@ function buildRail(era, world) {
     new THREE.MeshStandardMaterial({ map: signTex('KALAMAZOO', { bg: '#2a241e', font: 'bold 64px Georgia' }), color: 0xffffff }));
   depotSign.position.set(0, 2.9, -2.35);
   depot.add(depotSign);
+  if (since(era, 'living')) {
+    // the 1887 depot becomes the intermodal hub: trains, buses, everyone
+    const canopy = new THREE.Mesh(new THREE.BoxGeometry(13, 0.28, 3.2), M({ color: 0x46525c, roughness: 0.65, metalness: 0.2 }));
+    canopy.position.set(0, 3.3, -3.2);
+    depot.add(canopy);
+    [-5.6, 5.6].forEach(px => {
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 3.2, 6), M({ color: 0x3a444c, roughness: 0.6, metalness: 0.3 }));
+      post.position.set(px, 1.6, -4.4);
+      depot.add(post);
+    });
+    const hubSign = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.6, 0.1),
+      new THREE.MeshStandardMaterial({ map: signTex('TRANSPORTATION CENTER', { bg: '#1f252b', fg: '#e8e3d8', font: 'bold 34px Georgia', sub: 'TRAINS • BUSES • EVERYWHERE ELSE' }), color: 0xffffff }));
+    hubSign.position.set(0, 3.85, -2.35);
+    depot.add(hubSign);
+  }
   depot.position.set(12, 0, z + 5.2);
   g.add(depot);
   world.pickLandmarks.push(depot);
+  block(world, 12, z + 5.2, 9, 4.6);   // the platform out front stays walkable
 
   // crossing gates at Burdick
   const crossing = new THREE.Group();
@@ -1380,6 +1436,7 @@ function buildFlats(era, world) {
     });
     barn.position.set(cx + 9.5, 0, cz - 6);
     g.add(barn);
+    block(world, cx + 9.5, cz - 6, 5.5, 7);
     if (only(era, 'mall', 'seventies')) {
       // suburbs encroaching: surveyor stakes
       for (let i = 0; i < 6; i++) {
@@ -1419,6 +1476,7 @@ function buildFlats(era, world) {
       frame.position.set(bx, 0.25, bz);
       frame.castShadow = true;
       g.add(frame);
+      block(world, bx, bz, 4.6, 2.4);   // walk between the beds, not through the greens
       const greens = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.36, 2.0), M({ color: pick(['#86b35c', '#5c9e4a', '#a3c46b']), roughness: 0.9 }));
       greens.position.set(bx, 0.58, bz);
       g.add(greens);
@@ -1431,6 +1489,7 @@ function buildFlats(era, world) {
     });
     shed.position.set(cx + 10.5, 0, cz - 6);
     g.add(shed);
+    block(world, cx + 10.5, cz - 6, 3.6, 4.4);
     const sign = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.8, 0.1),
       new THREE.MeshStandardMaterial({
         map: signTex(era.key === 'returns' ? 'MUCK COMMONS' : 'COMMUNITY GARDENS', { bg: '#1d2a24', fg: '#e8e3d8', font: 'bold 40px Georgia' }),
@@ -1457,12 +1516,14 @@ function buildSuperfund(era, world) {
       pool.rotation.x = -Math.PI / 2;
       pool.position.set(cx - 4 + i * 5.5, 0.05, cz + (i % 2) * 3);
       g.add(pool);
+      block(world, pool.position.x, pool.position.z, (2.6 - i * 0.4) * 2, (2.6 - i * 0.4) * 2);
     }
   } else if (only(era, 'paper', 'nineties')) {
     const mound = new THREE.Mesh(new THREE.CylinderGeometry(7.5, 9.5, 2.2, 14), M({ color: 0x595549, roughness: 1 }));
     mound.position.set(cx, 1.1, cz);
     mound.castShadow = true; mound.receiveShadow = true;
     g.add(mound);
+    block(world, cx, cz, 19, 19);
     for (let i = 0; i < 3; i++) {
       const sign = new THREE.Mesh(new THREE.BoxGeometry(1.7, 1.1, 0.08),
         new THREE.MeshStandardMaterial({ map: signTex('WARNING', { bg: '#a88b1d', fg: '#1a1a1a', font: 'bold 64px Georgia', sub: 'NO TRESPASSING — EPA' }), color: 0xffffff }));
@@ -1490,6 +1551,7 @@ function buildSuperfund(era, world) {
       M({ color: 0x8a8a8a, roughness: 0.6, metalness: 0.5, transparent: true, opacity: 0.35, side: THREE.DoubleSide }));
     fence.position.set(cx, 0.75, cz);
     g.add(fence);
+    block(world, cx, cz, 22, 22);   // fenced means fenced
     const sign = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.5, 0.1),
       new THREE.MeshStandardMaterial({
         map: signTex('ALLIED PAPER SITE', { bg: '#1d3324', fg: '#e8e3d8', font: 'bold 44px Georgia', sub: 'SUPERFUND CLEANUP — IN PROGRESS' }),
@@ -1503,6 +1565,7 @@ function buildSuperfund(era, world) {
     cap.position.set(cx, 0.8, cz);
     cap.receiveShadow = true;
     g.add(cap);
+    block(world, cx, cz, 21, 21);
     const panelMat = M({ color: 0x14253a, roughness: 0.25, metalness: 0.55 });
     for (let r = 0; r < 4; r++) {
       for (let c = 0; c < 5; c++) {
@@ -1600,6 +1663,7 @@ function buildWMU(era, world) {
     hall.position.set(x, h / 2 + 0.08, z);
     hall.castShadow = true;
     g.add(hall);
+    block(world, x, z, w, d);
   };
   mkHall(cx, cz, 6.5, 3.4, 4, '#9b5a3a'); // East Hall — where the normal school began
   if (since(era, 'mall')) {
@@ -1609,6 +1673,7 @@ function buildWMU(era, world) {
     tower.position.set(cx + 1, 4.08, cz + 6);
     tower.castShadow = true;
     g.add(tower);
+    block(world, cx + 1, cz + 6, 2.2, 2.2);
   }
   if (since(era, 'living')) {
     [[cx - 10.5, cz - 2.5, 'WMU'], [cx + 10.2, cz - 0.5, 'BRONCOS'], [cx - 2, cz - 7.2, 'GOLD']]
@@ -1650,6 +1715,7 @@ function buildGibson(era, world) {
   body.position.set(cx, 3.5, cz);
   body.castShadow = true; body.receiveShadow = true;
   g.add(body);
+  block(world, cx, cz, 13, 8);
 
   const winMat = new THREE.MeshStandardMaterial({
     color: dead ? 0x3a3630 : 0x33414e, roughness: 0.3,
@@ -1683,6 +1749,7 @@ function buildChurch(era, world) {
   body.position.set(cx, 2.1, cz);
   body.castShadow = true;
   g.add(body);
+  block(world, cx, cz, 5.5, 8);
   const roof = new THREE.Mesh(new THREE.ConeGeometry(4.6, 2.2, 4), M({ color: 0x3f3832, roughness: 0.85 }));
   roof.position.set(cx, 5.3, cz);
   roof.rotation.y = Math.PI / 4;
@@ -1705,10 +1772,10 @@ function buildHouses(era, world) {
   const vis = era.vis;
 
   const lots = [];
-  // NE residential
-  for (let i = 0; i < 6; i++) lots.push({ x: 30 + (i % 3) * 7.5, z: 18 + Math.floor(i / 3) * 9, rot: Math.PI });
-  // across the river
-  for (let i = 0; i < 3; i++) lots.push({ x: -50 - (i % 2) * 7, z: -6 + i * 9, rot: Math.PI / 2 });
+  // NE residential — east of Portage St and clear of Upjohn's ground
+  for (let i = 0; i < 6; i++) lots.push({ x: 38 + (i % 3) * 7, z: 25 + Math.floor(i / 3) * 8, rot: Math.PI });
+  // across the river — south of Michigan Ave, off the bridge approach
+  for (let i = 0; i < 3; i++) lots.push({ x: -50 - (i % 2) * 7, z: -14 + i * 8, rot: Math.PI / 2 });
   // north of rail: mill cottages (1905+)
   if (since(era, 'celery')) {
     for (let i = 0; i < 5; i++) lots.push({ x: -22 + i * 7, z: 50, rot: Math.PI, cottage: true });
@@ -1749,6 +1816,7 @@ function buildHouses(era, world) {
     house.position.set(lot.x, 0, lot.z);
     house.rotation.y = (lot.rot || 0) + rand(-0.12, 0.12);
     g.add(house);
+    block(world, lot.x, lot.z, lot.cottage ? 5.2 : 6.6, lot.cottage ? 5.6 : 7.2);
     if (era.key === 'boiling' && house.userData.chimneyTop) {
       const top = house.userData.chimneyTop.clone()
         .applyAxisAngle(new THREE.Vector3(0, 1, 0), house.rotation.y)
@@ -1757,11 +1825,12 @@ function buildHouses(era, world) {
     }
   });
 
-  // Harris orchard, 1855: rows of apple trees NE
+  // Harris orchard, 1855: rows of apple trees NE, past the rails
   if (era.key === 'boiling') {
     for (let i = 0; i < 8; i++) {
-      const t = makeTree(34 + (i % 4) * 4.5, 30 + Math.floor(i / 4) * 4.5, 0.62, ['#4f7a3a'], 'round');
-      g.add(t);
+      const tx = 36 + (i % 4) * 4.5, tz = 45 + Math.floor(i / 4) * 4.5;
+      g.add(makeTree(tx, tz, 0.62, ['#4f7a3a'], 'round'));
+      block(world, tx, tz, 1.0, 1.0);
     }
   }
 
@@ -1826,6 +1895,221 @@ function buildStringLights(era, world) {
       g.add(bulb);
     }
   });
+  return g;
+}
+
+// ------------------------------------------------------------- downtown landmarks
+// One shared geography, more of it named. These buildings persist across eras
+// but change clothes, signage, or presence — and every one registers its
+// footprint so the living city walks around them, not through them.
+
+function buildDowntownLandmarks(era, world) {
+  const g = new THREE.Group();
+
+  const brick = base => new THREE.MeshStandardMaterial({
+    map: brickTex(base, shade(base, -36), 14), color: 0xffffff, roughness: 0.88,
+  });
+  const blade = (text, opts, w, h, d) => new THREE.Mesh(
+    new THREE.BoxGeometry(w, h, d),
+    new THREE.MeshStandardMaterial({
+      map: signTex(text, opts), color: 0xffffff, roughness: 0.7,
+      ...(opts.neon ? { emissive: new THREE.Color(opts.neon), emissiveIntensity: 0 } : {}),
+    })
+  );
+
+  // ---- The Burdick House → Radisson Plaza (since 1905 here; the ground hosted
+  // hotels since 1855). NE corner of Burdick & Michigan, facing the avenue.
+  if (since(era, 'celery')) {
+    const hotel = new THREE.Group();
+    hotel.userData.landmark = 'hotel';
+    const hx = 11.5, hz = 18.4;
+    if (!since(era, 'seventies')) {
+      // the grand Burdick Hotel — burned 1909, rebuilt before the ash cooled
+      const body = new THREE.Mesh(new THREE.BoxGeometry(12, 9.5, 9), brick('#8a5a3a'));
+      body.position.set(hx, 4.75, hz);
+      body.castShadow = true; body.receiveShadow = true;
+      hotel.add(body);
+      const cornice = new THREE.Mesh(new THREE.BoxGeometry(12.4, 0.55, 9.4), M({ color: 0x5c4632, roughness: 0.85 }));
+      cornice.position.set(hx, 9.75, hz);
+      hotel.add(cornice);
+      const sign = blade('BURDICK HOTEL', { bg: '#2a241e', fg: '#f2e8d8', font: 'bold 44px Georgia', sub: 'SINCE 1855' }, 7, 1.6, 0.12);
+      sign.position.set(hx, 7.6, hz - 4.58);
+      hotel.add(sign);
+    } else {
+      // the 1975 plaza hotel, urban renewal's tallest apology
+      const body = new THREE.Mesh(new THREE.BoxGeometry(12, 14, 9),
+        M({ color: 0x6b7a85, roughness: 0.65, metalness: 0.15 }));
+      body.position.set(hx, 7, hz);
+      body.castShadow = true; body.receiveShadow = true;
+      hotel.add(body);
+      const glass = new THREE.Mesh(new THREE.BoxGeometry(10, 12, 0.18),
+        M({ color: 0x3a4a5c, roughness: 0.2, metalness: 0.6 }));
+      glass.position.set(hx, 6.6, hz - 4.56);
+      hotel.add(glass);
+      const sign = blade('RADISSON PLAZA', { bg: '#1a252f', fg: '#c9d4e0', font: 'bold 40px Georgia', sub: 'KALAMAZOO', neon: '#a8c4ff' }, 6.4, 1.5, 0.12);
+      sign.position.set(hx, 12.2, hz - 4.6);
+      hotel.add(sign);
+      world.marqueeMats.push(sign.material);
+    }
+    g.add(hotel);
+    world.pickLandmarks.push(hotel);
+    block(world, hx, hz, 12, 9);
+  }
+
+  // ---- The Rickman (1908 hotel → Milner → apartments), N. Burdick at the rails
+  if (since(era, 'mall')) {
+    const rick = new THREE.Group();
+    rick.userData.landmark = 'rickman';
+    const rx = 10, rz = 33.5;
+    const body = new THREE.Mesh(new THREE.BoxGeometry(9, 11, 7), brick('#8a5a3a'));
+    body.position.set(rx, 5.5, rz);
+    body.castShadow = true; body.receiveShadow = true;
+    rick.add(body);
+    const cornice = new THREE.Mesh(new THREE.BoxGeometry(9.4, 0.6, 7.4), M({ color: 0x5c4632, roughness: 0.85 }));
+    cornice.position.set(rx, 11.3, rz);
+    rick.add(cornice);
+    const label = since(era, 'seventies') ? 'RICKMAN HOUSE' : 'MILNER HOTEL';
+    const sign = blade(label, { bg: '#2a241e', fg: '#f2e8d8', font: 'bold 46px Georgia' }, 0.15, 2.8, 4.5);
+    sign.position.set(rx - 4.6, 7.5, rz);
+    rick.add(sign);
+    g.add(rick);
+    world.pickLandmarks.push(rick);
+    block(world, rx, rz, 9, 7);
+  }
+
+  // ---- Kalamazoo Gospel Mission (est. 1933), across N. Burdick from the Rickman
+  if (since(era, 'mall')) {
+    const mission = new THREE.Group();
+    mission.userData.landmark = 'mission';
+    const mx = -8.4, mz = 34.25;
+    const body = new THREE.Mesh(new THREE.BoxGeometry(5.6, 4.8, 6), brick('#6b5b4a'));
+    body.position.set(mx, 2.4, mz);
+    body.castShadow = true; body.receiveShadow = true;
+    mission.add(body);
+    const sign = blade('GOSPEL MISSION', { bg: '#2a2d24', fg: '#e8e3d8', font: 'bold 38px Georgia', sub: '448 N. BURDICK • DOORS OPEN' }, 4.4, 1.3, 0.1);
+    sign.position.set(mx, 3.9, mz - 3.06);
+    mission.add(sign);
+    g.add(mission);
+    world.pickLandmarks.push(mission);
+    block(world, mx, mz, 5.6, 6);
+  }
+
+  // ---- The Public Library, foot of Rose St: 1893 Romanesque, then the 1959
+  // floating modernist box on the very same ground.
+  if (since(era, 'celery')) {
+    const lib = new THREE.Group();
+    lib.userData.landmark = 'library';
+    const lx = -19.9, lz = -36.5;
+    if (!since(era, 'mall')) {
+      const body = new THREE.Mesh(new THREE.BoxGeometry(6.4, 6, 7), brick('#7d4030'));
+      body.position.set(lx, 3, lz);
+      body.castShadow = true; body.receiveShadow = true;
+      lib.add(body);
+      const tower = new THREE.Mesh(new THREE.BoxGeometry(2.2, 9, 2.2), brick('#6b3428'));
+      tower.position.set(lx + 1.7, 4.5, lz + 2.1);
+      tower.castShadow = true;
+      lib.add(tower);
+      const cap = new THREE.Mesh(new THREE.ConeGeometry(1.7, 1.6, 4), M({ color: 0x3f3832, roughness: 0.85 }));
+      cap.position.set(lx + 1.7, 9.8, lz + 2.1);
+      cap.rotation.y = Math.PI / 4;
+      lib.add(cap);
+      const sign = blade('PUBLIC LIBRARY', { bg: '#2e2a24', fg: '#eadfcf', font: 'bold 38px Georgia', sub: 'THE VAN DEUSEN GIFT • 1893' }, 0.12, 1.2, 4.6);
+      sign.position.set(lx + 3.26, 4.2, lz);
+      lib.add(sign);
+    } else {
+      // Kingscott's Ville Savoye homage: the reading room floats on columns
+      const base = new THREE.Mesh(new THREE.BoxGeometry(4.6, 2.6, 5.2), M({ color: 0x8d99a6, roughness: 0.7 }));
+      base.position.set(lx, 1.3, lz);
+      lib.add(base);
+      const upper = new THREE.Mesh(new THREE.BoxGeometry(6.4, 3.4, 7), M({ color: 0xb8c4d0, roughness: 0.78 }));
+      upper.position.set(lx, 4.45, lz);
+      upper.castShadow = true; upper.receiveShadow = true;
+      lib.add(upper);
+      [[-2.7, -2.9], [2.7, -2.9], [-2.7, 2.9], [2.7, 2.9]].forEach(([ox, oz]) => {
+        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 2.8, 8), M({ color: 0x9aa5b0, roughness: 0.7 }));
+        col.position.set(lx + ox, 1.4, lz + oz);
+        lib.add(col);
+      });
+      const sign = blade('CENTRAL LIBRARY', { bg: '#2a3138', fg: '#e8e3d8', font: 'bold 38px Georgia', sub: '315 S. ROSE ST' }, 0.12, 1.2, 4.8);
+      sign.position.set(lx + 3.26, 4.4, lz);
+      lib.add(sign);
+    }
+    g.add(lib);
+    world.pickLandmarks.push(lib);
+    block(world, lx, lz, 6.4, 7);
+  }
+
+  // ---- Shakespeare's Pub + the Lower Level, Michigan Ave at the park corner
+  if (since(era, 'nineties')) {
+    const shakes = new THREE.Group();
+    shakes.userData.landmark = 'shakespeares';
+    const sx = 25.4, sz = 3.4;
+    const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, 5.2, 5.6), brick('#5c4638'));
+    body.position.set(sx, 2.6, sz);
+    body.castShadow = true; body.receiveShadow = true;
+    shakes.add(body);
+    const comedy = since(era, 'living');
+    const sign = blade("SHAKESPEARE'S", {
+      bg: '#1a1612', fg: '#ffe9b8', font: 'bold 42px Georgia',
+      sub: comedy ? 'LOWER LEVEL COMEDY — TONIGHT' : '241 E. MICHIGAN', neon: '#ffd27a',
+    }, 3.8, 1.3, 0.1);
+    sign.position.set(sx, 4.3, sz + 2.86);
+    shakes.add(sign);
+    world.marqueeMats.push(sign.material);
+    g.add(shakes);
+    world.pickLandmarks.push(shakes);
+    block(world, sx, sz, 4.6, 5.6);
+  }
+
+  // ---- Pro Co Sound (1974 – the 2010s), next door: the RAT was born here
+  if (only(era, 'seventies', 'paper', 'nineties')) {
+    const proco = new THREE.Group();
+    proco.userData.landmark = 'proco';
+    const px = 25.4, pz = -2.3;
+    const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, 3.4, 4.2), brick('#5c5048'));
+    body.position.set(px, 1.7, pz);
+    body.castShadow = true; body.receiveShadow = true;
+    proco.add(body);
+    const sign = blade('PRO CO SOUND', {
+      bg: '#1f1a14', fg: '#ffd98a', font: 'bold 36px Georgia',
+      sub: era.key === 'seventies' ? 'AT THE SOUND FACTORY • EST. 1974' : 'HOME OF THE RAT', neon: '#ffd98a',
+    }, 3.6, 1.1, 0.1);
+    sign.position.set(px, 2.9, pz + 2.16);
+    proco.add(sign);
+    world.marqueeMats.push(sign.material);
+    g.add(proco);
+    world.pickLandmarks.push(proco);
+    block(world, px, pz, 4.6, 4.2);
+  }
+
+  // ---- Fourth Coast Cafe (1992), the Vine corridor south of South St
+  if (since(era, 'nineties')) {
+    const cafe = new THREE.Group();
+    cafe.userData.landmark = 'fourthcoast';
+    const cx = 9, cz = -36;
+    const body = new THREE.Mesh(new THREE.BoxGeometry(6, 3.8, 5), brick('#a8916b'));
+    body.position.set(cx, 1.9, cz);
+    body.castShadow = true; body.receiveShadow = true;
+    cafe.add(body);
+    const winMat = new THREE.MeshStandardMaterial({
+      color: 0x2c3844, roughness: 0.25, metalness: 0.2,
+      emissive: new THREE.Color('#ffd9a0'), emissiveIntensity: 0,
+    });
+    world.windowMats.push(winMat);
+    const win = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.5, 3.4), winMat);
+    win.position.set(cx - 3.02, 1.3, cz);
+    cafe.add(win);
+    const sign = blade('FOURTH COAST CAFE', {
+      bg: '#3a2a1f', fg: '#f2e8d8', font: 'bold 30px Georgia',
+      sub: era.key === 'nineties' ? 'SINCE 1992' : "COFFEE • BREAD • THE CROW'S NEST",
+    }, 0.1, 1.1, 4.2);
+    sign.position.set(cx - 3.06, 3.0, cz);
+    cafe.add(sign);
+    g.add(cafe);
+    world.pickLandmarks.push(cafe);
+    block(world, cx, cz, 6, 5);
+  }
+
   return g;
 }
 
@@ -1921,9 +2205,13 @@ export function buildEraWorld(era) {
     windowMats: [], lampMats: [], lampLights: [], marqueeMats: [], stringMats: [],
     crossingLights: [], stringLightRuns: [], hearths: [], echoMats: [],
     pickLandmarks: [],
+    obstacles: [], noStand: [],
     drifters: [], water: null, train: null, onTrain: null,
     time: 0,
   };
+  // the rail crossing blocks foot traffic only while a train is passing
+  world.railBlock = { x1: -92, z1: 38.3, x2: 92, z2: 41.7, active: false };
+  world.obstacles.push(world.railBlock);
 
   // ---- lights
   world.amb = new THREE.AmbientLight(0x506070, 0.5);
@@ -1985,6 +2273,7 @@ export function buildEraWorld(era) {
   group.add(buildStringLights(era, world));
   group.add(buildEchoes(era, world));
   const theatre = buildTheatre(era, world); if (theatre) group.add(theatre);
+  group.add(buildDowntownLandmarks(era, world));
   const gazette = buildGazette(era, world); if (gazette) group.add(gazette);
   const nightlife = buildNightlifeAndShops(era, world); if (nightlife) group.add(nightlife);
   const northwest = buildNorthwestUnit(era, world); if (northwest) group.add(northwest);
@@ -2003,9 +2292,14 @@ export function buildEraWorld(era) {
     if (x > -46 && x < -22) continue;                          // river corridor
     if (Math.abs(z - 40) < 5) continue;                        // rails
     if (Math.abs(z - 10) < 5 || Math.abs(z + 26) < 4) continue;// streets
+    if (x > -18 && x < -10 && z > -37 && z < 37) continue;     // Rose St
+    if (x > 27 && x < 35 && z > -38 && z < 14) continue;       // Portage St
+    if (x > -75 && x < -46 && z > 8 && z < 38) continue;       // campus shuttle's drive
     if (x > 22 && x < 50 && z > -50 && z < -28) continue;      // flats
+    if (inFootprint(world, x, z, 1.2)) continue;               // never inside a building
     const kind = pick(kinds);
     group.add(makeTree(x, z, rand(0.7, 1.25), era.vis.foliage, kind));
+    block(world, x, z, 1.0, 1.0);
     planted++;
   }
   // willows by the river
@@ -2062,7 +2356,7 @@ export function buildEraWorld(era) {
       { x: 20, z: -14, r: 8 }, { x: 10, z: -10, r: 5 }, { x: 12, z: 42.5, r: 4 }, { x: 30, z: 20, r: 8 },
     ],
     seventies: [
-      { x: 0, z: -8, r: 9 }, { x: -8, z: 13, r: 6 }, { x: -72, z: -16, r: 5 },
+      { x: 0, z: -8, r: 9 }, { x: -19.5, z: 16, r: 5 }, { x: -72, z: -16, r: 5 },
       { x: -10, z: -10, r: 5 }, { x: 30, z: 18, r: 7 }, { x: -64, z: 36, r: 7 }, { x: 7, z: 25, r: 6 },
     ],
     paper: [
@@ -2070,8 +2364,8 @@ export function buildEraWorld(era) {
       { x: 0, z: 2, r: 6 }, { x: 30, z: 20, r: 8 }, { x: 36, z: -40, r: 7 }, { x: -16, z: -46, r: 5 },
     ],
     nineties: [
-      { x: 7, z: 25, r: 7 }, { x: -8, z: 13, r: 6 }, { x: -72, z: -16, r: 5 },
-      { x: 0, z: -8, r: 9 }, { x: 30, z: 18, r: 7 }, { x: 20, z: -14, r: 8 }, { x: 36, z: -40, r: 7 },
+      { x: 7, z: 25, r: 7 }, { x: -19.5, z: 16, r: 5 }, { x: -72, z: -16, r: 5 },
+      { x: 0, z: -8, r: 9 }, { x: 30, z: 18, r: 7 }, { x: 20, z: -14, r: 8 }, { x: 8, z: -31.5, r: 4 },
     ],
     living: [
       { x: 0, z: -10, r: 8 }, { x: 0, z: -2, r: 8 }, { x: -18, z: -17, r: 7 },
@@ -2085,17 +2379,37 @@ export function buildEraWorld(era) {
   const anchors = ANCHOR_SETS[era.key];
   world.anchors = anchors;
 
+  // ---- live traffic lanes: fine to cross, nowhere to stand
+  // Michigan Ave carries something in every era (wagons → buses).
+  world.noStand.push({ x1: -52, z1: 8.2, x2: 44, z2: 12.0 });
+  if (era.key === 'celery') {
+    // the streetcar owns the middle of Burdick
+    world.noStand.push({ x1: -2.2, z1: -44, x2: 2.2, z2: 34 });
+  }
+  if (since(era, 'mall')) {
+    // the downtown loop: Rose / South / Portage
+    world.noStand.push({ x1: -14.3, z1: -27.5, x2: -11.3, z2: 12 });
+    world.noStand.push({ x1: 29.5, z1: -27.5, x2: 32.5, z2: 12 });
+    world.noStand.push({ x1: -14.3, z1: -27.5, x2: 33, z2: -24.5 });
+  }
+  const nav = { obstacles: world.obstacles, zones: world.noStand };
+
   era.people.forEach((person, i) => {
     const a = anchors[i % anchors.length];
     const spawn = { x: a.x + rand(-4, 4), z: a.z + rand(-4, 4) };
-    const agent = new Agent(person, person.look, anchors, spawn);
+    const agent = new Agent(person, person.look, anchors, spawn, nav);
     world.agents.push(agent);
     group.add(agent.mesh);
   });
   world.agentMeshes = world.agents.map(a => a.mesh);
 
   // ---- vehicles
-  const loopA = { x1: -14, z1: -26, x2: 22, z2: 10 };
+  // The loop reads Rose → South → Portage → Michigan; its east leg used to
+  // run straight through Bronson Park (and the fountain). Not anymore.
+  const loopA = { x1: -12.8, z1: -26, x2: 31, z2: 10 };
+  // The campus shuttle takes the drive down the hill, then crosses the river
+  // on the Michigan Ave bridge deck — buses don't swim.
+  const broncoRoute = [{ x: -49, z: 10 }, { x: -45.5, z: 10, y: 1.22 }, { x: -22.5, z: 10, y: 1.22 }, { x: -19, z: 10 }];
   if (era.key === 'boiling') {
     world.cruisers.push(new Shuttle('wagon', null, { x: -8, z: 10 }, { x: 40, z: 10 }, 1.3));
   } else if (era.key === 'celery') {
@@ -2111,13 +2425,13 @@ export function buildEraWorld(era) {
     world.cruisers.push(new Cruiser('checker', 0xe8b400, loopA, 6.6, 140));
   } else if (era.key === 'living') {
     world.cruisers.push(new Cruiser('ev', 0x4a6b8a, loopA, 6.2, 0));
-    world.cruisers.push(new Cruiser('bus', 0x3a7a5f, loopA, 5.2, 80));
+    world.cruisers.push(new Shuttle('bus', 0x3a7a5f, { x: -10, z: 10 }, { x: 42, z: 10 }, 4.5));
     world.cruisers.push(new Cruiser('bike', 0x2a9d8f, loopA, 3.4, 40));
-    const bronco = new Shuttle('bus', 0x5c3a21, { x: -70, z: 36 }, { x: -12, z: 10 }, 4.0);
+    const bronco = new Shuttle('bus', 0x5c3a21, { x: -72, z: 33 }, { x: -12, z: 10 }, 4.0, broncoRoute);
     bronco.mesh.userData.phase2 = 'bronco-shuttle';
     world.cruisers.push(bronco);
   } else {
-    const bronco = new Shuttle('bus', 0x5c3a21, { x: -70, z: 36 }, { x: -12, z: 10 }, 4.2);
+    const bronco = new Shuttle('bus', 0x5c3a21, { x: -72, z: 33 }, { x: -12, z: 10 }, 4.2, broncoRoute);
     bronco.mesh.userData.phase2 = 'bronco-shuttle';
     world.cruisers.push(bronco);
     world.cruisers.push(new Shuttle('bus', 0x4f8a6b, { x: -10, z: 10 }, { x: 42, z: 10 }, 4.5));
@@ -2137,6 +2451,7 @@ export function buildEraWorld(era) {
     world.cruisers.forEach(c => c.update(dt));
     if (world.train) {
       world.train.update(dt);
+      world.railBlock.active = world.train.running;   // nobody walks into a train
       world.crossingLights.forEach(cl => {
         cl.mat.emissiveIntensity = world.train.running ? ((Math.sin(t * 9 + cl.phase * Math.PI) > 0) ? 2.4 : 0.1) : 0;
       });

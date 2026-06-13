@@ -49,6 +49,9 @@ for (const [key, s] of Object.entries(STRATA)) {
     if (!text || text.length < 40) fail(`strata ${key}/${ek}: body too thin`);
   }
 }
+for (const key of ['hotel', 'rickman', 'mission', 'library', 'shakespeares', 'proco', 'fourthcoast']) {
+  if (!STRATA[key]) fail(`strata ${key}: missing — the new downtown landmark has no story`);
+}
 ok(`${Object.keys(STRATA).length} landmark strata complete`);
 
 // ---------------------------------------------------------------- shaders
@@ -63,6 +66,11 @@ ok('sky, water, grade shaders present');
 // ---------------------------------------------------------------- worlds
 console.log('\n[worlds]');
 const { buildEraWorld } = await import('../js/world.js');
+
+const ORDER = ['boiling', 'celery', 'mall', 'seventies', 'paper', 'nineties', 'living', 'returns'];
+const sinceK = (era, key) => ORDER.indexOf(era.key) >= ORDER.indexOf(key);
+const inB = (b, x, z, pad = 0) =>
+  b.active !== false && x > b.x1 - pad && x < b.x2 + pad && z > b.z1 - pad && z < b.z2 + pad;
 
 for (const era of ERAS) {
   try {
@@ -86,6 +94,26 @@ for (const era of ERAS) {
       if (!(phase2Counts['bronco-shuttle'] >= 1)) fail(`${era.key}: missing Bronco shuttle`);
     }
     if (['paper', 'nineties', 'living', 'returns'].includes(era.key) && !(phase2Counts['office-slab'] >= 1)) fail(`${era.key}: missing 1970s downtown office slab`);
+
+    // the new downtown landmarks appear in the right eras, and only those
+    const lmKeys = new Set(w.pickLandmarks.map(o => o.userData.landmark));
+    const expected = {
+      hotel: sinceK(era, 'celery'),
+      library: sinceK(era, 'celery'),
+      rickman: sinceK(era, 'mall'),
+      mission: sinceK(era, 'mall'),
+      shakespeares: sinceK(era, 'nineties'),
+      fourthcoast: sinceK(era, 'nineties'),
+      proco: ['seventies', 'paper', 'nineties'].includes(era.key),
+    };
+    for (const [k, want] of Object.entries(expected)) {
+      if (want !== lmKeys.has(k)) fail(`${era.key}: landmark ${k} ${want ? 'missing' : 'is an anachronism'}`);
+    }
+
+    // the city knows where its walls are
+    if (!(w.obstacles.length >= 25)) fail(`${era.key}: only ${w.obstacles.length} footprints registered`);
+    if (!(w.noStand.length >= 1)) fail(`${era.key}: no traffic lanes registered`);
+
     // run the simulation a few steps to shake out runtime errors
     for (let i = 0; i < 30; i++) w.update(1 / 30, i / 30, i % 2 ? 0.8 : 0.1);
     // exercise a train pass
@@ -97,12 +125,35 @@ for (const era of ERAS) {
       if (inRiver(a.x)) fail(`${era.key}: anchor (${a.x},${a.z}) is in the river`);
       if (onRails(a.z)) fail(`${era.key}: anchor (${a.x},${a.z}) is on the rails`);
     }
+    // people only walk where people ought to walk
+    for (const a of w.agents) {
+      if (w.obstacles.some(b => inB(b, a.pos.x, a.pos.z))) {
+        fail(`${era.key}: ${a.person.name} is standing inside a building at (${a.pos.x.toFixed(1)},${a.pos.z.toFixed(1)})`);
+      }
+    }
     // fuzz wander targets through the safety clamp
     const scout = w.agents[0];
     for (let i = 0; i < 400; i++) {
       scout.pickTarget();
-      if (inRiver(scout.target.x)) fail(`${era.key}: wander target walked on water (x=${scout.target.x.toFixed(1)})`);
-      if (onRails(scout.target.z)) fail(`${era.key}: wander target loiters on rails (z=${scout.target.z.toFixed(1)})`);
+      const t = scout.target;
+      if (inRiver(t.x)) fail(`${era.key}: wander target walked on water (x=${t.x.toFixed(1)})`);
+      if (onRails(t.z)) fail(`${era.key}: wander target loiters on rails (z=${t.z.toFixed(1)})`);
+      if (w.obstacles.some(b => inB(b, t.x, t.z, 0.05))) fail(`${era.key}: wander target inside a wall (${t.x.toFixed(1)},${t.z.toFixed(1)})`);
+      const stayedPut = t.x === scout.pos.x && t.z === scout.pos.z;
+      if (!stayedPut && w.noStand.some(b => inB(b, t.x, t.z))) fail(`${era.key}: wander target loiters in traffic (${t.x.toFixed(1)},${t.z.toFixed(1)})`);
+    }
+    // cars and buses only drive where cars and buses ought to drive
+    for (const c of w.cruisers) {
+      for (let i = 0; i < 700; i++) {
+        c.update(0.16);
+        const p = c.mesh.position;
+        if (p.y > 0.5) continue;   // on the bridge deck
+        if (inRiver(p.x) && Math.abs(p.z - 10) > 3.6) fail(`${era.key}: a vehicle is swimming at (${p.x.toFixed(1)},${p.z.toFixed(1)})`);
+        if (w.obstacles.some(b => b !== w.railBlock && inB(b, p.x, p.z, 0.8))) {
+          fail(`${era.key}: a vehicle drove into a building at (${p.x.toFixed(1)},${p.z.toFixed(1)})`);
+          break;
+        }
+      }
     }
     w.dispose();
     ok(`${era.year} ${era.name}: built, simulated 30 frames, disposed (${w.pickLandmarks.length} landmarks, ${w.agents.length} residents)`);

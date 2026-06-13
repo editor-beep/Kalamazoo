@@ -197,15 +197,43 @@ export function makePersonMesh(look = {}) {
   return { group, parts: { legL, legR, armL, armR, torso, head, ring } };
 }
 
+// ---------------------------------------------------------------- navigation
+// Buildings register footprint AABBs ({x1,z1,x2,z2}) in world.obstacles;
+// live traffic lanes register in world.noStand. Boxes with active === false
+// are dormant (the rail crossing only blocks while the train is passing).
+
+export const inBox = (b, x, z, pad = 0) =>
+  b.active !== false && x > b.x1 - pad && x < b.x2 + pad && z > b.z1 - pad && z < b.z2 + pad;
+
+function pushOut(b, t, pad) {
+  // shove the point to the nearest face of the box
+  const dxl = t.x - (b.x1 - pad), dxr = (b.x2 + pad) - t.x;
+  const dzl = t.z - (b.z1 - pad), dzr = (b.z2 + pad) - t.z;
+  const m = Math.min(dxl, dxr, dzl, dzr);
+  if (m === dxl) t.x = b.x1 - pad;
+  else if (m === dxr) t.x = b.x2 + pad;
+  else if (m === dzl) t.z = b.z1 - pad;
+  else t.z = b.z2 + pad;
+}
+
+const BODY_PAD = 0.45;      // standing clearance from walls
+const WALL_PAD = 0.3;       // movement clearance (smaller, so targets stay reachable)
+const inRiver = x => x > -46 && x < -22.5;
+const onRails = z => z > 38 && z < 42;
+
 export class Agent {
-  constructor(person, look, anchors, spawn) {
+  constructor(person, look, anchors, spawn, nav) {
     this.person = person;                  // data record
     const { group, parts } = makePersonMesh(look);
     this.mesh = group;
     this.parts = parts;
     this.anchors = anchors;
+    this.nav = nav || { obstacles: [], zones: [] };
     this.pos = new THREE.Vector3(spawn.x, 0, spawn.z);
     this.target = new THREE.Vector3(spawn.x, 0, spawn.z);
+    // never spawn inside a wall or a traffic lane
+    if (!this.sanitizeTarget()) this.target.set(3, 0, -8);
+    this.pos.copy(this.target);
     this.speed = 1.1 + Math.random() * 0.9;
     this.phase = Math.random() * Math.PI * 2;
     this.doingIdx = Math.floor(Math.random() * (person.doing?.length || 1));
@@ -224,23 +252,49 @@ export class Agent {
 
   nextDoing() { this.doingIdx++; }
 
+  blockedAt(x, z, pad = WALL_PAD) {
+    for (const b of this.nav.obstacles) if (inBox(b, x, z, pad)) return true;
+    return false;
+  }
+
+  // Clamp the river/rails law, then nudge the target off traffic lanes and out
+  // of buildings. Returns false if it couldn't settle somewhere legal.
+  sanitizeTarget() {
+    const t = this.target;
+    for (let pass = 0; pass < 4; pass++) {
+      // nobody walks on the river, nobody loiters on the rails
+      // (the depot platform at z≈42.5 stays reachable)
+      if (inRiver(t.x)) t.x = -21.5;
+      if (onRails(t.z)) t.z = t.z < 40 ? 37.5 : 42.3;
+      let dirty = false;
+      for (const b of this.nav.zones) {
+        if (inBox(b, t.x, t.z)) { pushOut(b, t, 0.35); dirty = true; }
+      }
+      for (const b of this.nav.obstacles) {
+        if (inBox(b, t.x, t.z, BODY_PAD)) { pushOut(b, t, BODY_PAD + 0.05); dirty = true; }
+      }
+      if (!dirty) return true;
+    }
+    return !inRiver(t.x) && !onRails(t.z) &&
+      !this.nav.zones.some(b => inBox(b, t.x, t.z)) &&
+      !this.blockedAt(t.x, t.z, BODY_PAD);
+  }
+
   pickTarget() {
-    if (this.anchors.length && Math.random() < 0.62) {
-      const a = this.anchors[Math.floor(Math.random() * this.anchors.length)];
-      this.target.set(
-        a.x + (Math.random() - 0.5) * (a.r || 7),
-        0,
-        a.z + (Math.random() - 0.5) * (a.r || 7)
-      );
-    } else {
-      this.target.set((Math.random() - 0.5) * 64, 0, (Math.random() - 0.5) * 64);
+    for (let tries = 0; tries < 6; tries++) {
+      if (this.anchors.length && Math.random() < 0.62) {
+        const a = this.anchors[Math.floor(Math.random() * this.anchors.length)];
+        this.target.set(
+          a.x + (Math.random() - 0.5) * (a.r || 7),
+          0,
+          a.z + (Math.random() - 0.5) * (a.r || 7)
+        );
+      } else {
+        this.target.set((Math.random() - 0.5) * 64, 0, (Math.random() - 0.5) * 64);
+      }
+      if (this.sanitizeTarget()) return;
     }
-    // nobody walks on the river, nobody loiters on the rails
-    // (the depot platform at z≈42.5 stays reachable)
-    if (this.target.x > -46 && this.target.x < -22.5) this.target.x = -21.5;
-    if (this.target.z > 38 && this.target.z < 42) {
-      this.target.z = this.target.z < 40 ? 37.5 : 42.3;
-    }
+    this.target.set(this.pos.x, 0, this.pos.z);   // stay put; try again later
   }
 
   startChat(partner, dur) {
@@ -291,8 +345,16 @@ export class Agent {
     }
 
     const step = Math.min(this.speed * dt, dist);
-    this.pos.x += (dx / dist) * step;
-    this.pos.z += (dz / dist) * step;
+    let nx = this.pos.x + (dx / dist) * step;
+    let nz = this.pos.z + (dz / dist) * step;
+    // walls are walls: slide along them instead of phasing through
+    if (this.blockedAt(nx, nz)) {
+      if (!this.blockedAt(nx, this.pos.z)) nz = this.pos.z;
+      else if (!this.blockedAt(this.pos.x, nz)) nx = this.pos.x;
+      else { this.pickTarget(); return; }   // cornered — go somewhere else
+    }
+    this.pos.x = nx;
+    this.pos.z = nz;
     m.position.x = this.pos.x;
     m.position.z = this.pos.z;
 
@@ -314,13 +376,14 @@ export class Agent {
 }
 
 // try to pair nearby agents into conversations
+const inTraffic = ag => ag.nav?.zones?.some(b => inBox(b, ag.pos.x, ag.pos.z));
 export function updateChats(agents, dt) {
   for (let i = 0; i < agents.length; i++) {
     const a = agents[i];
-    if (a.chatT > 0 || a.chatCooldown > 0) continue;
+    if (a.chatT > 0 || a.chatCooldown > 0 || inTraffic(a)) continue;
     for (let j = i + 1; j < agents.length; j++) {
       const b = agents[j];
-      if (b.chatT > 0 || b.chatCooldown > 0) continue;
+      if (b.chatT > 0 || b.chatCooldown > 0 || inTraffic(b)) continue;
       const d = a.pos.distanceTo(b.pos);
       if (d < 2.6 && Math.random() < 0.02) {
         const dur = 4 + Math.random() * 5;
@@ -495,27 +558,36 @@ export class Cruiser {
   update(dt) { this.place(dt); }
 }
 
-// back-and-forth along a line (streetcar, shuttle)
+// back-and-forth along a route (streetcar, shuttle). Optional `via` waypoints
+// keep buses on streets and bridges; waypoints may carry a y (bridge decks).
 export class Shuttle {
-  constructor(style, color, a, b, speed) {
+  constructor(style, color, a, b, speed, via = []) {
     this.mesh = VEHICLE_STYLES[style](color);
-    this.a = new THREE.Vector3(a.x, 0, a.z);
-    this.b = new THREE.Vector3(b.x, 0, b.z);
+    this.pts = [a, ...via, b].map(p => new THREE.Vector3(p.x, p.y || 0, p.z));
+    this.lens = [];
+    this.total = 0;
+    for (let i = 0; i < this.pts.length - 1; i++) {
+      const l = this.pts[i].distanceTo(this.pts[i + 1]);
+      this.lens.push(l);
+      this.total += l;
+    }
     this.speed = speed;
-    this.t = Math.random();
+    this.d = Math.random() * this.total;
     this.dir = 1;
     this.dwell = 0;
   }
   update(dt) {
     if (this.dwell > 0) { this.dwell -= dt; return; }
-    const len = this.a.distanceTo(this.b);
-    this.t += (this.speed * dt / len) * this.dir;
-    if (this.t >= 1) { this.t = 1; this.dir = -1; this.dwell = 2.5; }
-    if (this.t <= 0) { this.t = 0; this.dir = 1; this.dwell = 2.5; }
-    const p = this.a.clone().lerp(this.b, this.t);
+    this.d += this.speed * dt * this.dir;
+    if (this.d >= this.total) { this.d = this.total; this.dir = -1; this.dwell = 2.5; }
+    if (this.d <= 0) { this.d = 0; this.dir = 1; this.dwell = 2.5; }
+    let d = this.d, i = 0;
+    while (i < this.lens.length - 1 && d > this.lens[i]) { d -= this.lens[i]; i++; }
+    const t = this.lens[i] ? Math.min(1, d / this.lens[i]) : 0;
+    const p = this.pts[i].clone().lerp(this.pts[i + 1], t);
     this.mesh.position.copy(p);
-    const d = this.b.clone().sub(this.a).multiplyScalar(this.dir);
-    this.mesh.rotation.y = Math.atan2(d.x, d.z) + Math.PI;
+    const dir = this.pts[i + 1].clone().sub(this.pts[i]).multiplyScalar(this.dir);
+    this.mesh.rotation.y = Math.atan2(dir.x, dir.z) + Math.PI;
   }
 }
 

@@ -75,7 +75,17 @@ environments — the code is structured so this is meaningful verification.
    Per-mesh effects (e.g., 1985's flicker) are flagged via `material.userData`
    and applied *inside* that pass — anything set elsewhere gets overwritten.
 7. **Era ordering** is by `era.key` through `since(era, key)` / `only(era, ...keys)`
-   in `world.js`: `boiling → celery → mall → paper → living → returns`.
+   in `world.js`: `boiling → celery → mall → seventies → paper → nineties → living → returns`.
+8. **Solid construction registers its footprint.** Builders push AABBs via
+   `block(world, cx, cz, w, d)` / `blockBounds(...)` into `world.obstacles`, and
+   live traffic lanes into `world.noStand`. Agents consume them (`pickTarget`
+   sanitizing + wall-slide movement), tree planting consumes them, and the smoke
+   test fuzzes targets and sweeps every vehicle path against them. A building
+   that skips registration gets residents walking through its walls. The rail
+   crossing is a dynamic obstacle (`world.railBlock.active`, set by the train).
+   Vehicles stay on drawn streets: the downtown loop runs Rose (x −12.8) → South
+   (z −26) → Portage (x 31, east of the park — never through it) → Michigan
+   (z 10); the campus shuttle crosses the river on the bridge deck, elevated.
 
 ## Content model (`js/data.js`)
 
@@ -142,6 +152,24 @@ and downtown. `buildStorefronts()` now carries a tall 1970s office slab for
 1985+ so downtown's massing is less storybook and more honest, with a handful of
 more era-true storefront names in `SIGNS` (real brands still kept light). Smoke
 now asserts the phase-two visible markers so they do not quietly disappear.
+
+### 2b. Downtown landmarks + a city that respects its own walls — ✅ shipped
+`buildDowntownLandmarks()` in `world.js` adds seven storied buildings on
+era-correct, collision-checked ground, each with full per-era `STRATA` entries:
+the **Burdick House → Radisson Plaza** (Burdick & Michigan, brick 1905–1959,
+tower 1975+), the **Rickman** (Milner Hotel in '59, Rickman House after), the
+**Gospel Mission** across N. Burdick, the **Public Library** at the foot of Rose
+(1893 Romanesque in 1905; the 1959 floating box after), **Shakespeare's Lower
+Level** and **Pro Co Sound** (1974–1995) at the Michigan/Portage corner, and
+**Fourth Coast Cafe** (1992+) south on the Burdick corridor. The depot grows a
+canopy and a TRANSPORTATION CENTER blade in 2026+. The N. Burdick read, south
+to north: hotel → Flipside → Rickman → rails → depot, with the Mission opposite.
+The same pass taught the city physics (invariant 8): people pick targets off
+roads and out of buildings and slide along walls; trees stop sprouting indoors;
+Portage St moved east of Bronson Park so the car loop no longer drives through
+the fountain; the campus shuttle crosses on the bridge instead of the water;
+agents won't cross the rails mid-train. Smoke asserts landmark presence per era,
+fuzzes 400 targets against footprints and lanes, and sweeps every vehicle path.
 
 ### 3. Better time-travel UX — ready next
 - **In-scene era scrubber:** a 6-dot timeline rail in the bottom HUD. Switching
