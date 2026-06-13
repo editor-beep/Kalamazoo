@@ -1,4 +1,4 @@
-// Headless smoke test: validates the data layer and builds all eight era worlds
+// Headless smoke test: validates the data layer and builds all nine era worlds
 // in Node (no DOM, no WebGL — canvas textures are guarded off).
 // Run: node scripts/smoke.mjs
 
@@ -15,7 +15,8 @@ const ok = msg => console.log('  ✓', msg);
 const { ERAS, STRATA, LINEAGES, SKIN_TONES } = await import('../js/data.js');
 
 console.log('\n[data]');
-if (ERAS.length !== 8) fail(`expected 8 eras, got ${ERAS.length}`);
+if (ERAS.length !== 9) fail(`expected 9 eras, got ${ERAS.length}`);
+ERAS.forEach((e, i) => { if (e.id !== i) fail(`era ${e.key}: id ${e.id} does not match its index ${i}`); });
 const KINDS = new Set(['bright', 'ache', 'wonder']);
 const VIS_KEYS = ['ground', 'road', 'skyDay', 'skyGold', 'skyNight', 'fogDay', 'fogNight', 'fogDensity', 'water', 'exposure', 'grade', 'foliage', 'treeCount', 'smoke'];
 
@@ -40,7 +41,7 @@ for (const era of ERAS) {
     if (p.thread && !LINEAGES[p.thread]) fail(`${pw}: unknown thread ${p.thread}`);
   }
 }
-ok(`8 eras, ${ERAS.reduce((s, e) => s + e.people.length, 0)} residents, all records complete`);
+ok(`9 eras, ${ERAS.reduce((s, e) => s + e.people.length, 0)} residents, all records complete`);
 
 for (const [key, s] of Object.entries(STRATA)) {
   if (!s.title || !s.kicker || !s.body || !s.layers) fail(`strata ${key}: incomplete`);
@@ -67,7 +68,7 @@ ok('sky, water, grade shaders present');
 console.log('\n[worlds]');
 const { buildEraWorld } = await import('../js/world.js');
 
-const ORDER = ['boiling', 'celery', 'mall', 'seventies', 'paper', 'nineties', 'living', 'returns'];
+const ORDER = ['founding', 'boiling', 'celery', 'mall', 'seventies', 'paper', 'nineties', 'living', 'returns'];
 const sinceK = (era, key) => ORDER.indexOf(era.key) >= ORDER.indexOf(key);
 const inB = (b, x, z, pad = 0) =>
   b.active !== false && x > b.x1 - pad && x < b.x2 + pad && z > b.z1 - pad && z < b.z2 + pad;
@@ -77,7 +78,11 @@ for (const era of ERAS) {
     const w = buildEraWorld(era);
     if (w.agents.length !== era.people.length) fail(`${era.key}: ${w.agents.length} agents vs ${era.people.length} people`);
     if (!w.water) fail(`${era.key}: no river`);
-    if (!w.train) fail(`${era.key}: no train — the rails are non-negotiable`);
+    // the rails are non-negotiable from 1846 on; in 1831 they are a rumor
+    if (era.key === 'founding') {
+      if (w.train) fail('founding: a railroad fifteen years early');
+      if (!w.pickLandmarks.some(o => o.userData.landmark === 'depot')) fail('founding: the line-to-come ground is not clickable');
+    } else if (!w.train) fail(`${era.key}: no train — the rails are non-negotiable`);
     if (!(w.pickLandmarks.length >= 8)) fail(`${era.key}: only ${w.pickLandmarks.length} clickable landmarks`);
     if (!(w.echoMats?.length >= 1)) fail(`${era.key}: no echo layers — the palimpsest is missing`);
     for (const m of w.echoMats) if (!(m.userData.echoBase > 0 && m.userData.echoBase <= 0.2)) fail(`${era.key}: echo opacity ${m.userData.echoBase} outside the faint band`);
@@ -87,7 +92,8 @@ for (const era of ERAS) {
       const tag = o.userData?.phase2;
       if (tag) phase2Counts[tag] = (phase2Counts[tag] || 0) + 1;
     });
-    if (era.key !== 'boiling' && !(phase2Counts['street-sign'] >= 5)) fail(`${era.key}: missing street-name signs`);
+    if (!['founding', 'boiling'].includes(era.key) && !(phase2Counts['street-sign'] >= 5)) fail(`${era.key}: missing street-name signs`);
+    if (era.key === 'founding' && phase2Counts['street-sign']) fail('founding: street signs before the streets earned names');
     if (['living', 'returns'].includes(era.key)) {
       if (!(phase2Counts.riverwalk >= 1 && phase2Counts['riverwalk-overlook'] >= 2)) fail(`${era.key}: riverwalk/overlooks incomplete`);
       if (!(phase2Counts['wmu-banner'] >= 3 && phase2Counts['wmu-student'] >= 3)) fail(`${era.key}: WMU hill lacks banner/student energy`);
@@ -116,8 +122,8 @@ for (const era of ERAS) {
 
     // run the simulation a few steps to shake out runtime errors
     for (let i = 0; i < 30; i++) w.update(1 / 30, i / 30, i % 2 ? 0.8 : 0.1);
-    // exercise a train pass
-    w.train.start(); for (let i = 0; i < 10; i++) w.train.update(0.5);
+    // exercise a train pass (1831 has no train to exercise)
+    if (w.train) { w.train.start(); for (let i = 0; i < 10; i++) w.train.update(0.5); }
     // nobody gathers in the river or on the rails
     const inRiver = (x) => x > -46 && x < -22.5;
     const onRails = (z) => z > 38 && z < 42;

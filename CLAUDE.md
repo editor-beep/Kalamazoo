@@ -2,8 +2,8 @@
 
 Live: **https://kalamazoo.vercel.app/**
 
-A living elegy in eight eras. One city — Kalamazoo, Michigan — remembered eight times
-(1855, 1905, 1959, 1975, 1985, 1995, 2026, 2050). The river, Burdick Street, Bronson Park, the
+A living elegy in nine eras. One city — Kalamazoo, Michigan — remembered nine times
+(1831, 1855, 1905, 1959, 1975, 1985, 1995, 2026, 2050). The river, Burdick Street, Bronson Park, the
 rail line, the mill ground, and the celery flats hold their coordinates in every
 era; only time changes their clothes. Hand-written residents carry the city's real
 history. The river speaks when clicked. The emotional brief, in order: **the
@@ -23,7 +23,7 @@ index.html          UI shell + import map ("three" → vendored module)
 css/style.css       hand-rolled glassmorphism; Fraunces (serif/poetry) + Inter (UI)
 js/data.js          THE HEART — all content (see below)
 js/shaders.js       sky dome, animated water, film-grade post pass (GLSL)
-js/world.js         shared geography assembled eight ways → EraWorld objects
+js/world.js         shared geography assembled nine ways → EraWorld objects
 js/agents.js        people (walk cycles, hats, props, chats), vehicles, train, particles
 js/ui.js            DOM layer (cards, HUD, modals, toasts, story panel)
 js/main.js          engine: lighting/day-night, picking, events, compare mode, input
@@ -35,11 +35,11 @@ vercel.json         caching + headers
 
 ```bash
 python3 -m http.server 8000        # or: npx serve .   (ES modules need HTTP)
-node scripts/smoke.mjs             # builds + simulates all eight eras in Node, no browser
+node scripts/smoke.mjs             # builds + simulates all nine eras in Node, no browser
 ```
 
 The smoke test validates every resident record, every landmark stratum, builds all
-eight worlds, simulates 30 frames each, fuzzes 400 wander targets per era against
+nine worlds, simulates 30 frames each, fuzzes 400 wander targets per era against
 the safety bands, and cross-checks every DOM id referenced from JS against
 `index.html`. **Run it after every change.** There is no browser in some dev
 environments — the code is structured so this is meaningful verification.
@@ -75,7 +75,11 @@ environments — the code is structured so this is meaningful verification.
    Per-mesh effects (e.g., 1985's flicker) are flagged via `material.userData`
    and applied *inside* that pass — anything set elsewhere gets overwritten.
 7. **Era ordering** is by `era.key` through `since(era, key)` / `only(era, ...keys)`
-   in `world.js`: `boiling → celery → mall → seventies → paper → nineties → living → returns`.
+   in `world.js`: `founding → boiling → celery → mall → seventies → paper → nineties → living → returns`.
+   Each era's `id` must equal its index in `ERAS` (the engine indexes worlds by
+   it); the smoke test asserts this. 1831 (`founding`) is pre-rail: it is the
+   one era with no train — the corridor at z = 40 stays clickable (landmark
+   `depot`, the line-to-come) and its safety band still holds.
 8. **Solid construction registers its footprint.** Builders push AABBs via
    `block(world, cx, cz, w, d)` / `blockBounds(...)` into `world.obstacles`, and
    live traffic lanes into `world.noStand`. Agents consume them (`pickTarget`
@@ -89,7 +93,7 @@ environments — the code is structured so this is meaningful verification.
 
 ## Content model (`js/data.js`)
 
-- `ERAS[8]` — each: card text, `epigraph` (the transition poem), `welcome` toast,
+- `ERAS[9]` — each: card text, `epigraph` (the transition poem), `welcome` toast,
   `vis` (full visual config: sky/fog/water/grade/foliage/lamps), `riverLines`
   (the river's spoken lines), `events` (kind: `bright | ache | wonder` — ache
   triggers the grief desaturation pulse), `echoes` (≥2 ambient one-line whispers
@@ -106,8 +110,10 @@ environments — the code is structured so this is meaningful verification.
 ### Tone guardrails (these made it land — keep them)
 
 - Melancholic **and** hopeful, never one without the other. "Anyway" is the toast.
-- Real names only for historical figures (Enoch Harris, Orville Gibson, Caroline
-  Bartlett Crane). All living-era people are fictional composites.
+- Real names only for historical figures (Titus & Sally Bronson, Justus Burdick,
+  Lucius Lyon, Bazel Harrison, Enoch Harris, Orville Gibson, Caroline Bartlett
+  Crane). All living-era people are fictional composites. Titus is played true:
+  generous, temperance-mad, whittling, impossible — and unnamed by his own town.
 - February 2016 is carried gently and **namelessly**. No spectacle, ever.
 - Potawatomi presence is real, present-tense, first-name-only characters; the land
   acknowledgment stays. "We were never gone; you just stopped looking."

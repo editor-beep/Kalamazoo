@@ -38,6 +38,7 @@ const clock = new THREE.Clock();
 let elapsed = 0;
 
 const TRAIN_LINES = {
+  // (no entry for 'founding' — the iron is fifteen years away in 1831)
   boiling: 'The cars roll through and the whole village stops chewing to listen.',
   celery: 'A celery special thunders toward Chicago, iced and silver. The depot smells like harvest.',
   mall: 'A freight rolls through downtown. Conversation pauses, mid-sentence, the way it always has.',
@@ -49,6 +50,7 @@ const TRAIN_LINES = {
 };
 
 const CAMERA_DEFAULTS = {
+  founding: { pos: [46, 28, 52], tgt: [-8, 3, -4] },
   boiling: { pos: [44, 27, 50], tgt: [-6, 3, -6] },
   celery: { pos: [38, 25, 46], tgt: [-2, 4, -6] },
   mall: { pos: [32, 22, 42], tgt: [2, 3, -8] },
@@ -122,8 +124,8 @@ function boot() {
   renderer.domElement.addEventListener('pointermove', onPointerMove);
   window.addEventListener('keydown', onKey);
 
-  // ambient backdrop behind the selection glass: the living city at golden hour
-  state.world = getWorld(4);
+  // ambient backdrop behind the selection glass: 1985 at golden hour
+  state.world = getWorld(5);
   renderPass.scene = state.world.scene;
   state.timeOfDay = 0.74;
 
@@ -553,7 +555,7 @@ function onKey(e) {
   }
   if (k === '?') { document.getElementById('help-overlay').classList.remove('hidden'); return; }
 
-  if (k >= '1' && k <= '6') { enterEra(parseInt(k) - 1); return; }
+  if (k >= '1' && k <= '9') { enterEra(parseInt(k) - 1); return; }
 
   if (state.mode === 'select') return;
   switch (k.toLowerCase()) {
