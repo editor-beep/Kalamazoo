@@ -1,4 +1,4 @@
-// World building: one shared geography, eight skins of time.
+// World building: one shared geography, nine skins of time.
 // Anchored places hold their coordinates in every era — only time moves.
 
 import * as THREE from '../vendor/three/three.module.min.js';
@@ -8,7 +8,7 @@ import {
   makeSmokeColumn, makeFireflies, makeMotes, updateChats,
 } from './agents.js';
 
-const ERA_ORDER = ['boiling', 'celery', 'mall', 'seventies', 'paper', 'nineties', 'living', 'returns'];
+const ERA_ORDER = ['founding', 'boiling', 'celery', 'mall', 'seventies', 'paper', 'nineties', 'living', 'returns'];
 const stage = key => ERA_ORDER.indexOf(key);
 const since = (era, key) => stage(era.key) >= stage(key);
 const only = (era, ...keys) => keys.includes(era.key);
@@ -344,7 +344,7 @@ function logCabin() {
 
 function buildRiver(era, world) {
   const vis = era.vis;
-  const wide = only(era, 'boiling', 'returns');
+  const wide = only(era, 'founding', 'boiling', 'returns');
   const width = wide ? 17 : 14;
   const g = new THREE.Group();
 
@@ -421,8 +421,8 @@ function buildRiver(era, world) {
     });
   }
 
-  // sandbars in the rewilded future
-  if (only(era, 'returns', 'boiling')) {
+  // sandbars in the wild past and the rewilded future
+  if (only(era, 'returns', 'boiling', 'founding')) {
     for (let i = 0; i < 4; i++) {
       const bar = new THREE.Mesh(new THREE.CircleGeometry(rand(1.6, 3), 10), M({ color: 0xcbb992, roughness: 1 }));
       bar.rotation.x = -Math.PI / 2;
@@ -445,8 +445,9 @@ function buildRiver(era, world) {
         g.add(heron);
       }
     }
-    // sturgeon shadow (2050): a long dark shape, under the surface, patient
-    if (only(era, 'returns')) {
+    // sturgeon shadow (1831 & 2050 — the same patience, bookending): a long
+    // dark shape under the surface
+    if (only(era, 'returns', 'founding')) {
       const shadow = new THREE.Mesh(
         new THREE.CircleGeometry(1.1, 12),
         new THREE.MeshBasicMaterial({ color: 0x07181c, transparent: true, opacity: 0.4 })
@@ -494,7 +495,18 @@ function buildRiver(era, world) {
   bridge.userData.landmark = 'bridge';
   const bw = width + 8;
   let deckMat, deck;
-  if (only(era, 'boiling')) {
+  if (only(era, 'founding')) {
+    // 1831: no bridge yet — the ford. Stepping stones, knee-deep water, and
+    // an invisible deck so the crossing still answers when clicked.
+    deck = new THREE.Mesh(new THREE.BoxGeometry(bw, 0.1, 3.4), new THREE.MeshBasicMaterial({ visible: false }));
+    const stoneMat = M({ color: 0xb3a584, roughness: 1 });
+    for (let i = 0; i < 8; i++) {
+      const stone = new THREE.Mesh(new THREE.CylinderGeometry(rand(0.32, 0.55), rand(0.4, 0.68), 0.3, 7), stoneMat);
+      stone.position.set(-bw / 2 + (i + 0.5) * (bw / 8), 0.12, rand(-1.1, 1.1));
+      stone.rotation.y = R() * Math.PI;
+      bridge.add(stone);
+    }
+  } else if (only(era, 'boiling')) {
     deckMat = M({ color: 0x6b4e2e, roughness: 0.95 });
     deck = new THREE.Mesh(new THREE.BoxGeometry(bw, 0.5, 5.4), deckMat);
     for (let i = -2; i <= 2; i++) {
@@ -545,7 +557,8 @@ function buildRoads(era, world) {
   const g = new THREE.Group();
   const roadMat = M({ color: era.vis.road, roughness: 0.95 });
   const dirtMat = M({ color: 0x5d4f37, roughness: 1 });
-  const mat = only(era, 'boiling') ? dirtMat : roadMat;
+  const frontier = only(era, 'founding', 'boiling');
+  const mat = frontier ? dirtMat : roadMat;
 
   const mkRoad = (w, l, x, z, rot = 0) => {
     const r = new THREE.Mesh(new THREE.PlaneGeometry(w, l), mat);
@@ -562,8 +575,21 @@ function buildRoads(era, world) {
   mkRoad(6, 50, 31, -12);                    // Portage St — east of the park, not through it
   mkRoad(6, 72, -14, 0);                     // Rose St / River Rd
 
+  // 1831: the portage trail is still a working road — by 1855 it is already
+  // an echo (buildEchoes draws the ghost of this exact line).
+  if (only(era, 'founding')) {
+    const from = { x: 30, z: -34 }, to = { x: -30, z: 9 };
+    const dx = to.x - from.x, dz = to.z - from.z;
+    const trail = new THREE.Mesh(new THREE.PlaneGeometry(1.4, Math.hypot(dx, dz)), M({ color: 0x6b5a3e, roughness: 1 }));
+    trail.rotation.x = -Math.PI / 2;
+    trail.rotation.z = Math.atan2(-dx, -dz);
+    trail.position.set((from.x + to.x) / 2, 0.025, (from.z + to.z) / 2);
+    trail.receiveShadow = true;
+    g.add(trail);
+  }
+
   // sidewalks along Burdick + Michigan
-  if (!only(era, 'boiling')) {
+  if (!frontier) {
     const walkMat = M({ color: 0x8d887c, roughness: 0.9 });
     [-4.4, 4.4].forEach(s => {
       const sw = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 104), walkMat);
@@ -574,7 +600,7 @@ function buildRoads(era, world) {
     });
   }
 
-  if (!only(era, 'boiling')) {
+  if (!frontier) {
     [
       ['BURDICK', 5.9, 10.5, 0, 'ST'],
       ['MICHIGAN', 2.5, 13.9, Math.PI / 2, 'AVE'],
@@ -655,6 +681,7 @@ function buildRoads(era, world) {
 function buildStorefronts(era, world) {
   const g = new THREE.Group();
   const SIGNS = {
+    founding: ['BRONSON HOUSE', 'BURDICK & CO', 'KINGSBURY DRY GOODS', 'SMITHY', 'POST & TRADE'],
     boiling: ['GENERAL STORE', 'LAND OFFICE', 'KALAMAZOO HOUSE', 'TELEGRAPH', 'HARNESS'],
     celery: ['GILMORE BROS.', 'DRY GOODS', 'OAKLAND PHARMACY', 'MILLINERY', 'GAZETTE', 'CORSETS', 'HARDWARE'],
     mall: ['GILMORE BROTHERS', 'S.S. KRESGE', 'WOOLWORTH', 'SHOES', 'RECORDS', 'LUNCH', 'CAMERA SHOP'],
@@ -667,8 +694,9 @@ function buildStorefronts(era, world) {
   const signs = SIGNS[era.key];
   let signIdx = 0;
 
-  const wood = only(era, 'boiling');
+  const wood = only(era, 'founding', 'boiling');
   const brickPalettes = {
+    founding: ['#9b8a68', '#8a7656', '#a8956e'],
     boiling: ['#a8916b', '#8f7a58', '#b5a079'],
     celery: ['#7d4030', '#8a5a3a', '#6b4438', '#96604a'],
     mall: ['#8a5a3a', '#9b8a74', '#7d4030', '#a89a85'],
@@ -785,7 +813,9 @@ function buildStorefronts(era, world) {
       }
 
       g.add(bld);
-      z += bw + (wood ? rand(0.8, 2.2) : 0.15);
+      // 1831 is a handful of raw frame buildings with grass between them;
+      // 1855 is a wooden street; everything after is a brick wall of fronts.
+      z += bw + (only(era, 'founding') ? rand(5, 10) : wood ? rand(0.8, 2.2) : 0.15);
     }
   });
 
@@ -1020,7 +1050,41 @@ function buildMillSite(era, world) {
   g.userData.landmark = 'mill';
   const pos = new THREE.Vector3(-22, 0, -27);
 
-  if (only(era, 'boiling')) {
+  if (only(era, 'founding')) {
+    // 1831: the millwright's timber frame rising on the race Titus reserved —
+    // the village's heartbeat, not yet beating
+    const timberMat = M({ color: 0xb89e6e, roughness: 0.95 });
+    [[-2.6, 0], [2.6, 0], [-2.6, -2.4], [2.6, -2.4]].forEach(([ox, oz]) => {
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.2, 0.3), timberMat);
+      post.position.set(pos.x + ox, 2.1, pos.z + oz);
+      post.castShadow = true;
+      g.add(post);
+    });
+    [0, -2.4].forEach(oz => {
+      const beam = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.28, 0.28), timberMat);
+      beam.position.set(pos.x, 4.2, pos.z + oz);
+      g.add(beam);
+    });
+    const rafter = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.26, 3.2), timberMat);
+    rafter.position.set(pos.x - 2.6, 4.35, pos.z - 1.2);
+    g.add(rafter);
+    // the millstones, delivered, waiting in the grass
+    for (let i = 0; i < 2; i++) {
+      const stone = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 1.0, 0.32, 14), M({ color: 0x9a958a, roughness: 0.9 }));
+      stone.position.set(pos.x + 4.6, 0.18 + i * 0.34, pos.z + 2.4);
+      stone.rotation.y = i * 0.5;
+      stone.castShadow = true;
+      g.add(stone);
+    }
+    // a log pile: the rest of the building, horizontal for now
+    for (let i = 0; i < 5; i++) {
+      const log = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, rand(3.4, 4.4), 7), M({ color: 0x6b4e2e, roughness: 0.95 }));
+      log.rotation.z = Math.PI / 2;
+      log.position.set(pos.x - 1 + rand(-0.6, 0.6), 0.22 + Math.floor(i / 2) * 0.38, pos.z + 3.6 + (i % 2) * 0.5);
+      g.add(log);
+    }
+    block(world, pos.x, pos.z - 1.2, 6.4, 3.6);
+  } else if (only(era, 'boiling')) {
     const mill = new THREE.Group();
     const body = new THREE.Mesh(new THREE.BoxGeometry(7, 5.5, 6), M({ color: 0x7a6243, roughness: 0.9 }));
     body.position.y = 2.75;
@@ -1216,7 +1280,7 @@ function buildPark(era, world) {
   });
 
   // the oaks that heard Lincoln
-  const oakScale = { boiling: 0.85, celery: 1.1, mall: 1.35, seventies: 1.4, paper: 1.45, nineties: 1.52, living: 1.6, returns: 1.2 }[era.key];
+  const oakScale = { founding: 0.7, boiling: 0.85, celery: 1.1, mall: 1.35, seventies: 1.4, paper: 1.45, nineties: 1.52, living: 1.6, returns: 1.2 }[era.key];
   [[-6.5, -6], [6.5, -6.5], [-6, 6.5], [5.8, 6]].forEach(([ox, oz], i) => {
     const s = (era.key === 'returns' && i > 1) ? 0.7 : oakScale; // great-grandchildren oaks
     g.add(makeTree(center.x + ox, center.z + oz, s, era.vis.foliage, 'oak'));
@@ -1301,6 +1365,25 @@ function buildPark(era, world) {
 function buildRail(era, world) {
   const g = new THREE.Group();
   const z = 40;
+
+  // 1831: no iron for fifteen years. The corridor is bracken and oak shade,
+  // but the ground is still clickable — the strata speak for the line to come.
+  // (buildEchoes lays the ghost rails; echoes run forward here.)
+  if (only(era, 'founding')) {
+    const strip = new THREE.Mesh(new THREE.PlaneGeometry(120, 6), new THREE.MeshBasicMaterial({ visible: false }));
+    strip.rotation.x = -Math.PI / 2;
+    strip.position.set(0, 0.05, z);
+    strip.userData.landmark = 'depot';
+    g.add(strip);
+    world.pickLandmarks.push(strip);
+    const fernMat = M({ color: 0x4f7a3a, roughness: 0.95 });
+    for (let i = 0; i < 14; i++) {
+      const fern = new THREE.Mesh(new THREE.ConeGeometry(rand(0.3, 0.6), rand(0.5, 0.9), 5), fernMat);
+      fern.position.set(rand(-55, 55), 0.3, z + rand(-1.8, 1.8));
+      g.add(fern);
+    }
+    return g;
+  }
 
   // ballast + rails + ties
   const ballast = new THREE.Mesh(new THREE.PlaneGeometry(184, 5), M({ color: 0x5a564e, roughness: 1 }));
@@ -1402,8 +1485,8 @@ function buildFlats(era, world) {
   soil.receiveShadow = true;
   g.add(soil);
 
-  if (only(era, 'boiling')) {
-    // wild marsh: wet patches + reeds; Taylor's first tamed corner
+  if (only(era, 'founding', 'boiling')) {
+    // wild marsh: wet patches + reeds; in 1855, Taylor's first tamed corner
     for (let i = 0; i < 5; i++) {
       const wet = new THREE.Mesh(new THREE.CircleGeometry(rand(1.4, 2.6), 10), M({ color: 0x2c4a44, roughness: 0.3 }));
       wet.rotation.x = -Math.PI / 2;
@@ -1416,10 +1499,19 @@ function buildFlats(era, world) {
       reed.rotation.z = rand(-0.15, 0.15);
       g.add(reed);
     }
-    for (let r = 0; r < 4; r++) {
-      const row = new THREE.Mesh(new THREE.BoxGeometry(5, 0.3, 0.5), M({ color: 0x7da05a, roughness: 0.9 }));
-      row.position.set(cx - 8, 0.15, cz + 5 + r * 1.1);
-      g.add(row);
+    if (only(era, 'boiling')) {
+      for (let r = 0; r < 4; r++) {
+        const row = new THREE.Mesh(new THREE.BoxGeometry(5, 0.3, 0.5), M({ color: 0x7da05a, roughness: 0.9 }));
+        row.position.set(cx - 8, 0.15, cz + 5 + r * 1.1);
+        g.add(row);
+      }
+    } else {
+      // 1831: rice sheaves drying at the marsh edge — the harvest before the harvests
+      for (let i = 0; i < 5; i++) {
+        const sheaf = new THREE.Mesh(new THREE.ConeGeometry(0.4, 1.3, 6), M({ color: 0xb8a25c, roughness: 0.95 }));
+        sheaf.position.set(cx - 9 + i * 1.6, 0.65, cz + 6 + (i % 2) * 0.9);
+        g.add(sheaf);
+      }
     }
   } else if (only(era, 'celery', 'mall', 'seventies')) {
     const rows = era.key === 'celery' ? 9 : 5;
@@ -1504,7 +1596,7 @@ function buildFlats(era, world) {
 }
 
 function buildSuperfund(era, world) {
-  if (only(era, 'boiling')) return null;
+  if (only(era, 'founding', 'boiling')) return null;
   const g = new THREE.Group();
   g.userData.landmark = 'superfund';
   const cx = -18, cz = -52;
@@ -1599,7 +1691,14 @@ function buildTower(era, world) {
   hill.receiveShadow = true;
   g.add(hill);
 
-  if (only(era, 'boiling')) {
+  if (only(era, 'founding')) {
+    // 1831: just the hill — oaks, owls, and a future nobody has imagined yet
+    [[-4, -2, 4.6], [3, 1, 5.2], [0, 4, 4.9]].forEach(([ox, oz, oy], i) => {
+      const oak = makeTree(cx + ox, cz + oz, 0.9 + i * 0.12, era.vis.foliage, 'oak');
+      oak.position.y = oy;   // planted on the hillside, not inside it
+      g.add(oak);
+    });
+  } else if (only(era, 'boiling')) {
     // walls rising, 1854: scaffold + partial masonry
     const wall = new THREE.Mesh(new THREE.BoxGeometry(5, 2.2, 3.4), M({ color: 0x9b8a74, roughness: 0.9 }));
     wall.position.set(cx, 7.9, cz);
@@ -1740,6 +1839,7 @@ function buildGibson(era, world) {
 }
 
 function buildChurch(era, world) {
+  if (only(era, 'founding')) return null;   // services still meet in cabins
   const g = new THREE.Group();
   const cx = -10, cz = -38;
   const wood = only(era, 'boiling');
@@ -1772,16 +1872,22 @@ function buildHouses(era, world) {
   const vis = era.vis;
 
   const lots = [];
-  // NE residential — east of Portage St and clear of Upjohn's ground
-  for (let i = 0; i < 6; i++) lots.push({ x: 38 + (i % 3) * 7, z: 25 + Math.floor(i / 3) * 8, rot: Math.PI });
-  // across the river — south of Michigan Ave, off the bridge approach
-  for (let i = 0; i < 3; i++) lots.push({ x: -50 - (i % 2) * 7, z: -14 + i * 8, rot: Math.PI / 2 });
-  // north of rail: mill cottages (1905+)
-  if (since(era, 'celery')) {
-    for (let i = 0; i < 5; i++) lots.push({ x: -22 + i * 7, z: 50, rot: Math.PI, cottage: true });
+  if (era.key === 'founding') {
+    // 1831: a handful of cabins huddled near the plat — the village is a rumor
+    [[14, -1], [-8, 20], [20, 22], [38, 26], [34, 18]].forEach(([x, z]) => lots.push({ x, z, rot: Math.PI }));
+  } else {
+    // NE residential — east of Portage St and clear of Upjohn's ground
+    for (let i = 0; i < 6; i++) lots.push({ x: 38 + (i % 3) * 7, z: 25 + Math.floor(i / 3) * 8, rot: Math.PI });
+    // across the river — south of Michigan Ave, off the bridge approach
+    for (let i = 0; i < 3; i++) lots.push({ x: -50 - (i % 2) * 7, z: -14 + i * 8, rot: Math.PI / 2 });
+    // north of rail: mill cottages (1905+)
+    if (since(era, 'celery')) {
+      for (let i = 0; i < 5; i++) lots.push({ x: -22 + i * 7, z: 50, rot: Math.PI, cottage: true });
+    }
   }
 
   const palettes = {
+    founding: ['#c9b896', '#b5a079'],
     boiling: ['#c9b896', '#b5a079', '#a8916b'],
     celery: ['#8a5a3a', '#6b4438', '#7a6248', '#5c6b58'],
     mall: ['#d4c3a8', '#c2b49a', '#8a9a8a', '#b8a888'],
@@ -1794,7 +1900,7 @@ function buildHouses(era, world) {
 
   lots.forEach((lot, idx) => {
     let house;
-    if (era.key === 'boiling' && idx % 2 === 0) {
+    if (era.key === 'founding' || (era.key === 'boiling' && idx % 2 === 0)) {
       house = logCabin();
     } else {
       const winMat = new THREE.MeshStandardMaterial({
@@ -1817,7 +1923,7 @@ function buildHouses(era, world) {
     house.rotation.y = (lot.rot || 0) + rand(-0.12, 0.12);
     g.add(house);
     block(world, lot.x, lot.z, lot.cottage ? 5.2 : 6.6, lot.cottage ? 5.6 : 7.2);
-    if (era.key === 'boiling' && house.userData.chimneyTop) {
+    if (only(era, 'founding', 'boiling') && house.userData.chimneyTop) {
       const top = house.userData.chimneyTop.clone()
         .applyAxisAngle(new THREE.Vector3(0, 1, 0), house.rotation.y)
         .add(house.position);
@@ -1825,12 +1931,18 @@ function buildHouses(era, world) {
     }
   });
 
-  // Harris orchard, 1855: rows of apple trees NE, past the rails
+  // Harris orchard NE, past the rail corridor: whips in 1831, rows by 1855
   if (era.key === 'boiling') {
     for (let i = 0; i < 8; i++) {
       const tx = 36 + (i % 4) * 4.5, tz = 45 + Math.floor(i / 4) * 4.5;
       g.add(makeTree(tx, tz, 0.62, ['#4f7a3a'], 'round'));
       block(world, tx, tz, 1.0, 1.0);
+    }
+  } else if (era.key === 'founding') {
+    for (let i = 0; i < 8; i++) {
+      const tx = 36 + (i % 4) * 4.5, tz = 45 + Math.floor(i / 4) * 4.5;
+      g.add(makeTree(tx, tz, 0.5, ['#5c8a44'], 'sapling'));
+      block(world, tx, tz, 0.6, 0.6);
     }
   }
 
@@ -2144,7 +2256,14 @@ function buildEchoes(era, world) {
     [-0.75, 0.75].forEach(x => flat(new THREE.PlaneGeometry(0.16, 29), m, x, -9, 0.055));
   };
 
-  if (only(era, 'boiling')) {
+  if (only(era, 'founding')) {
+    // 1831's echoes all run forward: the iron road, fifteen years off,
+    // already faintly pressed into the bracken north of the village
+    const m = echoMat(0x8a9097, 0.12);
+    [-0.8, 0.8].forEach(off => flat(new THREE.PlaneGeometry(120, 0.14), m, 0, 40 + off, 0.06));
+    // and the thread of the street Burdick will become — brick, dreaming
+    flat(new THREE.PlaneGeometry(0.22, 30), echoMat(0xe8e3d8, 0.09), 0, -9, 0.05);
+  } else if (only(era, 'boiling')) {
     // the portage trail — older than any deed, headed for the ford
     const trail = echoMat(0xd8cfb6, 0.13);
     const from = { x: 30, z: -34 }, to = { x: -30, z: 9 };
@@ -2267,7 +2386,7 @@ export function buildEraWorld(era) {
   group.add(buildMillSite(era, world));
   group.add(buildFlats(era, world));
   group.add(buildHouses(era, world));
-  group.add(buildChurch(era, world));
+  const church = buildChurch(era, world); if (church) group.add(church);
   group.add(buildTower(era, world));
   group.add(buildLamps(era, world));
   group.add(buildStringLights(era, world));
@@ -2283,7 +2402,7 @@ export function buildEraWorld(era) {
   const gibson = buildGibson(era, world); if (gibson) group.add(gibson);
 
   // ---- trees
-  const treeKinds = { boiling: ['round', 'oak', 'pine'], celery: ['round', 'round', 'oak'], mall: ['round', 'round'], seventies: ['round', 'round'], paper: ['sapling', 'round'], nineties: ['sapling', 'round'], living: ['round', 'round', 'oak'], returns: ['round', 'oak', 'willow', 'pine'] };
+  const treeKinds = { founding: ['oak', 'round', 'pine', 'oak'], boiling: ['round', 'oak', 'pine'], celery: ['round', 'round', 'oak'], mall: ['round', 'round'], seventies: ['round', 'round'], paper: ['sapling', 'round'], nineties: ['sapling', 'round'], living: ['round', 'round', 'oak'], returns: ['round', 'oak', 'willow', 'pine'] };
   const kinds = treeKinds[era.key];
   let planted = 0, guard = 0;
   while (planted < era.vis.treeCount && guard++ < 400) {
@@ -2333,7 +2452,7 @@ export function buildEraWorld(era) {
   if (era.key === 'paper') {
     const ash = makeMotes({ color: '#b8b4ac', count: 80, fall: 0.5, opacity: 0.3 });
     world.motes = ash; group.add(ash.points);
-  } else if (era.key === 'boiling') {
+  } else if (only(era, 'founding', 'boiling')) {
     const pollen = makeMotes({ color: '#e8d9a0', count: 60, fall: 0.12, opacity: 0.22 });
     world.motes = pollen; group.add(pollen.points);
   } else if (era.key === 'celery') {
@@ -2343,6 +2462,10 @@ export function buildEraWorld(era) {
 
   // ---- anchors (where life gathers) & residents
   const ANCHOR_SETS = {
+    founding: [
+      { x: 0, z: -6, r: 8 }, { x: -16, z: -24, r: 7 }, { x: 20, z: -14, r: 8 },
+      { x: 30, z: -36, r: 8 }, { x: -21, z: 10, r: 5 }, { x: 34, z: 24, r: 7 }, { x: -8, z: 16, r: 6 },
+    ],
     boiling: [
       { x: 0, z: -6, r: 9 }, { x: -16, z: -24, r: 7 }, { x: 20, z: -14, r: 8 },
       { x: 30, z: -36, r: 8 }, { x: -21, z: 10, r: 5 }, { x: 34, z: 24, r: 8 }, { x: 12, z: 42.5, r: 4 },
@@ -2410,8 +2533,9 @@ export function buildEraWorld(era) {
   // The campus shuttle takes the drive down the hill, then crosses the river
   // on the Michigan Ave bridge deck — buses don't swim.
   const broncoRoute = [{ x: -49, z: 10 }, { x: -45.5, z: 10, y: 1.22 }, { x: -22.5, z: 10, y: 1.22 }, { x: -19, z: 10 }];
-  if (era.key === 'boiling') {
-    world.cruisers.push(new Shuttle('wagon', null, { x: -8, z: 10 }, { x: 40, z: 10 }, 1.3));
+  if (only(era, 'founding', 'boiling')) {
+    // 1831's wagon is an ox-team: same road, slower opinion
+    world.cruisers.push(new Shuttle('wagon', null, { x: -8, z: 10 }, { x: 40, z: 10 }, era.key === 'founding' ? 1.0 : 1.3));
   } else if (era.key === 'celery') {
     world.cruisers.push(new Shuttle('streetcar', null, { x: 0, z: -42 }, { x: 0, z: 32 }, 4.2));
     world.cruisers.push(new Shuttle('wagon', null, { x: 36, z: 10 }, { x: -10, z: 10 }, 1.4));

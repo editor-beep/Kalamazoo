@@ -1,21 +1,189 @@
 // kalamazoo • through time — the remembered content.
 // Everything personal lives here: the people, what they carry, what the river says.
 // Residents are fictional composites except where history offers its own people
-// (Enoch Harris, Orville Gibson, Caroline Bartlett Crane), used with respect.
+// (Titus & Sally Bronson, Justus Burdick, Lucius Lyon, Bazel Harrison,
+// Enoch Harris, Orville Gibson, Caroline Bartlett Crane), used with respect.
 
 export const LINEAGES = {
   doorn:    { mark: '❧', label: 'The Doorns — celery people since 1872. Find them in 1905, 1995, 2050.' },
-  harris:   { mark: '❧', label: 'The Harrises — landowners since 1830. Find them in 1855, 1975, 2026.' },
-  water:    { mark: '〜', label: 'The water-keepers — here before the town, here after. 1855, 2026, 2050.' },
+  harris:   { mark: '❧', label: 'The Harrises — landowners since 1830. Find them in 1831, 1855, 1975, 2026.' },
+  water:    { mark: '〜', label: 'The water-keepers — here before the town, here after. 1831, 1855, 2026, 2050.' },
   luthiers: { mark: '♪', label: 'The luthiers — wood and song since Orville. 1905, 1975, 1985, 2050.' },
   destiny:  { mark: '✶', label: 'Destiny Alvarez — the same person, twice. Meet her at 19 in 2026 and at 43 in 2050.' },
   whitlock: { mark: '❧', label: 'The Whitlocks — glass-sweepers and poets. 1995, 2026, 2050.' },
 };
 
 export const ERAS = [
+  // ───────────────────────────── 1831 ─────────────────────────────
+  {
+    key: 'founding', id: 0, year: '1831', name: 'The Village of Bronson',
+    tagline: 'Oak openings • The plat • Potato Bronson',
+    blurb: 'Titus Bronson drives stakes into a meadow the Potawatomi never left and names the mud after himself. The neighbors take the village and, within five years, the name. The oaks decline to comment.',
+    accent: '#4d7c0f', accentText: '#84cc16',
+    grad: 'linear-gradient(135deg,#445a23,#221f12)',
+    pulse: 38, defaultTime: 0.18,
+    epigraph: {
+      lines: 'A man says his own name to a meadow\nand calls it founding.\nThe meadow has been answering\nto older names all along.',
+      attrib: null,
+    },
+    welcome: 'Welcome to the Village of Bronson, pop. ~60 settlers — and a Potawatomi town by the ford that was never asked. The plat is a year old. The name has five left.',
+    vis: {
+      ground: ['#41511f', '#33421b'], road: '#66573b',
+      skyDay: ['#79b3df', '#e9ddbb'], skyGold: ['#b07434', '#f3d79c'], skyNight: ['#081120', '#18283a'],
+      fogDay: '#cdc6a0', fogNight: '#0a0f15', fogDensity: 0.0042,
+      water: { a: '#3f8f8f', b: '#2e6b6e', murk: 0.06, drift: 'logs' },
+      lamp: null, exposure: 1.02,
+      grade: { tint: [1.04, 1.0, 0.86], tintAmt: 0.52, desat: 0.1, vignette: 0.36, grain: 0.09 },
+      foliage: ['#3a6b33', '#4f7d38', '#2c5a2c'], treeCount: 58, fireflies: true, smoke: 'hearth',
+    },
+    activities: ['watching the surveyors', 'trading at the river post', 'pulling oak stumps'],
+    riverLines: [
+      'Your Titus asks what my name means. It means me. Tell him a river is not a question.',
+      'I carried their canoes for ten thousand years and your flatboats for two. I am not keeping score. I am the score.',
+      'They drive stakes into my floodplain. I will collect them in April, the way I always do.',
+      'The man who named this place for himself will leave. The people he named it over will not. Ask me how I know. Stay a century.',
+    ],
+    echoes: [
+      'Stand on the stake line they call a street at dusk, and you can almost hear brick — a canyon of it, eighty years off, settling into the mud like it was always coming.',
+      'North of the village a line of cleared bracken runs east to west, straighter than anything the territory needs. Yet.',
+      'The marsh exhales at night, and the new village dreams in a language it insists it has never learned.',
+    ],
+    events: [
+      { kind: 'bright', text: 'A wagon family bought two lots off the plat today — paid in coin, then asked where the streets were. Titus pointed at the grass: “You’re standing in one.”' },
+      { kind: 'ache',   text: 'Talk at the store: some of the new men say the village deserves a “more dignified” name. They say it where Titus can hear. That is the point of saying it.' },
+      { kind: 'bright', text: 'Titus traded a sack of seed potatoes for a litter of pigs and calls it the finest bargain in the territory. He has told everyone. Twice. He is not wrong.' },
+      { kind: 'wonder', text: 'Wolves sang the survey crew back into the village at dusk. Bazel Harrison says you can keep your courthouse — that right there is the true county business.' },
+      { kind: 'ache',   text: 'Somebody is telling the new families that Titus took a cherry sapling that wasn’t his. The story is small and growing, the way stories do when men water them.' },
+      { kind: 'wonder', text: 'A naming was held at the river at dusk for a daughter born this spring. The village was not invited, and watched from the bank anyway, hats off, all the way through.' },
+      { kind: 'ache',   text: 'Sugar bush came down on the north quarter today for a land-looker’s clearing. Baptiste bought the kettles back from the crew and said nothing the whole transaction.' },
+    ],
+    people: [
+      {
+        name: 'Wabnokwe', role: 'Of the Potawatomi town by the ford • mother of a daughter born this spring', age: 24, thread: 'water',
+        look: { body: '#7a5b3a', skin: 3, hat: 'none', prop: 'basket' },
+        mood: 'present, appraising', roots: 100,
+        doing: ['gathering wild rice at the marsh edge', 'trading baskets and maple sugar at the post', 'singing her daughter the river’s real name'],
+        memory: 'Her town has stood by the crossing since before the oldest oak in Titus’s plat was an acorn. Treaty paper says this ground changed hands in Chicago in 1821; the marsh did not read it. Her daughter was born this spring. Twenty-five years from now a store ledger will write that daughter down as “Sarah, baskets.” Wabnokwe is already teaching her the name underneath.',
+        lines: [
+          '“Titus has asked me twice what the river’s name means. I tell him: it is not a meaning, it is a name. He writes it down wrong, happily. Of all of them I mind him least. He also is not staying.”',
+          '“They put stakes in the meadow and call the meadow theirs. Then they put one man’s name on it and take that too. Names must be cheap to people who keep so many spares.”',
+          '“We are not in their plat. Look how much of the world is not in their plat. My daughter will live to see them ask us, politely, to be gone — and she will outlive the asking. We are good at staying. It used to be easier.”',
+        ],
+      },
+      {
+        name: 'Baptiste', role: 'Trader at the river post • French & Potawatomi', age: 36,
+        look: { body: '#5c4a3a', skin: 2, hat: 'cap', prop: 'bag' },
+        mood: 'both-languages amused', roots: 88,
+        doing: ['weighing maple sugar against shot at the counter', 'ferrying news in two directions', 'mending a canoe he refuses to sell'],
+        memory: 'His mother’s people have always lived on this river; his father came down from Mackinac with the fur brigades. The post was here before the plat — sugar, baskets, shot, and gossip in French, Potawatomi, and lately a loud new English that believes itself the first language ever spoken here. He gives fair weight to everyone and full truth to almost no one. Both are survival skills.',
+        lines: [
+          '“The Yankees ask me what was here before them. I say: everything. They laugh like I have made a joke. I have not made a joke.”',
+          '“I trade in three languages. English is the only one with a word for wilderness. That word does a great deal of work here, none of it honest.”',
+          '“Titus pays my price without haggling and argues with me about everything else under heaven. Burdick haggles me to the penny and agrees with whatever I say. You tell me which man respects you.”',
+        ],
+      },
+      {
+        name: 'Enoch Harris', role: 'Orchardist & landowner — bought his ground outright in 1830', age: 40, thread: 'harris',
+        look: { body: '#3d4a5c', skin: 4, hat: 'brim', prop: 'none' },
+        mood: 'iron-patient', roots: 80,
+        doing: ['setting apple whips in fresh-turned ground', 'paying cash and keeping the receipt', 'riding the Territorial Road at dusk'],
+        memory: 'He and Deborah came up from Ohio in 1830 and bought their acres outright — the first Black landholders in the county, with money no one believed and a deed no one could argue. This spring he set out apple whips no thicker than a finger. A man plants an orchard to tell time he intends to stay. He intends.',
+        lines: [
+          '“The seedlings came up the trail wrapped in wet sacking and I planted them before I built the good fence. Roots first. Everything out here is roots first.”',
+          '“Titus Bronson shakes my hand in the street with both of his. Some of the new men from the East shake it like a transaction they’d rather not record. A town takes its manners from the top of its deeds. I keep account.”',
+          '“In fifty years nobody will believe a Black man bought this ground in 1830. I believe it every morning. The trees believe it. The rest is paperwork.”',
+        ],
+      },
+      {
+        name: 'Bazel Harrison', role: 'First settler in the county • judge, when court is sitting', age: 60,
+        look: { body: '#4a3a2f', skin: 0, hat: 'brim', prop: 'cane' },
+        mood: 'patriarch-easy', roots: 72,
+        doing: ['in from Prairie Ronde for court day', 'swapping seed corn and verdicts', 'telling the journey story again, improved'],
+        memory: 'He brought his family over the Sauk Trail in 1828 — the county’s first settlers, if you don’t count everybody who was already here, which he privately doesn’t stop counting. Potawatomi neighbors showed his cattle to water that first winter. He holds court now under whatever roof is dry, and holds the door for the men who showed him the water, which confuses the new Vermonters, which he enjoys.',
+        lines: [
+          '“I was first, if you don’t count everyone who was here. The county prefers the short version. I’ve quit correcting it in public, but I will correct it on a porch.”',
+          '“Titus is cracked the way a church bell is cracked — rings strange, rings loud, calls the whole country in regardless. The men who mean to quiet that bell will miss it once it’s quiet. I have watched it done in three settlements.”',
+          '“Court day, I fine a man two dollars and lend him three. Out here the law has to live next door to itself.”',
+        ],
+      },
+      {
+        name: 'Sally Bronson', role: 'Wife of the founder • the village’s actual government', age: 40,
+        look: { body: '#6b4a5c', skin: 0, hat: 'bonnet', prop: 'basket' },
+        mood: 'level as a doorsill', roots: 58,
+        doing: ['feeding whoever the trail brings in', 'doctoring a fever cabin with onions and patience', 'talking Titus down off the day’s third grand plan'],
+        memory: 'She has followed Titus from Connecticut to Ohio to the territory, building a home at each end of his restlessness. The wagons stop at her door because hers is the door that opens. When the village renames itself out from under her husband, she will pack the household without one word against the place. Her grievance list is short. Her bread debts are long.',
+        lines: [
+          '“People ask how I bear him. You don’t bear lightning — you build where it strikes. It struck a meadow on the Kalamazoo, and here is a village. There are duller marriages.”',
+          '“Half the territory has slept on my floor and the other half is on its way. A settlement is a woman’s kitchen with a legislature attached.”',
+          '“He gives away land like bread and bread like land. We will die poor. We will not die small.”',
+        ],
+      },
+      {
+        name: 'Titus Bronson', role: 'Founder • potato evangelist • the village’s name, for now', age: 42,
+        look: { body: '#4a3a2a', skin: 0, hat: 'brim', prop: 'none' },
+        mood: 'lit from inside, wired wrong for villages', roots: 51,
+        doing: ['pacing the plat faster than anyone can follow', 'whittling clean through a trustees meeting', 'planting seed potatoes in the public square, on principle'],
+        memory: 'He walked into the oak openings in 1829 with a sack of seed potatoes and an idea, built the first cabin, and platted a village around it with his name on top. Generous to a fault and impossible at any distance closer than that — temperance-mad, twitch-fingered, the kindest man you ever fled a conversation with. He has founded towns before and left them. Some men plant orchards. Titus plants towns, and never stays for fruit.',
+        lines: [
+          '“They say Potato Bronson like it’s a small thing. A potato keeps a family alive through the winter that kills the wheat, the cattle, and the pride. Name one thing your dignity ever fed.”',
+          '“I gave this village its square, its burying ground, and my name. Mark me: it will keep the first two. A town is a canoe — you build it on the bank and it leaves you on the bank. I’d build another tomorrow.”',
+          '“Burdick and his kind say I talk too much, whittle too much, mean too much of what I say. Inside five years they’ll vote the name off me and tell their wives it was about a cherry tree. Write it down. I’ll be in Illinois.”',
+        ],
+      },
+      {
+        name: 'Justus Burdick', role: 'Merchant-speculator, lately of Vermont', age: 38,
+        look: { body: '#3a3f4a', skin: 0, hat: 'top', prop: 'bag' },
+        mood: 'upholstered, calculating', roots: 35,
+        doing: ['unpacking Eastern goods into a frame store', 'measuring the street with his eye', 'being gracious at Titus, slowly'],
+        memory: 'Came west this year with capital, manners, and a Vermonter’s certainty that civilization is a commodity — buy low, improve, sell dignified. He is buying. He finds the founder generous, tireless, visionary, and mortifying, in roughly that order, and he is already imagining a village seal that does not say Bronson anywhere on it. The longest street in town will end up wearing his name instead.',
+        lines: [
+          '“Mr. Bronson is the kind of man who builds a door and then stands in it. One is grateful for the door. One eventually asks him to step aside.”',
+          '“A village named for a man wears that man’s reputation in every mouth that says it. Our founder is called eccentric on his good days. You see the difficulty. The Indian name, whatever it means — at least it means nobody.”',
+          '“They will say men like me took the town from men like him. No: we bought it, improved it, and renamed it, all quite legally. That is the whole history of this country, told on one street.”',
+        ],
+      },
+      {
+        name: 'Lucius Lyon', role: 'Surveyor & speculator • owns more of the plat than anyone who lives here', age: 31,
+        look: { body: '#3a4a5c', skin: 0, hat: 'top', prop: 'clipboard' },
+        mood: 'ambition in a clean coat', roots: 20,
+        doing: ['walking his lots with a notebook', 'writing Detroit about the village’s prospects', 'pricing the future by the acre'],
+        memory: 'Surveyor, speculator, senator someday — he has run section lines across half the territory and owns pieces of most of what he measured, this plat included. He thinks in decades and townships. In a few years it is his letters that will press the legislature to trade Bronson for Kalamazoo: the river’s name, prettier on a map, attached to no living man anyone would have to keep apologizing for.',
+        lines: [
+          '“I have surveyed this territory from the St. Joseph to the Saginaw, and I’ll tell you the secret of the trade: the lines are imaginary. You make them real by selling them. Witness this street.”',
+          '“Bronson is a fine man and a bad name — both facts, both relevant. Kalamazoo, now: the river was here first and will be here last, and it never once embarrasses an investor. A name should outlive its mistakes.”',
+          '“Every man in this meadow believes he is early. He is not early. Wabnokwe’s people were early. We are merely first in line at a door we built across their road.”',
+        ],
+      },
+      {
+        name: 'Asa Kingsbury', role: 'Storekeeper & deacon-in-waiting', age: 45,
+        look: { body: '#4a4a3a', skin: 0, hat: 'top', prop: 'book' },
+        mood: 'respectability, weaponized', roots: 30,
+        doing: ['stacking calico and opinions', 'collecting signatures for “civic improvements”', 'watering a certain story about a cherry tree'],
+        memory: 'Keeps the dry-goods shelf and the village’s unwritten ledger of grievances. He finds the founder loud, ungoverned, and — worst of all — unembarrassable. He has begun saying “our little community deserves better” in a tone that means himself. The cherry-tree story passes through his store more often than coincidence allows. In court it will cost Titus a fine. In the village it will cost him the name.',
+        lines: [
+          '“I have nothing against Mr. Bronson personally. I simply observe — as anyone may — the whittling, the shouting, the potatoes in the public square. A village is judged by its founder. Ours invites judgment.”',
+          '“The cherry tree? I only repeat what I am told. A store is a kind of newspaper. I keep the counter clean and the columns moving.”',
+          '“When the name changes — if, I say if — it will be no one’s doing in particular. That is how a town does its hardest work: unanimously, and with nobody’s fingerprints.”',
+        ],
+      },
+      {
+        name: 'Harlow Pease', role: 'Land-looker, lately of Detroit, feverish', age: 27,
+        look: { body: '#5d6b4a', skin: 0, hat: 'cap', prop: 'book' },
+        mood: 'arithmetic on fire', roots: 8,
+        doing: ['pacing lots he hasn’t bought', 'writing his cousin to send everything', 'asking what the muck land goes for, twice'],
+        memory: 'Came up the Territorial Road with forty dollars, a borrowed horse, and the certainty that every meadow in Michigan is Manhattan awaiting paperwork. He is the first trickle of the flood: within five years the land office here will be among the busiest in the nation, and men exactly like him will sleep three to a bed at the tavern, dreaming in quarter-sections.',
+        lines: [
+          '“In Detroit they say a man can double his money in the territory in a season. I intend to triple it, on account of arriving sincere.”',
+          '“I asked the woman selling baskets whether she feared the country filling up. She looked at me like I was weather. Like I was weather!”',
+          '“The future here is so thick you have to wade. Mark this mud: church there, courthouse there, and right here — mark me — something. Something large!”',
+        ],
+      },
+    ],
+  },
+
   // ───────────────────────────── 1855 ─────────────────────────────
   {
-    key: 'boiling', id: 0, year: '1855', name: 'The Boiling Pot',
+    key: 'boiling', id: 1, year: '1855', name: 'The Boiling Pot',
     tagline: 'Settlement • River • First celery',
     blurb: 'Mills take the river’s shoulders. A Scotsman coaxes a pale stalk out of the black marsh. The Potawatomi, fifteen years after the removal wagons, are still here — quieter than the town deserves.',
     accent: '#b45309', accentText: '#d97706',
@@ -158,7 +326,7 @@ export const ERAS = [
 
   // ───────────────────────────── 1905 ─────────────────────────────
   {
-    key: 'celery', id: 1, year: '1905', name: 'Celery City',
+    key: 'celery', id: 2, year: '1905', name: 'Celery City',
     tagline: 'Victorian brick • Streetcars • Paper',
     blurb: 'The muck feeds the nation and the mills paint the sky. Corset girls, mandolin carvers, streetcar sparks. The river starts keeping a ledger nobody reads for eighty years.',
     accent: '#c2410f', accentText: '#ea580c',
@@ -325,7 +493,7 @@ export const ERAS = [
 
   // ───────────────────────────── 1959 ─────────────────────────────
   {
-    key: 'mall', id: 2, year: '1959', name: 'The Mall City',
+    key: 'mall', id: 3, year: '1959', name: 'The Mall City',
     tagline: 'First pedestrian mall in America',
     blurb: 'They close Burdick to cars and the sky comes down to shop. Tailfins, soda counters, Upjohn’s golden age — optimism so bright it can’t see the highways coming, or the red lines already drawn.',
     accent: '#0284c7', accentText: '#38bdf8',
@@ -492,7 +660,7 @@ export const ERAS = [
 
   // ───────────────────────────── 1975 ─────────────────────────────
   {
-    key: 'seventies', id: 3, year: '1975', name: 'The Main Street Years', tagline: 'Head shops • Hospital hill • Mall afterglow', blurb: 'The Mall is still the city’s experiment, but the seams show: gas lines, empty upstairs rooms, college posters, and a sanatorium on Blakeslee becoming the Northwest Unit.', accent: '#d97706', accentText: '#f59e0b', grad: 'linear-gradient(135deg,#7c3f1d,#2f2418)', pulse: 74, defaultTime: 0.7,
+    key: 'seventies', id: 4, year: '1975', name: 'The Main Street Years', tagline: 'Head shops • Hospital hill • Mall afterglow', blurb: 'The Mall is still the city’s experiment, but the seams show: gas lines, empty upstairs rooms, college posters, and a sanatorium on Blakeslee becoming the Northwest Unit.', accent: '#d97706', accentText: '#f59e0b', grad: 'linear-gradient(135deg,#7c3f1d,#2f2418)', pulse: 74, defaultTime: 0.7,
     epigraph: { lines: 'The brick street hums through platform shoes.\nEvery window is a little republic —\nrecords, newspapers, pills, prayers —\nand every republic is short on rent.', attrib: null },
     welcome: '1975: the Mall is sixteen years old, Upjohn still signs paychecks, and on Blakeslee the old TB sanatorium has become Kalamazoo Psychiatric Hospital’s Northwest Unit.',
     vis: { ground: ['#59503b', '#464432'], road: '#3f3c35', skyDay: ['#9ab0bf', '#e0c392'], skyGold: ['#c77736', '#f0c66b'], skyNight: ['#09111d', '#251828'], fogDay: '#b8a88f', fogNight: '#0b0d12', fogDensity: 0.0062, water: { a: '#556f6d', b: '#394f51', murk: 0.68, drift: 'foam' }, lamp: '#ffc36b', exposure: 0.96, grade: { tint: [1.10, 0.96, 0.77], tintAmt: 0.66, desat: 0.24, vignette: 0.50, grain: 0.13 }, foliage: ['#6f743b', '#7a6c36', '#4f5d31'], treeCount: 50, fireflies: false, smoke: 'mill' },
@@ -513,7 +681,7 @@ export const ERAS = [
 
   // ───────────────────────────── 1985 ─────────────────────────────
   {
-    key: 'paper', id: 4, year: '1985', name: 'Paper City Peak',
+    key: 'paper', id: 5, year: '1985', name: 'Paper City Peak',
     tagline: 'The peak is behind it. Nobody says so.',
     blurb: 'Gibson left in June. Checker built its last cab in ’82. The mills cough, the river carries a secret called PCB, and the tornado of 1980 is still in everyone’s hands. And in a soup kettle on Kalamazoo Avenue, somebody named Larry is brewing the future.',
     accent: '#7c5bd1', accentText: '#a78bfa',
@@ -704,7 +872,7 @@ export const ERAS = [
 
   // ───────────────────────────── 1995 ─────────────────────────────
   {
-    key: 'nineties', id: 5, year: '1995', name: 'The Independent City', tagline: 'Flipside • Club Soda • After Upjohn', blurb: 'The paper mills are quieter, Upjohn merges into a new name, and downtown survives on bands, record bins, coffee, and stubborn rooms that refuse to act finished.', accent: '#7c3aed', accentText: '#a78bfa', grad: 'linear-gradient(135deg,#3b256b,#17151f)', pulse: 82, defaultTime: 0.78,
+    key: 'nineties', id: 6, year: '1995', name: 'The Independent City', tagline: 'Flipside • Club Soda • After Upjohn', blurb: 'The paper mills are quieter, Upjohn merges into a new name, and downtown survives on bands, record bins, coffee, and stubborn rooms that refuse to act finished.', accent: '#7c3aed', accentText: '#a78bfa', grad: 'linear-gradient(135deg,#3b256b,#17151f)', pulse: 82, defaultTime: 0.78,
     epigraph: { lines: 'A flyer taped over another flyer\nbecomes a kind of bark.\nThe old trees downtown are brick.\nThey shed music all night.', attrib: null }, welcome: '1995: Flipside is across Eleanor on North Burdick, Club Soda is loud at 1 Main, Upjohn’s name is changing, and the Northwest Unit on Blakeslee has gone quiet.',
     vis: { ground: ['#4b4a42', '#373a35'], road: '#2f3135', skyDay: ['#8fa4b8', '#d7bd9a'], skyGold: ['#b6683b', '#e0b36b'], skyNight: ['#060912', '#181426'], fogDay: '#a9a49a', fogNight: '#090911', fogDensity: 0.0068, water: { a: '#4f6768', b: '#334a4f', murk: 0.72, drift: 'foam' }, lamp: '#ffbf7a', exposure: 0.92, grade: { tint: [1.02, 0.96, 1.08], tintAmt: 0.52, desat: 0.18, vignette: 0.44, grain: 0.12 }, foliage: ['#4f6b3d', '#64733d', '#3c5635'], treeCount: 54, fireflies: false, smoke: 'half' },
     activities: ['lining up outside Club Soda', 'flipping bins at 309 North Burdick', 'reading merger news twice'], riverLines: ['You renamed companies faster than you cleaned me.', 'At closing time the music walks to my bridge and cools its ears.', 'I know every flyer that blew from Eleanor Street into my weeds.'], echoes: ['Flipside’s speakers leak jazz, punk, reggae, rap — a municipal curriculum with no tuition.', 'The old Northwest Unit looks down from Blakeslee with broken windows and too many stories.', 'Upjohn’s downtown buildings learn new uses before the people learn the new name.'],
@@ -722,7 +890,7 @@ export const ERAS = [
 
   // ───────────────────────────── 2026 ─────────────────────────────
   {
-    key: 'living', id: 6, year: '2026', name: 'The Living City',
+    key: 'living', id: 7, year: '2026', name: 'The Living City',
     tagline: 'Breweries in the mills • The Promise • Cleaner water',
     blurb: 'Stout where they cooked pulp. Strangers pay every child’s tuition. The vaccine that circled the world came off a line here. Candles on the Mall every February. The otters came back before the paperwork did.',
     accent: '#059669', accentText: '#34d399',
@@ -901,7 +1069,7 @@ export const ERAS = [
 
   // ───────────────────────────── 2050 ─────────────────────────────
   {
-    key: 'returns', id: 7, year: '2050', name: 'The River Returns',
+    key: 'returns', id: 8, year: '2050', name: 'The River Returns',
     tagline: 'Rewilded water • Solar meadows • Kept promises',
     blurb: 'The dams came out and the sturgeon came back. Solar blooms on the poison cap. Heirloom celery in the old muck. Nobody calls it a comeback — they kept the dead in the conversation and the door unlocked.',
     accent: '#0891b2', accentText: '#22d3ee',
@@ -1064,6 +1232,7 @@ export const STRATA = {
     title: 'The Kalamazoo River',
     kicker: 'THE OLDEST RESIDENT',
     layers: {
+      founding: 'Clear over gravel, full of grayling and sturgeon. Two towns on its banks: one platted, one not.',
       boiling: 'Clear and cold, full of grayling. It powers the first mills and keeps its own name.',
       celery: 'A working river: log rafts, mill intakes, dye and acid going in where nobody looks.',
       mall:   'The town turns its back — parking lots to the banks. The mills still feed it gray.',
@@ -1073,6 +1242,7 @@ export const STRATA = {
       returns:'Dams out, sturgeon home, the town rebuilt facing the water. Loudest sound downtown.',
     },
     body: {
+      founding: 'Titus has asked Wabnokwe twice what the name means, and written the answer down wrong twice, happily. Boiling pot, bubbling springs, mirage — the translations will argue for two centuries. The river is the only resident of the new village that was here for every older one, and the only one nobody asked to sign the plat.',
       boiling: 'Everything here is because of this water — the mills, the muck, the name. The Potawatomi word it approximates was never fully agreed on by the people who replaced it: boiling pot, bubbling springs, mirage. The river declines to settle the argument.',
       celery: 'The mills drink it and exhale it gray. The celery drinks it through eighteen feet of black muck. The whole economy is this river wearing different clothes.',
       mall: 'The new optimism faces the shops, not the water. You can stand on the Mall all day and forget there’s a river two blocks west, doing all the work.',
@@ -1086,6 +1256,7 @@ export const STRATA = {
     title: 'The Mill Ground',
     kicker: 'WHERE THE WORK WAS',
     layers: {
+      founding: 'A millwright’s timber frame rising on the race Titus reserved. The river is about to get a job.',
       boiling: 'A grist and saw mill on the race. The village’s loud, floury heart.',
       celery: 'A paper mill in full roar — the whitest paper in America, the grayest water.',
       mall:   'Still running, three shifts. Paper City pays for the optimism.',
@@ -1095,6 +1266,7 @@ export const STRATA = {
       returns:'Stabilized ruins and an amphitheater. Poems on third Thursdays. The river audible again.',
     },
     body: {
+      founding: 'Titus platted the village around this water privilege the way other men plat around a church. The frame is up, the stones are coming by ox-team, and when the wheel turns, the village will have a heartbeat you can set a clock by. The river has had its own heartbeat all along. Nobody asked it to share.',
       boiling: 'Jonas Clay gave this wheel two fingers and it gave the village flour and boards. The river works for Mr. Burdick now — nobody told the river.',
       celery: 'A paper machine never stops: Christmas, funerals, weddings. The wet end doesn’t care. The men belong to it like sailors to the sea, and nobody writes songs about them.',
       mall: 'The mills bankroll the whole shining decade — the Mall, the bonuses, the butter on everything. The bill is accruing quietly in the sediment.',
@@ -1108,6 +1280,7 @@ export const STRATA = {
     title: 'Burdick Street / The Kalamazoo Mall',
     kicker: 'THE STREET THAT KEPT CHANGING ITS MIND',
     layers: {
+      founding: 'A surveyor’s line through bracken that the plat insists is a street. The grass has not conceded.',
       boiling: 'A plank road of mud and stagecoaches, ambitiously named a street.',
       celery: 'Victorian brick canyon — streetcars, awnings, everything for sale.',
       mall:   'August 1959: closed to cars. The first pedestrian mall in America.',
@@ -1118,6 +1291,7 @@ export const STRATA = {
       returns:'A linear commons — market stalls, shade trees, the city’s living room.',
     },
     body: {
+      founding: 'A stake line in the grass that Titus calls a street and the cattle call a path. Justus Burdick’s frame store is rising at the corner — and when the village wants names for its streets, it will reach right past its founder and take the storekeeper’s. The street that keeps changing its mind learned how before it was even a street.',
       boiling: 'Mud to the axles in April, dust by July. Cyrus the newspaperman swears it will be “a boulevard to rival anything in Detroit.” The oxen remain skeptical.',
       celery: 'Linus McGee drives the same mile of it forty times a day and swears it is never the same mile twice. The street changes clothes. That’s a town for you.',
       mall: 'Victor Gruen’s experiment: give the street back to people and people give it back to the street. A hundred cities will copy it. A young architect’s assistant has her thumbprint in planter twelve.',
@@ -1132,6 +1306,7 @@ export const STRATA = {
     title: 'Bronson Park',
     kicker: 'THE TOWN’S ONE SHARED ROOM',
     layers: {
+      founding: 'A meadow with a burr oak Titus won’t let anyone cut. He deeded the square to the village to keep it so.',
       boiling: 'Village green under young oaks. A new political party met here last summer.',
       celery: 'Band concerts, Decoration Day, ten thousand picnics. Lincoln spoke here in ’56.',
       mall:   'Lunch hours and pigeons. The fountain plays. The elms begin to fall.',
@@ -1140,6 +1315,7 @@ export const STRATA = {
       returns:'A water garden where the fountain stood. The oaks’ great-grandchildren.',
     },
     body: {
+      founding: 'Titus set this square aside in the plat — common ground, his one condition being, roughly: leave it be. The Potawatomi gathered on this ground long before it was anyone’s gift to give, which is the sentence every park in America keeps folded in its grass. It will hold speeches, band concerts, Lincoln, candles. For now: a meadow, a burr oak, and the founder’s potatoes, planted on principle. One day it will wear his name — the only thing in town that keeps it.',
       boiling: 'The oaks are young and the speeches are loud. Next August, they say, a prairie lawyer named Lincoln will stand here and speak against slavery — his only speech in Michigan, under these branches.',
       celery: 'An old veteran on a bench will tell you he heard Lincoln here as a boy, right there, under those oaks. Whether he did or not, the oaks did.',
       mall: 'Earl Briggs holds court on his bench and counts the dying elms — a steeple a week. Men plant trees their grandsons will mourn. That’s the contract, signed twice.',
@@ -1152,6 +1328,7 @@ export const STRATA = {
     title: 'The Rail Line & Depot',
     kicker: 'THE SOUND OF ELSEWHERE',
     layers: {
+      founding: 'Bracken and oak shade. In Detroit, promoters are chartering railroads on paper. Paper is how it starts.',
       boiling: 'The Michigan Central, nine years old. The whole town stops chewing to listen.',
       celery: 'Twenty trains a day. Celery out, the world in.',
       mall:   'Streamliners and salesmen humming that song.',
@@ -1160,6 +1337,7 @@ export const STRATA = {
       returns:'Quiet electric freight and the night train south. The horn, by ordinance, kept.',
     },
     body: {
+      founding: 'Nothing here but fern, oak shade, and a line nobody has drawn yet. In Detroit, promoters are already chartering railroads across maps of country they have never smelled. Fifteen years from now the iron will arrive exactly here, and the village will stop chewing to listen. The ground is patient. It can hold a future this size without bending.',
       boiling: 'Since 1846, the rails have been the village’s proof it exists — elsewhere, arriving on schedule. Bridget at the inn says a train whistle is the strongest drink the town serves.',
       celery: 'Tessa Bloom sells the Gazette to people getting off and celery to people getting on, and considers herself, accurately, the city’s ambassador.',
       mall: 'Glenn Miller put the town in a song in ’42 and the salesmen still sing it at the waitresses, who have a tariff system for it.',
@@ -1193,6 +1371,7 @@ export const STRATA = {
     title: 'The Asylum Water Tower',
     kicker: 'MERCY, OR HIDING — LIKELY BOTH',
     layers: {
+      founding: 'An oak hill west of the river. Owls. The village hasn’t needed it for anything yet.',
       boiling: 'Walls rising on the west hill. Dr. Whitfield watches with hope and dread.',
       celery: 'The 1895 tower stands castle-like over the Michigan Asylum’s farms and wards.',
       mall:   'The state hospital at its peak population. The town doesn’t talk about it much.',
@@ -1201,6 +1380,7 @@ export const STRATA = {
       returns:'A memorial trail names the patients buried unnamed. The tower keeps the skyline.',
     },
     body: {
+      founding: 'A high meadow and old oaks, west across the river — the kind of ground a village climbs to look at itself from. In twenty-three years they will start an asylum on this hill, and the question of what a town does with its broken will get an address. In 1831 the hill’s only patients are foxes, and the treatment is being left alone.',
       boiling: 'Begun in 1854 on the hill west of town. We will be known for our mercy or for where we hid our broken, the doctor writes. The answer will be both, for a hundred years, and the difference will be the staffing.',
       celery: 'The asylum farms feed the wards; patients grow ribbon-winning dahlias whose names get read aloud at the fair, every single one — which is more than the cemetery on the grounds will do for them.',
       mall: 'Three thousand patients on the hill in the optimism years. The Mall City’s shadow institution, a quarter-mile and a world away from the planters and the gloves.',
@@ -1231,6 +1411,7 @@ export const STRATA = {
     title: 'The Celery Flats',
     kicker: 'THE BLACK GROUND',
     layers: {
+      founding: 'Wild rice, medicine plants, sugar bush at the edges. Wabnokwe’s pantry, pharmacy, and church.',
       boiling: 'Wild marsh — wild rice, medicine plants, eighteen feet of patient muck.',
       celery: 'Silver stalks to every dining car in America. Children stoop beside parents.',
       mall:   'Shrinking — suburbs and blight take the fields row by row.',
@@ -1239,6 +1420,7 @@ export const STRATA = {
       returns:'The muck commons: heirloom Doorn celery, seed library, resurrection on schedule.',
     },
     body: {
+      founding: 'Eighteen feet of black muck under wild rice and tamarack. To the plat it is “waste land — wet.” To Wabnokwe’s town it is the pantry and the pharmacy, and her daughter will learn it plant by plant. Every era of this ground will be somebody deciding what black earth is for. This is the era when the people who knew best still got to decide.',
       boiling: 'Sarah gathers here as her family always has, while Taylor the Scotsman kneels in the edge-muck like it’s church. Before celery, this black ground grew everything her people needed. It will outlast what anyone plants in it.',
       celery: 'Dutch families farm the river’s memory — old swamp, old leaves, old time, eighteen feet deep. The Doorn girls bunch stalks faster than any hired man, and the buyers tip their hats to the mud.',
       mall: 'Celery king no more — blight, cheaper California pascal, and the suburbs eat the muck a subdivision at a time. The depot still smells of it in August, like a memory rehearsing.',
@@ -1363,6 +1545,7 @@ export const STRATA = {
     title: 'The Michigan Avenue Bridge',
     kicker: 'THE CROSSING',
     layers: {
+      founding: 'No bridge — a ford, gravel-bottomed, knee-deep in August. Everyone crosses everyone here.',
       boiling: 'Timber and trestle. It groans like an opinion.',
       celery: 'Iron, with streetcar rails and pedestrians who don’t look down.',
       mall:   'Concrete, four lanes, built for leaving fast.',
@@ -1371,6 +1554,7 @@ export const STRATA = {
       returns:'Where the sturgeon passed, 7:14 a.m., witnessed by eleven changed strangers.',
     },
     body: {
+      founding: 'The ford is the village’s true main street: Potawatomi, drovers, land-lookers, Baptiste’s canoe, Titus splashing across mid-sentence. A crossing is the oldest kind of public square. The timber bridge will come soon and the handshake will go formal — but in 1831 you still cross this river the way you meet a neighbor: wet to the knee, saying good morning.',
       boiling: 'The village’s handshake with the far bank. Jonas Clay eats his dinner under it with his feet in the shallows, in the prettiest hard place God ever made.',
       celery: 'Linus rings the streetcar bell crossing it, sparks over gray water. Prettiest thing in the city and nobody looks up but him.',
       mall: 'Four lanes of progress. You can cross the river without ever knowing it’s there — which is, at the time, considered the point.',
@@ -1383,6 +1567,7 @@ export const STRATA = {
     title: 'The Burdick House / Radisson Plaza',
     kicker: 'A ROOM KEPT MADE SINCE 1855',
     layers: {
+      founding: 'No hotel yet. Sally Bronson’s table is the inn: whoever the trail brings in, fed.',
       boiling: 'The Cosmopolitan takes Mr. Burdick’s name in 1855. Mud street outside, clean sheets inside.',
       celery: 'The grand Burdick Hotel — drummers, banquets, cigar smoke. It will burn in 1909 and be rebuilt before the ash cools.',
       mall:   'Older now than every guest. The banquet room still does Rotary on Thursdays.',
