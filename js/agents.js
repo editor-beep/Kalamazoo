@@ -2,6 +2,7 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { SKIN_TONES } from './data.js';
+import { GEO, inRiver, onRails } from './geo.js';
 
 // ---------------------------------------------------------------- people
 
@@ -218,8 +219,7 @@ function pushOut(b, t, pad) {
 
 const BODY_PAD = 0.45;      // standing clearance from walls
 const WALL_PAD = 0.3;       // movement clearance (smaller, so targets stay reachable)
-const inRiver = x => x > -46 && x < -22.5;
-const onRails = z => z > 38 && z < 42;
+// inRiver / onRails live in geo.js so the law is defined in exactly one place.
 
 export class Agent {
   constructor(person, look, anchors, spawn, nav) {
@@ -232,7 +232,7 @@ export class Agent {
     this.pos = new THREE.Vector3(spawn.x, 0, spawn.z);
     this.target = new THREE.Vector3(spawn.x, 0, spawn.z);
     // never spawn inside a wall or a traffic lane
-    if (!this.sanitizeTarget()) this.target.set(3, 0, -8);
+    if (!this.sanitizeTarget()) this.target.set(0, 0, -16);   // Burdick mall, reliably clear
     this.pos.copy(this.target);
     this.speed = 1.1 + Math.random() * 0.9;
     this.phase = Math.random() * Math.PI * 2;
@@ -263,9 +263,10 @@ export class Agent {
     const t = this.target;
     for (let pass = 0; pass < 4; pass++) {
       // nobody walks on the river, nobody loiters on the rails
-      // (the depot platform at z≈42.5 stays reachable)
-      if (inRiver(t.x)) t.x = -21.5;
-      if (onRails(t.z)) t.z = t.z < 40 ? 37.5 : 42.3;
+      // (the depot platform at z≈42.5 stays reachable). River is east now, so
+      // a target in the water gets shoved back toward downtown (its west bank).
+      if (inRiver(t.x)) t.x = GEO.river.min - 1;
+      if (onRails(t.z)) t.z = t.z < GEO.railZ ? GEO.rail.min - 0.5 : GEO.depotPlatformZ;
       let dirty = false;
       for (const b of this.nav.zones) {
         if (inBox(b, t.x, t.z)) { pushOut(b, t, 0.35); dirty = true; }

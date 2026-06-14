@@ -3,6 +3,7 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { SkyShader, WaterShader } from './shaders.js';
+import { GEO } from './geo.js';
 import {
   Agent, Cruiser, Shuttle, Train, makePersonMesh,
   makeSmokeColumn, makeFireflies, makeMotes, updateChats,
@@ -364,7 +365,7 @@ function buildRiver(era, world) {
 
   const water = new THREE.Mesh(waterGeo, waterMat);
   water.rotation.x = -Math.PI / 2;
-  water.position.set(-34, 0.14, 0);
+  water.position.set(GEO.riverX, 0.14, 0);
   water.userData.landmark = 'river';
   g.add(water);
   world.water = { mesh: water, mat: waterMat };
@@ -375,7 +376,7 @@ function buildRiver(era, world) {
   [-1, 1].forEach(s => {
     const bank = new THREE.Mesh(new THREE.PlaneGeometry(5, 184), bankMat);
     bank.rotation.x = -Math.PI / 2;
-    bank.position.set(-34 + s * (width / 2 + 2.4), 0.05, 0);
+    bank.position.set(GEO.riverX + s * (width / 2 + 2.4), 0.05, 0);
     bank.receiveShadow = true;
     g.add(bank);
   });
@@ -383,7 +384,7 @@ function buildRiver(era, world) {
   if (since(era, 'living')) {
     const walkMat = M({ color: only(era, 'returns') ? 0x8f7a55 : 0x6d5940, roughness: 0.82 });
     const boardwalk = new THREE.Mesh(new THREE.BoxGeometry(2.35, 0.22, 62), walkMat);
-    boardwalk.position.set(-24.1, 0.2, -13);
+    boardwalk.position.set(GEO.riverX - 9.9, 0.2, -13);
     boardwalk.receiveShadow = true;
     boardwalk.castShadow = true;
     boardwalk.userData.phase2 = 'riverwalk';
@@ -392,12 +393,12 @@ function buildRiver(era, world) {
     // Board seams keep it feeling hand-built, not poured.
     for (let z = -42; z <= 16; z += 4) {
       const seam = new THREE.Mesh(new THREE.BoxGeometry(2.45, 0.04, 0.045), M({ color: 0x3d3327, roughness: 0.9 }));
-      seam.position.set(-24.1, 0.34, z);
+      seam.position.set(GEO.riverX - 9.9, 0.34, z);
       g.add(seam);
     }
 
     const railMat = M({ color: 0x3f493b, roughness: 0.72, metalness: 0.15 });
-    [-25.35, -22.85].forEach(x => {
+    [GEO.riverX - 8.65, GEO.riverX - 11.15].forEach(x => {
       const rail = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.15, 62), railMat);
       rail.position.set(x, 0.95, -13);
       g.add(rail);
@@ -409,13 +410,13 @@ function buildRiver(era, world) {
     });
 
     [-36, -22, -8, 8].forEach((z, i) => {
-      g.add(makeBench(-21.85, z, Math.PI / 2, i % 2 ? 0x5a5148 : 0x4a4540));
+      g.add(makeBench(GEO.riverX - 12.15, z, Math.PI / 2, i % 2 ? 0x5a5148 : 0x4a4540));
     });
 
     [-30, -2].forEach(z => {
       const overlook = new THREE.Mesh(new THREE.CylinderGeometry(2.1, 2.1, 0.24, 16, 1, false, Math.PI * 0.5, Math.PI), walkMat);
-      overlook.position.set(-24.8, 0.23, z);
-      overlook.rotation.y = Math.PI;
+      overlook.position.set(GEO.riverX - 9.2, 0.23, z);
+      overlook.rotation.y = 0;
       overlook.userData.phase2 = 'riverwalk-overlook';
       g.add(overlook);
     });
@@ -426,7 +427,7 @@ function buildRiver(era, world) {
     for (let i = 0; i < 4; i++) {
       const bar = new THREE.Mesh(new THREE.CircleGeometry(rand(1.6, 3), 10), M({ color: 0xcbb992, roughness: 1 }));
       bar.rotation.x = -Math.PI / 2;
-      bar.position.set(-34 + rand(-4, 4), 0.18, -70 + i * 42 + rand(-6, 6));
+      bar.position.set(GEO.riverX + rand(-4, 4), 0.18, -70 + i * 42 + rand(-6, 6));
       g.add(bar);
       if (i === 1) {
         // a heron, standing committee of one
@@ -454,7 +455,7 @@ function buildRiver(era, world) {
       );
       shadow.scale.set(1, 2.6, 1);
       shadow.rotation.x = -Math.PI / 2;
-      shadow.position.set(-34, 0.1, 20);
+      shadow.position.set(GEO.riverX, 0.1, 20);
       g.add(shadow);
       world.sturgeon = shadow;
     }
@@ -467,7 +468,7 @@ function buildRiver(era, world) {
       const log = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.34, rand(3, 5), 7), M({ color: 0x5b432a, roughness: 0.9 }));
       log.rotation.z = Math.PI / 2;
       log.rotation.y = rand(-0.3, 0.3);
-      log.position.set(-34 + rand(-4, 4), 0.22, rand(-85, 85));
+      log.position.set(GEO.riverX + rand(-4, 4), 0.22, rand(-85, 85));
       g.add(log);
       world.drifters.push({ mesh: log, speed: rand(1.0, 1.8) });
     }
@@ -476,7 +477,7 @@ function buildRiver(era, world) {
       const foam = new THREE.Mesh(new THREE.CircleGeometry(rand(0.5, 1.3), 8),
         new THREE.MeshBasicMaterial({ color: 0xb9b4a4, transparent: true, opacity: 0.45 }));
       foam.rotation.x = -Math.PI / 2;
-      foam.position.set(-34 + rand(-5, 5), 0.2, rand(-85, 85));
+      foam.position.set(GEO.riverX + rand(-5, 5), 0.2, rand(-85, 85));
       g.add(foam);
       world.drifters.push({ mesh: foam, speed: rand(0.8, 1.4) });
     }
@@ -484,7 +485,7 @@ function buildRiver(era, world) {
     for (let i = 0; i < 10; i++) {
       const pad = new THREE.Mesh(new THREE.CircleGeometry(rand(0.3, 0.6), 8), M({ color: 0x2e6b3d, roughness: 0.8 }));
       pad.rotation.x = -Math.PI / 2;
-      pad.position.set(-34 + rand(-6.5, 6.5), 0.2, rand(-80, 80));
+      pad.position.set(GEO.riverX + rand(-6.5, 6.5), 0.2, rand(-80, 80));
       g.add(pad);
       world.drifters.push({ mesh: pad, speed: rand(0.1, 0.25) });
     }
@@ -545,10 +546,11 @@ function buildRiver(era, world) {
   deck.position.y = 0.85;
   deck.castShadow = true; deck.receiveShadow = true;
   bridge.add(deck);
-  bridge.position.set(-34, 0, 10);
+  bridge.position.set(GEO.riverX, 0, GEO.michiganZ);
   g.add(bridge);
   world.pickLandmarks.push(bridge);
-  block(world, -34, 10, bw, deck.geometry.parameters.depth);
+  // The bridge carries Michigan Ave across the water — it's meant to be driven
+  // on, so it registers no wall. Pedestrians are held back by the river band.
 
   return g;
 }
@@ -572,13 +574,13 @@ function buildRoads(era, world) {
   mkRoad(7, 104, 0, 4);                      // Burdick (N-S)
   mkRoad(110, 7, -5, 10, Math.PI / 2);       // Michigan Ave (E-W)
   mkRoad(88, 6, 3, -26, Math.PI / 2);        // South St
-  mkRoad(6, 50, 31, -12);                    // Portage St — east of the park, not through it
+  mkRoad(6, 50, 20, -12);                    // Portage St — west of the new east river
   mkRoad(6, 72, -14, 0);                     // Rose St / River Rd
 
   // 1831: the portage trail is still a working road — by 1855 it is already
   // an echo (buildEchoes draws the ghost of this exact line).
   if (only(era, 'founding')) {
-    const from = { x: 30, z: -34 }, to = { x: -30, z: 9 };
+    const from = { x: -30, z: -30 }, to = { x: 30, z: 8 };   // headed for the east ford
     const dx = to.x - from.x, dz = to.z - from.z;
     const trail = new THREE.Mesh(new THREE.PlaneGeometry(1.4, Math.hypot(dx, dz)), M({ color: 0x6b5a3e, roughness: 1 }));
     trail.rotation.x = -Math.PI / 2;
@@ -606,7 +608,7 @@ function buildRoads(era, world) {
       ['MICHIGAN', 2.5, 13.9, Math.PI / 2, 'AVE'],
       ['ROSE', -13.7, 13.9, Math.PI / 2, 'ST'],
       ['SOUTH', 5.9, -26.2, Math.PI / 2, 'ST'],
-      ['PORTAGE', 34.3, 13.9, 0, 'ST'],
+      ['PORTAGE', 23.3, 13.9, 0, 'ST'],
     ].forEach(([name, x, z, rot, sub]) => g.add(makeStreetSign(name, x, z, rot, sub)));
   }
 
@@ -1024,7 +1026,7 @@ function buildUpjohn(era, world) {
   if (!since(era, 'celery') || era.key === 'returns') return null;
   const g = new THREE.Group();
   g.userData.landmark = 'upjohn';
-  const cx = 30, cz = 18;
+  const cx = 14, cz = 16;   // west of the river band; SE of the core
   const modern = since(era, 'mall');
   const body = new THREE.Mesh(new THREE.BoxGeometry(modern ? 13 : 7, modern ? 7 : 4.6, modern ? 7 : 5), new THREE.MeshStandardMaterial({ map: brickTex(modern ? '#9a856f' : '#8a5a3a', modern ? '#6f6354' : '#5f3a2e', 12), color: 0xffffff, roughness: 0.86 }));
   body.position.set(cx, (modern ? 7 : 4.6) / 2, cz);
@@ -1261,7 +1263,8 @@ function buildMillSite(era, world) {
 function buildPark(era, world) {
   const g = new THREE.Group();
   g.userData.landmark = 'park';
-  const center = new THREE.Vector3(20, 0, -14);
+  // Bronson Park: west of Burdick, between Rose and Park St, south of Michigan
+  const center = new THREE.Vector3(-4, 0, -2);
 
   // lawn ends flush at the Portage St curb (x = 28) instead of under it
   const lawn = new THREE.Mesh(new THREE.PlaneGeometry(16, 19), M({ color: only(era, 'paper') ? 0x4a5c3a : 0x3e6b35, roughness: 0.95 }));
@@ -1343,9 +1346,9 @@ function buildPark(era, world) {
       b.add(post);
     }
     b.add(deck, roof);
-    b.position.set(center.x + 5.5, 0, center.z - 5.5);
+    b.position.set(center.x - 4, 0, center.z + 5);
     g.add(b);
-    block(world, center.x + 5.5, center.z - 5.5, 4.8, 4.8);
+    block(world, center.x - 4, center.z + 5, 4.8, 4.8);
   }
 
   // benches
@@ -1477,7 +1480,7 @@ function buildRail(era, world) {
 function buildFlats(era, world) {
   const g = new THREE.Group();
   g.userData.landmark = 'flats';
-  const cx = 36, cz = -40;
+  const cx = -36, cz = -40;   // the celery muck, southwest (mirrored off the old east bank)
 
   const soil = new THREE.Mesh(new THREE.PlaneGeometry(26, 18), M({ color: 0x241d16, roughness: 1 }));
   soil.rotation.x = -Math.PI / 2;
@@ -1803,7 +1806,7 @@ function buildGibson(era, world) {
   if (!since(era, 'mall')) return null;
   const g = new THREE.Group();
   g.userData.landmark = 'gibson';
-  const cx = 28, cz = 50;
+  const cx = 16, cz = 52;   // Parsons St, north of the rails, west of the river
 
   const dead = ['paper', 'nineties'].includes(era.key);
   const base = '#9b6a4a';
@@ -2111,7 +2114,7 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'celery')) {
     const lib = new THREE.Group();
     lib.userData.landmark = 'library';
-    const lx = -19.9, lz = -36.5;
+    const lx = -18, lz = 2;   // foot of Rose St, just west of the loop's west leg
     if (!since(era, 'mall')) {
       const body = new THREE.Mesh(new THREE.BoxGeometry(6.4, 6, 7), brick('#7d4030'));
       body.position.set(lx, 3, lz);
@@ -2155,7 +2158,7 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'nineties')) {
     const shakes = new THREE.Group();
     shakes.userData.landmark = 'shakespeares';
-    const sx = 25.4, sz = 3.4;
+    const sx = 16, sz = 4;   // E. Michigan core, clear of the new east river
     const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, 5.2, 5.6), brick('#5c4638'));
     body.position.set(sx, 2.6, sz);
     body.castShadow = true; body.receiveShadow = true;
@@ -2177,7 +2180,7 @@ function buildDowntownLandmarks(era, world) {
   if (only(era, 'seventies', 'paper', 'nineties')) {
     const proco = new THREE.Group();
     proco.userData.landmark = 'proco';
-    const px = 25.4, pz = -2.3;
+    const px = 16, pz = -1;   // next to Shakespeare's, west of the river
     const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, 3.4, 4.2), brick('#5c5048'));
     body.position.set(px, 1.7, pz);
     body.castShadow = true; body.receiveShadow = true;
@@ -2266,12 +2269,12 @@ function buildEchoes(era, world) {
   } else if (only(era, 'boiling')) {
     // the portage trail — older than any deed, headed for the ford
     const trail = echoMat(0xd8cfb6, 0.13);
-    const from = { x: 30, z: -34 }, to = { x: -30, z: 9 };
+    const from = { x: -30, z: -30 }, to = { x: 30, z: 8 };   // headed for the east ford
     const dx = to.x - from.x, dz = to.z - from.z;
     flat(new THREE.PlaneGeometry(1.0, Math.hypot(dx, dz)), trail,
       (from.x + to.x) / 2, (from.z + to.z) / 2, 0.055, Math.atan2(-dx, -dz));
     // gathering ground under the park oaks: a wide ring nobody planted
-    flat(new THREE.RingGeometry(3.6, 4.1, 28), echoMat(0xd8cfb6, 0.11), 20, -14, 0.055);
+    flat(new THREE.RingGeometry(3.6, 4.1, 28), echoMat(0xd8cfb6, 0.11), -6, -2, 0.055);
   } else if (only(era, 'celery')) {
     // pale survey stakes of the future Mall — an echo running forward
     const stakeMat = echoMat(0xe8e3d8, 0.16);
@@ -2290,12 +2293,12 @@ function buildEchoes(era, world) {
     // celery-row striping bleeding through the parking lot — Greta's scene,
     // literalized: the field correcting a typo
     const m = echoMat(0x7fa05f, 0.13);
-    for (let r = 0; r < 5; r++) flat(new THREE.PlaneGeometry(21, 0.5), m, 36, -46 + r * 3, 0.075);
+    for (let r = 0; r < 5; r++) flat(new THREE.PlaneGeometry(21, 0.5), m, -36, -46 + r * 3, 0.075);
   } else if (only(era, 'living')) {
     ghostRails();
     // the Fountain of the Pioneers' ring, a pale circle in the park bed —
     // removal leaves a mark too
-    flat(new THREE.RingGeometry(3.1, 3.5, 26), echoMat(0xcfc6b0, 0.13), 20, -14, 0.06);
+    flat(new THREE.RingGeometry(3.1, 3.5, 26), echoMat(0xcfc6b0, 0.13), -6, -2, 0.06);
   } else {
     ghostRails();
     // mill foundation outline in the ruins lawn: the amphitheater sits
@@ -2408,13 +2411,14 @@ export function buildEraWorld(era) {
   while (planted < era.vis.treeCount && guard++ < 400) {
     const x = rand(-86, 86), z = rand(-86, 86);
     if (Math.abs(x) < 12 && z > -32 && z < 16) continue;       // keep downtown clear
-    if (x > -46 && x < -22) continue;                          // river corridor
+    if (Math.abs(x) < 3 && z > -44 && z < 35) continue;        // Burdick spine (streetcar/mall)
+    if (x > 18 && x < 47) continue;                            // river corridor (east now)
     if (Math.abs(z - 40) < 5) continue;                        // rails
     if (Math.abs(z - 10) < 5 || Math.abs(z + 26) < 4) continue;// streets
     if (x > -18 && x < -10 && z > -37 && z < 37) continue;     // Rose St
-    if (x > 27 && x < 35 && z > -38 && z < 14) continue;       // Portage St
+    if (x > 14 && x < 23 && z > -38 && z < 14) continue;       // Portage St
     if (x > -75 && x < -46 && z > 8 && z < 38) continue;       // campus shuttle's drive
-    if (x > 22 && x < 50 && z > -50 && z < -28) continue;      // flats
+    if (x > -50 && x < -22 && z > -50 && z < -28) continue;    // flats (southwest)
     if (inFootprint(world, x, z, 1.2)) continue;               // never inside a building
     const kind = pick(kinds);
     group.add(makeTree(x, z, rand(0.7, 1.25), era.vis.foliage, kind));
@@ -2423,7 +2427,7 @@ export function buildEraWorld(era) {
   }
   // willows by the river
   for (let i = 0; i < (era.key === 'returns' ? 8 : 4); i++) {
-    group.add(makeTree(-34 + pick([-1, 1]) * rand(9.5, 12), rand(-80, 80), rand(0.8, 1.2), era.vis.foliage, 'willow'));
+    group.add(makeTree(GEO.riverX + pick([-1, 1]) * rand(9.5, 12), rand(-80, 80), rand(0.8, 1.2), era.vis.foliage, 'willow'));
   }
 
   // ---- particles
@@ -2442,10 +2446,10 @@ export function buildEraWorld(era) {
     });
   }
   if (era.vis.fireflies) {
-    const f1 = makeFireflies({ x: -22, z: 0, w: 26, d: 90 }, 50);
+    const f1 = makeFireflies({ x: GEO.riverX - 12, z: 0, w: 26, d: 90 }, 50);
     world.fireflies = [f1];
     group.add(f1.points);
-    const f2 = makeFireflies({ x: 36, z: -40, w: 26, d: 18 }, 36);
+    const f2 = makeFireflies({ x: -36, z: -40, w: 26, d: 18 }, 36);
     world.fireflies.push(f2);
     group.add(f2.points);
   }
@@ -2463,40 +2467,40 @@ export function buildEraWorld(era) {
   // ---- anchors (where life gathers) & residents
   const ANCHOR_SETS = {
     founding: [
-      { x: 0, z: -6, r: 8 }, { x: -16, z: -24, r: 7 }, { x: 20, z: -14, r: 8 },
-      { x: 30, z: -36, r: 8 }, { x: -21, z: 10, r: 5 }, { x: 34, z: 24, r: 7 }, { x: -8, z: 16, r: 6 },
+      { x: 0, z: -6, r: 8 }, { x: -16, z: -24, r: 7 }, { x: -6, z: -2, r: 8 },
+      { x: 8, z: -36, r: 8 }, { x: -21, z: 10, r: 5 }, { x: 16, z: 24, r: 7 }, { x: -8, z: 16, r: 6 },
     ],
     boiling: [
-      { x: 0, z: -6, r: 9 }, { x: -16, z: -24, r: 7 }, { x: 20, z: -14, r: 8 },
-      { x: 30, z: -36, r: 8 }, { x: -21, z: 10, r: 5 }, { x: 34, z: 24, r: 8 }, { x: 12, z: 42.5, r: 4 },
+      { x: 0, z: -6, r: 9 }, { x: -16, z: -24, r: 7 }, { x: -6, z: -2, r: 8 },
+      { x: 8, z: -36, r: 8 }, { x: -21, z: 10, r: 5 }, { x: 16, z: 24, r: 8 }, { x: 12, z: 42.5, r: 4 },
     ],
     celery: [
       { x: 0, z: -10, r: 9 }, { x: 0, z: -10, r: 9 }, { x: -14, z: -24, r: 7 },
-      { x: 20, z: -14, r: 8 }, { x: 12, z: 42.5, r: 4 }, { x: 34, z: -38, r: 9 }, { x: -10, z: 50, r: 7 },
+      { x: -6, z: -2, r: 8 }, { x: 12, z: 42.5, r: 4 }, { x: -34, z: -40, r: 9 }, { x: -10, z: 50, r: 7 },
     ],
     mall: [
       { x: 0, z: -10, r: 8 }, { x: 0, z: -2, r: 8 }, { x: 0, z: -18, r: 8 },
-      { x: 20, z: -14, r: 8 }, { x: 10, z: -10, r: 5 }, { x: 12, z: 42.5, r: 4 }, { x: 30, z: 20, r: 8 },
+      { x: -6, z: -2, r: 8 }, { x: 10, z: -10, r: 5 }, { x: 12, z: 42.5, r: 4 }, { x: 14, z: 16, r: 8 },
     ],
     seventies: [
       { x: 0, z: -8, r: 9 }, { x: -19.5, z: 16, r: 5 }, { x: -72, z: -16, r: 5 },
-      { x: -10, z: -10, r: 5 }, { x: 30, z: 18, r: 7 }, { x: -64, z: 36, r: 7 }, { x: 7, z: 25, r: 6 },
+      { x: -10, z: -10, r: 5 }, { x: 14, z: 16, r: 7 }, { x: -64, z: 36, r: 7 }, { x: 7, z: 25, r: 6 },
     ],
     paper: [
-      { x: 0, z: -8, r: 9 }, { x: -14, z: -24, r: 7 }, { x: 20, z: -14, r: 8 },
-      { x: 0, z: 2, r: 6 }, { x: 30, z: 20, r: 8 }, { x: 36, z: -40, r: 7 }, { x: -16, z: -46, r: 5 },
+      { x: 0, z: -8, r: 9 }, { x: -14, z: -24, r: 7 }, { x: -6, z: -2, r: 8 },
+      { x: 0, z: 2, r: 6 }, { x: 14, z: 16, r: 8 }, { x: -34, z: -40, r: 7 }, { x: -16, z: -46, r: 5 },
     ],
     nineties: [
       { x: 7, z: 25, r: 7 }, { x: -19.5, z: 16, r: 5 }, { x: -72, z: -16, r: 5 },
-      { x: 0, z: -8, r: 9 }, { x: 30, z: 18, r: 7 }, { x: 20, z: -14, r: 8 }, { x: 8, z: -31.5, r: 4 },
+      { x: 0, z: -8, r: 9 }, { x: 14, z: 16, r: 7 }, { x: -6, z: -2, r: 8 }, { x: 8, z: -31.5, r: 4 },
     ],
     living: [
       { x: 0, z: -10, r: 8 }, { x: 0, z: -2, r: 8 }, { x: -18, z: -17, r: 7 },
-      { x: 20, z: -14, r: 8 }, { x: 34, z: -38, r: 8 }, { x: -21, z: 8, r: 5 }, { x: 10, z: -10, r: 5 },
+      { x: -6, z: -2, r: 8 }, { x: -34, z: -40, r: 8 }, { x: -21, z: 8, r: 5 }, { x: 10, z: -10, r: 5 },
     ],
     returns: [
-      { x: -21, z: -2, r: 5 }, { x: 0, z: -10, r: 8 }, { x: 34, z: -38, r: 8 },
-      { x: -19, z: -20, r: 6 }, { x: 20, z: -14, r: 8 }, { x: -21, z: 16, r: 5 }, { x: 0, z: 0, r: 9 },
+      { x: -21, z: -2, r: 5 }, { x: 0, z: -10, r: 8 }, { x: -34, z: -40, r: 8 },
+      { x: -19, z: -20, r: 6 }, { x: -6, z: -2, r: 8 }, { x: -21, z: 16, r: 5 }, { x: 0, z: 0, r: 9 },
     ],
   };
   const anchors = ANCHOR_SETS[era.key];
@@ -2510,10 +2514,10 @@ export function buildEraWorld(era) {
     world.noStand.push({ x1: -2.2, z1: -44, x2: 2.2, z2: 34 });
   }
   if (since(era, 'mall')) {
-    // the downtown loop: Rose / South / Portage
+    // the downtown loop: Rose / South / Portage (Portage pulled west of the river)
     world.noStand.push({ x1: -14.3, z1: -27.5, x2: -11.3, z2: 12 });
-    world.noStand.push({ x1: 29.5, z1: -27.5, x2: 32.5, z2: 12 });
-    world.noStand.push({ x1: -14.3, z1: -27.5, x2: 33, z2: -24.5 });
+    world.noStand.push({ x1: 18.5, z1: -27.5, x2: 21.5, z2: 12 });
+    world.noStand.push({ x1: -14.3, z1: -27.5, x2: 21.5, z2: -24.5 });
   }
   const nav = { obstacles: world.obstacles, zones: world.noStand };
 
@@ -2529,10 +2533,10 @@ export function buildEraWorld(era) {
   // ---- vehicles
   // The loop reads Rose → South → Portage → Michigan; its east leg used to
   // run straight through Bronson Park (and the fountain). Not anymore.
-  const loopA = { x1: -12.8, z1: -26, x2: 31, z2: 10 };
-  // The campus shuttle takes the drive down the hill, then crosses the river
-  // on the Michigan Ave bridge deck — buses don't swim.
-  const broncoRoute = [{ x: -49, z: 10 }, { x: -45.5, z: 10, y: 1.22 }, { x: -22.5, z: 10, y: 1.22 }, { x: -19, z: 10 }];
+  const loopA = { x1: -12.8, z1: -26, x2: 20, z2: 10 };
+  // The campus shuttle runs Stadium Dr in from the west; the river is on the far
+  // east side now, so the route no longer crosses it.
+  const broncoRoute = [{ x: -49, z: 10 }, { x: -19, z: 10 }];
   if (only(era, 'founding', 'boiling')) {
     // 1831's wagon is an ox-team: same road, slower opinion
     world.cruisers.push(new Shuttle('wagon', null, { x: -8, z: 10 }, { x: 40, z: 10 }, era.key === 'founding' ? 1.0 : 1.3));
@@ -2591,7 +2595,7 @@ export function buildEraWorld(era) {
     });
     if (world.sturgeon) {
       world.sturgeon.position.z = -20 + Math.sin(t * 0.05) * 55;
-      world.sturgeon.position.x = -34 + Math.sin(t * 0.11) * 3;
+      world.sturgeon.position.x = GEO.riverX + Math.sin(t * 0.11) * 3;
     }
   };
 
