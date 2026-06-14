@@ -49,16 +49,19 @@ const TRAIN_LINES = {
   returns: 'The quiet electric freight slides through. The town voted to keep the horn. Some sounds are load-bearing.',
 };
 
+// North-up framing: the camera sits SOUTH of the city and looks NORTH, so north
+// is away/top and east is on the right — matching the hand-drawn map. (It used to
+// sit in the NE looking SW, which put north at the bottom and read as flipped.)
 const CAMERA_DEFAULTS = {
-  founding: { pos: [46, 28, 52], tgt: [-8, 3, -4] },
-  boiling: { pos: [44, 27, 50], tgt: [-6, 3, -6] },
-  celery: { pos: [38, 25, 46], tgt: [-2, 4, -6] },
-  mall: { pos: [32, 22, 42], tgt: [2, 3, -8] },
-  seventies: { pos: [34, 23, 44], tgt: [-2, 3, -6] },
-  paper: { pos: [34, 24, 44], tgt: [-2, 3, -8] },
-  nineties: { pos: [30, 22, 40], tgt: [0, 3, 8] },
-  living: { pos: [32, 21, 42], tgt: [0, 3, -6] },
-  returns: { pos: [40, 24, 46], tgt: [-10, 3, -4] },
+  founding: { pos: [8, 28, -78], tgt: [-8, 3, -4] },
+  boiling: { pos: [9, 27, -77], tgt: [-6, 3, -6] },
+  celery: { pos: [10, 25, -68], tgt: [-2, 4, -6] },
+  mall: { pos: [11, 22, -63], tgt: [2, 3, -8] },
+  seventies: { pos: [9, 23, -64], tgt: [-2, 3, -6] },
+  paper: { pos: [9, 24, -68], tgt: [-2, 3, -8] },
+  nineties: { pos: [9, 22, -34], tgt: [0, 3, 8] },
+  living: { pos: [10, 21, -61], tgt: [0, 3, -6] },
+  returns: { pos: [5, 24, -71], tgt: [-10, 3, -4] },
 };
 
 // ----------------------------------------------------------------- boot
@@ -93,7 +96,7 @@ function boot() {
   document.getElementById('three-container').appendChild(renderer.domElement);
 
   camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.5, 700);
-  camera.position.set(46, 30, 54);
+  camera.position.set(10, 32, -66);   // south, looking north (north-up framing)
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
