@@ -579,18 +579,73 @@ function buildRoads(era, world) {
   const drawNS = (x, w) => mkRoad(w, nsZ1 - nsZ0, x, (nsZ0 + nsZ1) / 2);
   const drawEW = (z, w, x0 = ewX0, x1 = ewX1) => mkRoad(x1 - x0, w, (x0 + x1) / 2, z, Math.PI / 2);
 
+  // Street "dressing" — flat asphalt alone vanished into the lawn at the low
+  // north-up angle (you could only pick out the brick Mall and the bridge).
+  // Raised light curbs catch the sun even edge-on, so the whole grid reads like a
+  // map; painted center lines mark the through-streets. Frontier roads are dirt:
+  // wagon ruts instead of curbs and paint.
+  const curbMat = M({ color: 0xbcb6a7, roughness: 0.9 });
+  const lineMat = M({ color: 0xd9bb52, roughness: 0.75 });
+  const rutMat = M({ color: 0x4a3d29, roughness: 1 });
+  const nsLen = nsZ1 - nsZ0, nsMid = (nsZ0 + nsZ1) / 2;
+  const dressNS = (x, w, line) => {
+    if (frontier) {
+      [-1.2, 1.2].forEach(s => {
+        const rut = new THREE.Mesh(new THREE.PlaneGeometry(0.5, nsLen), rutMat);
+        rut.rotation.x = -Math.PI / 2; rut.position.set(x + s, 0.03, nsMid); g.add(rut);
+      });
+      return;
+    }
+    [-1, 1].forEach(s => {
+      const c = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.22, nsLen), curbMat);
+      c.position.set(x + s * (w / 2 + 0.2), 0.11, nsMid);
+      c.castShadow = c.receiveShadow = true; g.add(c);
+    });
+    if (line) {
+      const l = new THREE.Mesh(new THREE.PlaneGeometry(0.24, nsLen), lineMat);
+      l.rotation.x = -Math.PI / 2; l.position.set(x, 0.05, nsMid); g.add(l);
+    }
+  };
+  const dressEW = (z, w, line, x0 = ewX0, x1 = ewX1) => {
+    const xlen = x1 - x0, mx = (x0 + x1) / 2;
+    if (frontier) {
+      [-1.2, 1.2].forEach(s => {
+        const rut = new THREE.Mesh(new THREE.PlaneGeometry(xlen, 0.5), rutMat);
+        rut.rotation.x = -Math.PI / 2; rut.position.set(mx, 0.03, z + s); g.add(rut);
+      });
+      return;
+    }
+    [-1, 1].forEach(s => {
+      const c = new THREE.Mesh(new THREE.BoxGeometry(xlen, 0.22, 0.4), curbMat);
+      c.position.set(mx, 0.11, z + s * (w / 2 + 0.2));
+      c.castShadow = c.receiveShadow = true; g.add(c);
+    });
+    if (line) {
+      const l = new THREE.Mesh(new THREE.PlaneGeometry(xlen, 0.24), lineMat);
+      l.rotation.x = -Math.PI / 2; l.position.set(mx, 0.05, z); g.add(l);
+    }
+  };
+
   // N–S: West→East   |   E–W: South→North
   const mainNS = [['BURDICK', GEO.burdickX, 7], ['ROSE', GEO.roseX, 6], ['PORTAGE', GEO.portageX, 6]];
   const mainEW = [['MICHIGAN', GEO.michiganZ, 7], ['SOUTH', GEO.southZ, 6]];
   const gridNS = [['OAKLAND', -56, 5], ['WESTNEDGE', -42, 6], ['PARK', -28, 5], ['PITCHER', 24, 5]];
   const gridEW = [['NORTH', 56, 5], ['KALAMAZOO', 37, 6], ['LOVELL', -8, 6], ['VINE', -44, 5]];
 
-  mainNS.forEach(([, x, w]) => drawNS(x, w));
+  mainNS.forEach(([name, x, w]) => {
+    drawNS(x, w);
+    // Burdick becomes the pedestrian Mall in 1959+ — its brick paving dresses it
+    // (no curbs or traffic line there); before that it's a real driving street.
+    if (name === 'BURDICK' && since(era, 'mall')) return;
+    dressNS(x, w, true);
+  });
   drawEW(GEO.michiganZ, 7, -58, 42);   // Michigan alone crosses the river, on the bridge deck
+  dressEW(GEO.michiganZ, 7, true, -58, 42);
   drawEW(GEO.southZ, 6);
+  dressEW(GEO.southZ, 6, true);
   if (!frontier) {
-    gridNS.forEach(([, x, w]) => drawNS(x, w));
-    gridEW.forEach(([, z, w]) => drawEW(z, w));
+    gridNS.forEach(([, x, w]) => { drawNS(x, w); dressNS(x, w, false); });
+    gridEW.forEach(([, z, w]) => { drawEW(z, w); dressEW(z, w, false); });
   }
 
   // 1831: the portage trail is still a working road — by 1855 it is already
