@@ -734,9 +734,9 @@ function buildStorefronts(era, world) {
     { faceX: 5.4, facing: -1, from: -22, to: -16 },   // gap for the State Theatre
     { faceX: 5.4, facing: -1, from: -4, to: 6 },
   ];
-  // North of Michigan, the Rose↔Burdick block belongs to the hotel (the
-  // Radisson / Kalamazoo Center superblock) and the Rickman/Mission/Flipside
-  // cluster — those named landmarks provide the massing, so no filler shops here.
+  // North of Michigan: the west side keeps shops (Mission caps the block);
+  // the east side belongs to the hotel / Flipside / Rickman cluster.
+  if (!wood) rows.push({ faceX: -5.4, facing: 1, from: 14, to: 28, depth: [4.6, 5.4] });
 
   rows.forEach(row => {
     let z = row.from;
