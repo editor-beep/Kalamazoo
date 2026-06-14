@@ -13,7 +13,7 @@ const ok = msg => console.log('  ✓', msg);
 
 // ---------------------------------------------------------------- data layer
 const { ERAS, STRATA, LINEAGES, SKIN_TONES } = await import('../js/data.js');
-const { GEO, inRiver, onRails } = await import('../js/geo.js');
+const { GEO, PLACES, inRiver, onRails } = await import('../js/geo.js');
 
 console.log('\n[data]');
 if (ERAS.length !== 9) fail(`expected 9 eras, got ${ERAS.length}`);
@@ -55,6 +55,23 @@ for (const key of ['hotel', 'rickman', 'mission', 'library', 'shakespeares', 'pr
   if (!STRATA[key]) fail(`strata ${key}: missing — the new downtown landmark has no story`);
 }
 ok(`${Object.keys(STRATA).length} landmark strata complete`);
+
+// ---------------------------------------------------------------- geography
+// PLACES (geo.js) is the single source of truth for landmark anchors. Guard it:
+// finite, on-map, distinct, and each carrying the real address it stands for.
+console.log('\n[geography]');
+{
+  const seen = new Map();
+  for (const [key, p] of Object.entries(PLACES)) {
+    if (!Number.isFinite(p.x) || !Number.isFinite(p.z)) fail(`place ${key}: non-finite coords`);
+    if (Math.abs(p.x) > 120 || Math.abs(p.z) > 120) fail(`place ${key}: off the map (${p.x}, ${p.z})`);
+    if (!p.real || p.real.length < 4) fail(`place ${key}: missing its real-world address`);
+    const sig = `${p.x},${p.z}`;
+    if (seen.has(sig)) fail(`place ${key}: same anchor as ${seen.get(sig)} — two landmarks can't share a spot`);
+    seen.set(sig, key);
+  }
+  ok(`${Object.keys(PLACES).length} landmark anchors: finite, on-map, distinct, addressed`);
+}
 
 // ---------------------------------------------------------------- shaders
 console.log('\n[shaders]');
@@ -117,6 +134,18 @@ for (const era of ERAS) {
     };
     for (const [k, want] of Object.entries(expected)) {
       if (want !== lmKeys.has(k)) fail(`${era.key}: landmark ${k} ${want ? 'missing' : 'is an anachronism'}`);
+    }
+
+    // every landmark you can click in THIS era must answer in this era's voice —
+    // a clickable thing with no per-era body is a mute building (see: the gaps
+    // this pass closed for river/bridge/park/depot/mill/flats/superfund/tower/gibson).
+    for (const o of w.pickLandmarks) {
+      const k = o.userData.landmark;
+      if (k !== 'river' && !PLACES[k]) fail(`${era.key}: clickable landmark ${k} has no PLACES anchor`);
+      const s = STRATA[k];
+      if (!s) fail(`${era.key}: clickable landmark ${k} has no strata at all`);
+      const text = s.body[era.key];
+      if (!text || text.length < 40) fail(`${era.key}: landmark ${k} is clickable but mute (no ${era.key} body)`);
     }
 
     // the city knows where its walls are

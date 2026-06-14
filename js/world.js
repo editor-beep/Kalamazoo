@@ -3,7 +3,7 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { SkyShader, WaterShader } from './shaders.js';
-import { GEO } from './geo.js';
+import { GEO, PLACES } from './geo.js';
 import {
   Agent, Cruiser, Shuttle, Train, makePersonMesh,
   makeSmokeColumn, makeFireflies, makeMotes, updateChats,
@@ -571,11 +571,11 @@ function buildRoads(era, world) {
     g.add(r);
   };
 
-  mkRoad(7, 104, 0, 4);                      // Burdick (N-S)
-  mkRoad(110, 7, -5, 10, Math.PI / 2);       // Michigan Ave (E-W)
-  mkRoad(88, 6, 3, -26, Math.PI / 2);        // South St
-  mkRoad(6, 50, 20, -12);                    // Portage St — west of the new east river
-  mkRoad(6, 72, -14, 0);                     // Rose St / River Rd
+  mkRoad(7, 104, GEO.burdickX, 4);                       // Burdick (N-S)
+  mkRoad(110, 7, -5, GEO.michiganZ, Math.PI / 2);        // Michigan Ave (E-W)
+  mkRoad(88, 6, 3, GEO.southZ, Math.PI / 2);             // South St
+  mkRoad(6, 50, GEO.portageX, -12);                      // Portage St — west of the east river
+  mkRoad(6, 72, GEO.roseX, 0);                           // Rose St / River Rd
 
   // 1831: the portage trail is still a working road — by 1855 it is already
   // an echo (buildEchoes draws the ghost of this exact line).
@@ -906,7 +906,7 @@ function buildTheatre(era, world) {
 
   // sits in the gap left in the east storefront row; blade & marquee are on
   // the local -x side, so the front faces the Mall to the west
-  g.position.set(10, 0, -10.5);
+  g.position.set(PLACES.theatre.x, 0, PLACES.theatre.z);
   block(world, 10, -10.5, 7.5, 9);
   world.pickLandmarks.push(g);
   return g;
@@ -918,7 +918,7 @@ function buildGazette(era, world) {
   const g = new THREE.Group();
   g.userData.landmark = 'gazette';
   // slimmed and pulled east so its back wall no longer sits in Rose St
-  const cx = -8.2, cz = -10.5;
+  const { x: cx, z: cz } = PLACES.gazette;
   const body = new THREE.Mesh(
     new THREE.BoxGeometry(6.5, 8.8, 8.8),
     new THREE.MeshStandardMaterial({ map: brickTex('#8f7b61', '#5f5243', 16), color: 0xffffff, roughness: 0.86 })
@@ -972,14 +972,18 @@ function buildNightlifeAndShops(era, world) {
   };
 
   // 1 Main is compressed to the Michigan/Main edge of the model, near the
-  // bridge — west of Rose St, off the avenue itself, facing the corner.
-  makeVenue({ key: 'clubsoda', label: 'CLUB SODA', sub: '1 MAIN', x: -20.2, z: 16.6, w: 6.2, d: 5.4, h: 4.8, color: '#4b3b45', neon: '#7de3ff' });
-  if (since(era, 'nineties')) {
+  // bridge — west of Rose St, off the avenue itself, facing the corner. Club
+  // Soda's real run is the 1970s–'90s; it does not glow on into the living eras.
+  if (only(era, 'seventies', 'paper', 'nineties')) {
+    makeVenue({ key: 'clubsoda', label: 'CLUB SODA', sub: '1 MAIN', x: PLACES.clubsoda.x, z: PLACES.clubsoda.z, w: 6.2, d: 5.4, h: 4.8, color: '#4b3b45', neon: '#7de3ff' });
+  }
+  if (only(era, 'nineties')) {
     // Flipside's 1990 move lands it near N. Burdick/Eleanor; north is +z here.
-    makeVenue({ key: 'flipside', label: 'FLIPSIDE', sub: '309 N. BURDICK', x: 8.8, z: 26, w: 6.8, d: 5.8, h: 4.4, color: '#5a4638', neon: '#ffd24d' });
+    // Present in its 309 N. Burdick decade; gone from the scene by the living eras.
+    makeVenue({ key: 'flipside', label: 'FLIPSIDE', sub: '309 N. BURDICK', x: PLACES.flipside.x, z: PLACES.flipside.z, w: 6.8, d: 5.8, h: 4.4, color: '#5a4638', neon: '#ffd24d' });
   }
   if (only(era, 'seventies', 'paper', 'nineties')) {
-    makeVenue({ key: 'planetclaire', label: 'PLANET CLAIRE', sub: 'imports • candles • oddities', x: -20.2, z: 22.5, w: 6.0, d: 5.0, h: 4.1, color: '#4b3d5c', neon: '#e68cff' });
+    makeVenue({ key: 'planetclaire', label: 'PLANET CLAIRE', sub: 'imports • candles • oddities', x: PLACES.planetclaire.x, z: PLACES.planetclaire.z, w: 6.0, d: 5.0, h: 4.1, color: '#4b3d5c', neon: '#e68cff' });
   }
   return g;
 }
@@ -988,7 +992,7 @@ function buildNorthwestUnit(era, world) {
   if (!since(era, 'seventies') || since(era, 'living')) return null;
   const g = new THREE.Group();
   g.userData.landmark = 'northwest';
-  const cx = -72, cz = -16;
+  const { x: cx, z: cz } = PLACES.northwest;
   const lawn = new THREE.Mesh(new THREE.CircleGeometry(12, 24), M({ color: 0x4d5a3d, roughness: 1 }));
   lawn.rotation.x = -Math.PI / 2;
   lawn.position.set(cx, 0.08, cz);
@@ -1026,7 +1030,7 @@ function buildUpjohn(era, world) {
   if (!since(era, 'celery') || era.key === 'returns') return null;
   const g = new THREE.Group();
   g.userData.landmark = 'upjohn';
-  const cx = 15, cz = -33;   // the Portage St works, south of downtown, clear of the river
+  const { x: cx, z: cz } = PLACES.upjohn;   // 301 John St / the Portage works, south of downtown
   const modern = since(era, 'mall');
   const body = new THREE.Mesh(new THREE.BoxGeometry(modern ? 13 : 7, modern ? 7 : 4.6, modern ? 7 : 5), new THREE.MeshStandardMaterial({ map: brickTex(modern ? '#9a856f' : '#8a5a3a', modern ? '#6f6354' : '#5f3a2e', 12), color: 0xffffff, roughness: 0.86 }));
   body.position.set(cx, (modern ? 7 : 4.6) / 2, cz);
@@ -1050,7 +1054,7 @@ function buildUpjohn(era, world) {
 function buildMillSite(era, world) {
   const g = new THREE.Group();
   g.userData.landmark = 'mill';
-  const pos = new THREE.Vector3(-22, 0, -27);
+  const pos = new THREE.Vector3(PLACES.mill.x, 0, PLACES.mill.z);
 
   if (only(era, 'founding')) {
     // 1831: the millwright's timber frame rising on the race Titus reserved —
@@ -1265,7 +1269,7 @@ function buildPark(era, world) {
   g.userData.landmark = 'park';
   // Bronson Park: well west of Burdick and the State Theatre, between Rose and
   // Park St — its own open block, not jammed against downtown.
-  const center = new THREE.Vector3(-22, 0, -6);
+  const center = new THREE.Vector3(PLACES.park.x, 0, PLACES.park.z);
 
   // lawn ends flush at the Portage St curb (x = 28) instead of under it
   const lawn = new THREE.Mesh(new THREE.PlaneGeometry(16, 19), M({ color: only(era, 'paper') ? 0x4a5c3a : 0x3e6b35, roughness: 0.95 }));
@@ -1449,7 +1453,7 @@ function buildRail(era, world) {
     hubSign.position.set(0, 3.85, -2.35);
     depot.add(hubSign);
   }
-  depot.position.set(12, 0, z + 5.2);
+  depot.position.set(PLACES.depot.x, 0, z + 5.2);
   g.add(depot);
   world.pickLandmarks.push(depot);
   block(world, 12, z + 5.2, 9, 4.6);   // the platform out front stays walkable
@@ -1481,7 +1485,7 @@ function buildRail(era, world) {
 function buildFlats(era, world) {
   const g = new THREE.Group();
   g.userData.landmark = 'flats';
-  const cx = -42, cz = -40;   // the celery muck, southwest — clear of the superfund cap
+  const { x: cx, z: cz } = PLACES.flats;   // the celery muck, southwest — clear of the superfund cap
 
   const soil = new THREE.Mesh(new THREE.PlaneGeometry(26, 18), M({ color: 0x241d16, roughness: 1 }));
   soil.rotation.x = -Math.PI / 2;
@@ -1603,7 +1607,7 @@ function buildSuperfund(era, world) {
   if (only(era, 'founding', 'boiling')) return null;
   const g = new THREE.Group();
   g.userData.landmark = 'superfund';
-  const cx = -18, cz = -52;
+  const { x: cx, z: cz } = PLACES.superfund;
 
   if (only(era, 'celery', 'mall', 'seventies')) {
     // settling lagoons, unquestioned
@@ -1688,7 +1692,7 @@ function buildSuperfund(era, world) {
 function buildTower(era, world) {
   const g = new THREE.Group();
   g.userData.landmark = 'tower';
-  const cx = -56, cz = -54;
+  const { x: cx, z: cz } = PLACES.tower;
 
   const hill = new THREE.Mesh(new THREE.ConeGeometry(16, 7, 14), M({ color: 0x3e5c33, roughness: 1 }));
   hill.position.set(cx, 3.4, cz);
@@ -1750,7 +1754,7 @@ function buildWMU(era, world) {
   if (!since(era, 'celery')) return null;
   const g = new THREE.Group();
   g.userData.landmark = 'wmu';
-  const cx = -64, cz = 36;
+  const { x: cx, z: cz } = PLACES.wmu;
 
   // Western sits on Prospect Hill in real life, but in this compressed
   // diorama the campus must stay physically planted on the shared ground.
@@ -1807,7 +1811,7 @@ function buildGibson(era, world) {
   if (!since(era, 'mall')) return null;
   const g = new THREE.Group();
   g.userData.landmark = 'gibson';
-  const cx = 16, cz = 52;   // Parsons St, north of the rails, west of the river
+  const { x: cx, z: cz } = PLACES.gibson;   // 225 Parsons St, north of the rails, west of the river
 
   const dead = ['paper', 'nineties'].includes(era.key);
   const base = '#9b6a4a';
@@ -2039,7 +2043,7 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'celery')) {
     const hotel = new THREE.Group();
     hotel.userData.landmark = 'hotel';
-    const hx = 11.5, hz = 18.4;
+    const { x: hx, z: hz } = PLACES.hotel;
     if (!since(era, 'seventies')) {
       // the grand Burdick Hotel — burned 1909, rebuilt before the ash cooled
       const body = new THREE.Mesh(new THREE.BoxGeometry(12, 9.5, 9), brick('#8a5a3a'));
@@ -2077,7 +2081,7 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'mall')) {
     const rick = new THREE.Group();
     rick.userData.landmark = 'rickman';
-    const rx = 10, rz = 33.5;
+    const { x: rx, z: rz } = PLACES.rickman;
     const body = new THREE.Mesh(new THREE.BoxGeometry(9, 11, 7), brick('#8a5a3a'));
     body.position.set(rx, 5.5, rz);
     body.castShadow = true; body.receiveShadow = true;
@@ -2098,7 +2102,7 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'mall')) {
     const mission = new THREE.Group();
     mission.userData.landmark = 'mission';
-    const mx = -8.4, mz = 34.25;
+    const { x: mx, z: mz } = PLACES.mission;
     const body = new THREE.Mesh(new THREE.BoxGeometry(5.6, 4.8, 6), brick('#6b5b4a'));
     body.position.set(mx, 2.4, mz);
     body.castShadow = true; body.receiveShadow = true;
@@ -2116,7 +2120,7 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'celery')) {
     const lib = new THREE.Group();
     lib.userData.landmark = 'library';
-    const lx = -19.9, lz = -36.5;   // foot of Rose St, south — its own clear ground
+    const { x: lx, z: lz } = PLACES.library;   // 315 S. Rose St — its own clear ground
     if (!since(era, 'mall')) {
       const body = new THREE.Mesh(new THREE.BoxGeometry(6.4, 6, 7), brick('#7d4030'));
       body.position.set(lx, 3, lz);
@@ -2160,7 +2164,7 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'nineties')) {
     const shakes = new THREE.Group();
     shakes.userData.landmark = 'shakespeares';
-    const sx = 16, sz = -7;   // E. Michigan entertainment block, east of the theatre
+    const { x: sx, z: sz } = PLACES.shakespeares;   // 241 E. Michigan, east of the theatre
     const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, 5.2, 5.6), brick('#5c4638'));
     body.position.set(sx, 2.6, sz);
     body.castShadow = true; body.receiveShadow = true;
@@ -2182,7 +2186,7 @@ function buildDowntownLandmarks(era, world) {
   if (only(era, 'seventies', 'paper', 'nineties')) {
     const proco = new THREE.Group();
     proco.userData.landmark = 'proco';
-    const px = 16, pz = -13;   // just south of Shakespeare's, east of the theatre
+    const { x: px, z: pz } = PLACES.proco;   // just south of Shakespeare's, east of the theatre
     const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, 3.4, 4.2), brick('#5c5048'));
     body.position.set(px, 1.7, pz);
     body.castShadow = true; body.receiveShadow = true;
@@ -2203,7 +2207,7 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'nineties')) {
     const cafe = new THREE.Group();
     cafe.userData.landmark = 'fourthcoast';
-    const cx = 3, cz = -33;   // the Vine corridor, south of South St, clear of Upjohn
+    const { x: cx, z: cz } = PLACES.fourthcoast;   // the Vine corridor, south of South St, clear of Upjohn
     const body = new THREE.Mesh(new THREE.BoxGeometry(6, 3.8, 5), brick('#a8916b'));
     body.position.set(cx, 1.9, cz);
     body.castShadow = true; body.receiveShadow = true;
