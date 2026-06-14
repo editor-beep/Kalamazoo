@@ -64,20 +64,25 @@ environments — the code is structured so this is meaningful verification.
    safety bands live in `GEO`; every landmark anchor lives in `GEO.PLACES`
    (each entry carries the real Kalamazoo address it stands for). `world.js`
    reads both — a landmark moves in *one* place and the whole engine follows; no
-   builder hardcodes a coordinate anymore. Anchors are identical in every era:
+   builder hardcodes a coordinate anymore. **Downtown anchors are projected from
+   the real Kalamazoo street grid** (Burdick & Michigan = grid 5.5, 4.5):
+   `x = (gx − 5.5)×14`, `z = 10 + (gy − 4.5)×18` — the scales that keep Rose at
+   −14 and South at −26, so every building sits on its real corner. Anchors are
+   identical in every era:
    | Place | Coords | Place | Coords |
    |---|---|---|---|
    | River centerline | x ≈ +34 (east) | Burdick St (the Mall z −24..6) | x = 0 |
    | Michigan Ave | z = 10 | Rail line | z = 40 |
-   | Bronson Park | (−22, −6) | Mill ground | (−22, −27) |
+   | Bronson Park | (−21, −13) | Mill ground | (−22, −27) |
    | Celery flats | (−42, −40) | Allied/superfund | (−18, −52) |
    | Asylum tower hill | (−56, −54) | WMU hill | (−64, 36) |
-   | Gibson/Heritage | (16, 52) | State Theatre | (10, −10.5) |
-   | Depot | (12, ~45) | Bridge | (+34, 10) |
+   | Gibson/Heritage | (16, 52) | State Theatre | (5.6, −6.2) |
+   | Depot | (7, ~45) | Bridge | (+34, 10) |
    The downtown landmarks (`buildDowntownLandmarks`) read their anchors from
    `PLACES`; Shakespeare's/Pro Co sit in the Michigan core, the library at the
-   foot of Rose (315 S. Rose). Off-map anchors (mill, flats, church, houses)
-   stay on the west/land side, consistent with the east river. The smoke test
+   foot of Rose (315 S. Rose). The off-map anchors (mill, flats, superfund,
+   tower, WMU, Gibson, Northwest) lie outside the surveyed downtown sheet and
+   keep their established artistic spots on the west/land side. The smoke test
    guards `PLACES` (finite, on-map, distinct, addressed) and asserts every
    clickable landmark has a `PLACES` anchor.
 5. **Safety bands** (defined once in `geo.js`, imported by `agents.js` and
