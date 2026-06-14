@@ -830,7 +830,7 @@ function buildStorefronts(era, world) {
       new THREE.BoxGeometry(7.2, 21, 9.4),
       M({ color: only(era, 'paper', 'nineties') ? 0x6e746f : 0x7b827d, roughness: 0.72, metalness: 0.12 })
     );
-    body.position.set(14.2, 10.5, 1.8);   // flush to Michigan Ave, not on it
+    body.position.set(14.2, 10.5, 1.8);   // flush to Michigan Ave, the core's tall anchor
     body.castShadow = true;
     body.receiveShadow = true;
     slab.add(body);
@@ -1026,7 +1026,7 @@ function buildUpjohn(era, world) {
   if (!since(era, 'celery') || era.key === 'returns') return null;
   const g = new THREE.Group();
   g.userData.landmark = 'upjohn';
-  const cx = 14, cz = 16;   // west of the river band; SE of the core
+  const cx = 15, cz = -33;   // the Portage St works, south of downtown, clear of the river
   const modern = since(era, 'mall');
   const body = new THREE.Mesh(new THREE.BoxGeometry(modern ? 13 : 7, modern ? 7 : 4.6, modern ? 7 : 5), new THREE.MeshStandardMaterial({ map: brickTex(modern ? '#9a856f' : '#8a5a3a', modern ? '#6f6354' : '#5f3a2e', 12), color: 0xffffff, roughness: 0.86 }));
   body.position.set(cx, (modern ? 7 : 4.6) / 2, cz);
@@ -1263,8 +1263,9 @@ function buildMillSite(era, world) {
 function buildPark(era, world) {
   const g = new THREE.Group();
   g.userData.landmark = 'park';
-  // Bronson Park: west of Burdick, between Rose and Park St, south of Michigan
-  const center = new THREE.Vector3(-4, 0, -2);
+  // Bronson Park: well west of Burdick and the State Theatre, between Rose and
+  // Park St — its own open block, not jammed against downtown.
+  const center = new THREE.Vector3(-22, 0, -6);
 
   // lawn ends flush at the Portage St curb (x = 28) instead of under it
   const lawn = new THREE.Mesh(new THREE.PlaneGeometry(16, 19), M({ color: only(era, 'paper') ? 0x4a5c3a : 0x3e6b35, roughness: 0.95 }));
@@ -1346,9 +1347,9 @@ function buildPark(era, world) {
       b.add(post);
     }
     b.add(deck, roof);
-    b.position.set(center.x - 4, 0, center.z + 5);
+    b.position.set(center.x - 5, 0, center.z - 5);
     g.add(b);
-    block(world, center.x - 4, center.z + 5, 4.8, 4.8);
+    block(world, center.x - 5, center.z - 5, 4.8, 4.8);
   }
 
   // benches
@@ -1480,7 +1481,7 @@ function buildRail(era, world) {
 function buildFlats(era, world) {
   const g = new THREE.Group();
   g.userData.landmark = 'flats';
-  const cx = -36, cz = -40;   // the celery muck, southwest (mirrored off the old east bank)
+  const cx = -42, cz = -40;   // the celery muck, southwest — clear of the superfund cap
 
   const soil = new THREE.Mesh(new THREE.PlaneGeometry(26, 18), M({ color: 0x241d16, roughness: 1 }));
   soil.rotation.x = -Math.PI / 2;
@@ -1877,11 +1878,12 @@ function buildHouses(era, world) {
   const lots = [];
   if (era.key === 'founding') {
     // 1831: a handful of cabins huddled near the plat — the village is a rumor
-    [[14, -1], [-8, 20], [20, 22], [38, 26], [34, 18]].forEach(([x, z]) => lots.push({ x, z, rot: Math.PI }));
+    // (kept west of the river band on the land side)
+    [[16, -8], [-10, 18], [18, 24], [6, 30], [-14, 4]].forEach(([x, z]) => lots.push({ x, z, rot: Math.PI }));
   } else {
-    // NE residential — east of Portage St and clear of Upjohn's ground
-    for (let i = 0; i < 6; i++) lots.push({ x: 38 + (i % 3) * 7, z: 25 + Math.floor(i / 3) * 8, rot: Math.PI });
-    // across the river — south of Michigan Ave, off the bridge approach
+    // residential across the east river — the Eastside, over the water
+    for (let i = 0; i < 6; i++) lots.push({ x: 48 + (i % 3) * 7, z: 25 + Math.floor(i / 3) * 8, rot: Math.PI });
+    // west-side neighborhoods — off the bridge approach, on the land side
     for (let i = 0; i < 3; i++) lots.push({ x: -50 - (i % 2) * 7, z: -14 + i * 8, rot: Math.PI / 2 });
     // north of rail: mill cottages (1905+)
     if (since(era, 'celery')) {
@@ -1934,16 +1936,16 @@ function buildHouses(era, world) {
     }
   });
 
-  // Harris orchard NE, past the rail corridor: whips in 1831, rows by 1855
+  // Harris orchard north of the rail, on the land side: whips in 1831, rows by 1855
   if (era.key === 'boiling') {
     for (let i = 0; i < 8; i++) {
-      const tx = 36 + (i % 4) * 4.5, tz = 45 + Math.floor(i / 4) * 4.5;
+      const tx = -44 + (i % 4) * 4.5, tz = 45 + Math.floor(i / 4) * 4.5;
       g.add(makeTree(tx, tz, 0.62, ['#4f7a3a'], 'round'));
       block(world, tx, tz, 1.0, 1.0);
     }
   } else if (era.key === 'founding') {
     for (let i = 0; i < 8; i++) {
-      const tx = 36 + (i % 4) * 4.5, tz = 45 + Math.floor(i / 4) * 4.5;
+      const tx = -44 + (i % 4) * 4.5, tz = 45 + Math.floor(i / 4) * 4.5;
       g.add(makeTree(tx, tz, 0.5, ['#5c8a44'], 'sapling'));
       block(world, tx, tz, 0.6, 0.6);
     }
@@ -2114,7 +2116,7 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'celery')) {
     const lib = new THREE.Group();
     lib.userData.landmark = 'library';
-    const lx = -18, lz = 2;   // foot of Rose St, just west of the loop's west leg
+    const lx = -19.9, lz = -36.5;   // foot of Rose St, south — its own clear ground
     if (!since(era, 'mall')) {
       const body = new THREE.Mesh(new THREE.BoxGeometry(6.4, 6, 7), brick('#7d4030'));
       body.position.set(lx, 3, lz);
@@ -2158,7 +2160,7 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'nineties')) {
     const shakes = new THREE.Group();
     shakes.userData.landmark = 'shakespeares';
-    const sx = 16, sz = 4;   // E. Michigan core, clear of the new east river
+    const sx = 16, sz = -7;   // E. Michigan entertainment block, east of the theatre
     const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, 5.2, 5.6), brick('#5c4638'));
     body.position.set(sx, 2.6, sz);
     body.castShadow = true; body.receiveShadow = true;
@@ -2180,7 +2182,7 @@ function buildDowntownLandmarks(era, world) {
   if (only(era, 'seventies', 'paper', 'nineties')) {
     const proco = new THREE.Group();
     proco.userData.landmark = 'proco';
-    const px = 16, pz = -1;   // next to Shakespeare's, west of the river
+    const px = 16, pz = -13;   // just south of Shakespeare's, east of the theatre
     const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, 3.4, 4.2), brick('#5c5048'));
     body.position.set(px, 1.7, pz);
     body.castShadow = true; body.receiveShadow = true;
@@ -2201,7 +2203,7 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'nineties')) {
     const cafe = new THREE.Group();
     cafe.userData.landmark = 'fourthcoast';
-    const cx = 9, cz = -36;
+    const cx = 3, cz = -33;   // the Vine corridor, south of South St, clear of Upjohn
     const body = new THREE.Mesh(new THREE.BoxGeometry(6, 3.8, 5), brick('#a8916b'));
     body.position.set(cx, 1.9, cz);
     body.castShadow = true; body.receiveShadow = true;
@@ -2449,7 +2451,7 @@ export function buildEraWorld(era) {
     const f1 = makeFireflies({ x: GEO.riverX - 12, z: 0, w: 26, d: 90 }, 50);
     world.fireflies = [f1];
     group.add(f1.points);
-    const f2 = makeFireflies({ x: -36, z: -40, w: 26, d: 18 }, 36);
+    const f2 = makeFireflies({ x: -42, z: -40, w: 26, d: 18 }, 36);
     world.fireflies.push(f2);
     group.add(f2.points);
   }
@@ -2467,40 +2469,40 @@ export function buildEraWorld(era) {
   // ---- anchors (where life gathers) & residents
   const ANCHOR_SETS = {
     founding: [
-      { x: 0, z: -6, r: 8 }, { x: -16, z: -24, r: 7 }, { x: -6, z: -2, r: 8 },
+      { x: 0, z: -6, r: 8 }, { x: -16, z: -24, r: 7 }, { x: -18, z: -6, r: 8 },
       { x: 8, z: -36, r: 8 }, { x: -21, z: 10, r: 5 }, { x: 16, z: 24, r: 7 }, { x: -8, z: 16, r: 6 },
     ],
     boiling: [
-      { x: 0, z: -6, r: 9 }, { x: -16, z: -24, r: 7 }, { x: -6, z: -2, r: 8 },
+      { x: 0, z: -6, r: 9 }, { x: -16, z: -24, r: 7 }, { x: -18, z: -6, r: 8 },
       { x: 8, z: -36, r: 8 }, { x: -21, z: 10, r: 5 }, { x: 16, z: 24, r: 8 }, { x: 12, z: 42.5, r: 4 },
     ],
     celery: [
       { x: 0, z: -10, r: 9 }, { x: 0, z: -10, r: 9 }, { x: -14, z: -24, r: 7 },
-      { x: -6, z: -2, r: 8 }, { x: 12, z: 42.5, r: 4 }, { x: -34, z: -40, r: 9 }, { x: -10, z: 50, r: 7 },
+      { x: -18, z: -6, r: 8 }, { x: 12, z: 42.5, r: 4 }, { x: -34, z: -40, r: 9 }, { x: -10, z: 50, r: 7 },
     ],
     mall: [
       { x: 0, z: -10, r: 8 }, { x: 0, z: -2, r: 8 }, { x: 0, z: -18, r: 8 },
-      { x: -6, z: -2, r: 8 }, { x: 10, z: -10, r: 5 }, { x: 12, z: 42.5, r: 4 }, { x: 14, z: 16, r: 8 },
+      { x: -18, z: -6, r: 8 }, { x: 10, z: -10, r: 5 }, { x: 12, z: 42.5, r: 4 }, { x: 11, z: 6, r: 8 },
     ],
     seventies: [
       { x: 0, z: -8, r: 9 }, { x: -19.5, z: 16, r: 5 }, { x: -72, z: -16, r: 5 },
-      { x: -10, z: -10, r: 5 }, { x: 14, z: 16, r: 7 }, { x: -64, z: 36, r: 7 }, { x: 7, z: 25, r: 6 },
+      { x: -10, z: -10, r: 5 }, { x: 11, z: 6, r: 7 }, { x: -64, z: 36, r: 7 }, { x: 7, z: 25, r: 6 },
     ],
     paper: [
-      { x: 0, z: -8, r: 9 }, { x: -14, z: -24, r: 7 }, { x: -6, z: -2, r: 8 },
-      { x: 0, z: 2, r: 6 }, { x: 14, z: 16, r: 8 }, { x: -34, z: -40, r: 7 }, { x: -16, z: -46, r: 5 },
+      { x: 0, z: -8, r: 9 }, { x: -14, z: -24, r: 7 }, { x: -18, z: -6, r: 8 },
+      { x: 0, z: 2, r: 6 }, { x: 11, z: 6, r: 8 }, { x: -34, z: -40, r: 7 }, { x: -16, z: -46, r: 5 },
     ],
     nineties: [
       { x: 7, z: 25, r: 7 }, { x: -19.5, z: 16, r: 5 }, { x: -72, z: -16, r: 5 },
-      { x: 0, z: -8, r: 9 }, { x: 14, z: 16, r: 7 }, { x: -6, z: -2, r: 8 }, { x: 8, z: -31.5, r: 4 },
+      { x: 0, z: -8, r: 9 }, { x: 11, z: 6, r: 7 }, { x: -18, z: -6, r: 8 }, { x: 8, z: -31.5, r: 4 },
     ],
     living: [
       { x: 0, z: -10, r: 8 }, { x: 0, z: -2, r: 8 }, { x: -18, z: -17, r: 7 },
-      { x: -6, z: -2, r: 8 }, { x: -34, z: -40, r: 8 }, { x: -21, z: 8, r: 5 }, { x: 10, z: -10, r: 5 },
+      { x: -18, z: -6, r: 8 }, { x: -34, z: -40, r: 8 }, { x: -21, z: 8, r: 5 }, { x: 10, z: -10, r: 5 },
     ],
     returns: [
       { x: -21, z: -2, r: 5 }, { x: 0, z: -10, r: 8 }, { x: -34, z: -40, r: 8 },
-      { x: -19, z: -20, r: 6 }, { x: -6, z: -2, r: 8 }, { x: -21, z: 16, r: 5 }, { x: 0, z: 0, r: 9 },
+      { x: -19, z: -20, r: 6 }, { x: -18, z: -6, r: 8 }, { x: -21, z: 16, r: 5 }, { x: 0, z: 0, r: 9 },
     ],
   };
   const anchors = ANCHOR_SETS[era.key];
