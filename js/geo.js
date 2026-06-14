@@ -46,10 +46,10 @@ export const PLACES = {
 
   // the Burdick / Michigan core
   hotel:        { x: -7, z: 19, real: 'Burdick House → Radisson Plaza, 100 W. Michigan (grid 5.0, 5.0)' },
-  theatre:      { x: 5.6, z: -6.2, real: 'State Theatre, 404 S. Burdick, east side of the Mall (grid 5.9, 3.6)' },
-  gazette:      { x: -5.6, z: -6.2, real: 'Kalamazoo Gazette, 401 S. Burdick, across from the State (grid 5.1, 3.6)' },
-  shakespeares: { x: 8.4, z: 2.8, real: "Shakespeare's, 241 E. Michigan (grid 6.1, 4.1)" },
-  proco:        { x: 8.4, z: -2.6, real: 'Pro Co Sound, E. Michigan, the Sound Factory block (grid 6.1, 3.8)' },
+  theatre:      { x: 8, z: -10, real: 'State Theatre, 404 S. Burdick — lining the Mall east side' },
+  gazette:      { x: -8, z: -10, real: 'Kalamazoo Gazette, 401 S. Burdick — Mall west side, facing the State' },
+  shakespeares: { x: 16, z: -7, real: "Shakespeare's, 241 E. Michigan — east of the Mall, clear of the office slab" },
+  proco:        { x: 16, z: -13, real: 'Pro Co Sound, E. Michigan — the Sound Factory block' },
 
   // N. Burdick toward the rails
   rickman:      { x: 4.2, z: 35.2, real: 'The Rickman / Milner Hotel, N. Burdick near the rails (grid 5.8, 5.9)' },
@@ -58,8 +58,8 @@ export const PLACES = {
   depot:        { x: 7, z: 45.2, real: 'the depot, just north of the Michigan Central line (grid 6.0)' },
 
   // Bronson Park & the west blocks
-  park:         { x: -21, z: -13.4, real: 'Bronson Park, between Park St & Rose St, Lovell↔South (grid 4.0, 3.2)' },
-  library:      { x: -14, z: -33.2, real: 'Central Library, 315 S. Rose St (grid 4.5, 2.1)' },
+  park:         { x: -21, z: -17, real: 'Bronson Park — the Park↔Rose × Lovell↔South block (grid 4.0, 3.0)' },
+  library:      { x: -10, z: -31, real: 'Central Library, 315 S. Rose St — just south of South St' },
   clubsoda:     { x: -16.8, z: 13.6, real: 'Club Soda, 1 Main, the west Michigan edge (grid 4.3, 4.7)' },
   planetclaire: { x: -16.8, z: 22.6, real: 'Planet Claire, a Mall-era alternative storefront (grid 4.3, 5.2)' },
 

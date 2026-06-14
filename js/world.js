@@ -571,11 +571,27 @@ function buildRoads(era, world) {
     g.add(r);
   };
 
-  mkRoad(7, 104, GEO.burdickX, 4);                       // Burdick (N-S)
-  mkRoad(110, 7, -5, GEO.michiganZ, Math.PI / 2);        // Michigan Ave (E-W)
-  mkRoad(88, 6, 3, GEO.southZ, Math.PI / 2);             // South St
-  mkRoad(6, 50, GEO.portageX, -12);                      // Portage St — west of the east river
-  mkRoad(6, 72, GEO.roseX, 0);                           // Rose St / River Rd
+  // ---- the street grid (survey-true; see the geo.js PLACES transform).
+  // N–S streets run in z; E–W streets run in x. The five MAIN streets exist from
+  // the frontier on; the rest of the named grid fills in once the city is platted.
+  const nsZ0 = -48, nsZ1 = 58;     // N–S streets span this z-range
+  const ewX0 = -58, ewX1 = 26;     // E–W streets stop just west of the river water
+  const drawNS = (x, w) => mkRoad(w, nsZ1 - nsZ0, x, (nsZ0 + nsZ1) / 2);
+  const drawEW = (z, w, x0 = ewX0, x1 = ewX1) => mkRoad(x1 - x0, w, (x0 + x1) / 2, z, Math.PI / 2);
+
+  // N–S: West→East   |   E–W: South→North
+  const mainNS = [['BURDICK', GEO.burdickX, 7], ['ROSE', GEO.roseX, 6], ['PORTAGE', GEO.portageX, 6]];
+  const mainEW = [['MICHIGAN', GEO.michiganZ, 7], ['SOUTH', GEO.southZ, 6]];
+  const gridNS = [['OAKLAND', -56, 5], ['WESTNEDGE', -42, 6], ['PARK', -28, 5], ['PITCHER', 24, 5]];
+  const gridEW = [['NORTH', 56, 5], ['KALAMAZOO', 37, 6], ['LOVELL', -8, 6], ['VINE', -44, 5]];
+
+  mainNS.forEach(([, x, w]) => drawNS(x, w));
+  drawEW(GEO.michiganZ, 7, -58, 42);   // Michigan alone crosses the river, on the bridge deck
+  drawEW(GEO.southZ, 6);
+  if (!frontier) {
+    gridNS.forEach(([, x, w]) => drawNS(x, w));
+    gridEW.forEach(([, z, w]) => drawEW(z, w));
+  }
 
   // 1831: the portage trail is still a working road — by 1855 it is already
   // an echo (buildEchoes draws the ghost of this exact line).
@@ -602,14 +618,13 @@ function buildRoads(era, world) {
     });
   }
 
+  // every platted street gets a blade: N–S names line Michigan Ave, E–W names
+  // line Burdick — the city saying its own grid out loud.
   if (!frontier) {
-    [
-      ['BURDICK', 5.9, 10.5, 0, 'ST'],
-      ['MICHIGAN', 2.5, 13.9, Math.PI / 2, 'AVE'],
-      ['ROSE', -13.7, 13.9, Math.PI / 2, 'ST'],
-      ['SOUTH', 5.9, -26.2, Math.PI / 2, 'ST'],
-      ['PORTAGE', 23.3, 13.9, 0, 'ST'],
-    ].forEach(([name, x, z, rot, sub]) => g.add(makeStreetSign(name, x, z, rot, sub)));
+    [...mainNS, ...gridNS].forEach(([name, x]) =>
+      g.add(makeStreetSign(name, x + 0.9, GEO.michiganZ + 3.6, 0, 'ST')));
+    [...mainEW, ...gridEW].forEach(([name, z]) =>
+      g.add(makeStreetSign(name, GEO.burdickX + 3.6, z + 0.9, Math.PI / 2, name === 'MICHIGAN' ? 'AVE' : 'ST')));
   }
 
   // The Kalamazoo Mall: Burdick z -24..6, pedestrian from 1959 on
@@ -719,9 +734,9 @@ function buildStorefronts(era, world) {
     { faceX: 5.4, facing: -1, from: -22, to: -16 },   // gap for the State Theatre
     { faceX: 5.4, facing: -1, from: -4, to: 6 },
   ];
-  // North of Michigan: the west side keeps shops (Mission caps the block);
-  // the east side belongs to the hotel / Flipside / Rickman cluster.
-  if (!wood) rows.push({ faceX: -5.4, facing: 1, from: 14, to: 28, depth: [4.6, 5.4] });
+  // North of Michigan, the Rose↔Burdick block belongs to the hotel (the
+  // Radisson / Kalamazoo Center superblock) and the Rickman/Mission/Flipside
+  // cluster — those named landmarks provide the massing, so no filler shops here.
 
   rows.forEach(row => {
     let z = row.from;
