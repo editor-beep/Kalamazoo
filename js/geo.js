@@ -27,44 +27,53 @@ export const GEO = {
 
 // Every named landmark's anchor, in ONE place — the single source of truth the
 // builders read (world.js), so a position can never again disagree between files.
-// Frame: +x East, +z North, Burdick at x=0, Michigan Ave at z=10. Each entry
-// carries the real Kalamazoo address/cross-streets it stands for, so this map can
-// be checked against a real one. Move a landmark here and the whole engine follows.
+// Frame: +x East, +z North, Burdick at x=0, Michigan Ave at z=10.
+//
+// DOWNTOWN anchors are projected from the real Kalamazoo street grid (the
+// hand-surveyed map), where Burdick & Michigan = grid (5.5, 4.5):
+//     x = (gx − 5.5) × 14     z = 10 + (gy − 4.5) × 18
+// These scales are exactly the ones that keep Rose at −14 and South at −26, so
+// every building now sits on its real corner. Grid streets (W→E): Oakland 1.5,
+// Westnedge 2.5, Park 3.5, Rose 4.5, Burdick 5.5, Portage 6.5, Pitcher 7.5;
+// (S→N): Vine 1.5, South 2.5, Lovell 3.5, Michigan 4.5, Kalamazoo 6.0, North 7.5.
+// OFF-MAP anchors (mill, flats, superfund, tower, WMU, Gibson, Northwest) lie
+// outside the surveyed downtown sheet and stay at their established artistic spots.
+// Each entry carries the real address it stands for. Move one here, the engine follows.
 export const PLACES = {
   // the spine & the crossing
   bridge:       { x: GEO.riverX, z: GEO.michiganZ, real: 'Michigan Ave crossing of the river' },
   burdick:      { x: GEO.burdickX, z: -9, real: 'Burdick St / the Kalamazoo Mall (Michigan→Lovell)' },
 
   // the Burdick / Michigan core
-  hotel:        { x: 11.5, z: 18.4, real: 'Burdick House → Radisson Plaza, 100 W. Michigan' },
-  theatre:      { x: 10, z: -10.5, real: 'State Theatre, 404 S. Burdick (east side of the Mall)' },
-  gazette:      { x: -8.2, z: -10.5, real: 'Kalamazoo Gazette, 401 S. Burdick (across from the State)' },
-  shakespeares: { x: 16, z: -7, real: "Shakespeare's, 241 E. Michigan" },
-  proco:        { x: 16, z: -13, real: 'Pro Co Sound, E. Michigan (the Sound Factory block)' },
+  hotel:        { x: -7, z: 19, real: 'Burdick House → Radisson Plaza, 100 W. Michigan (grid 5.0, 5.0)' },
+  theatre:      { x: 5.6, z: -6.2, real: 'State Theatre, 404 S. Burdick, east side of the Mall (grid 5.9, 3.6)' },
+  gazette:      { x: -5.6, z: -6.2, real: 'Kalamazoo Gazette, 401 S. Burdick, across from the State (grid 5.1, 3.6)' },
+  shakespeares: { x: 8.4, z: 2.8, real: "Shakespeare's, 241 E. Michigan (grid 6.1, 4.1)" },
+  proco:        { x: 8.4, z: -2.6, real: 'Pro Co Sound, E. Michigan, the Sound Factory block (grid 6.1, 3.8)' },
 
   // N. Burdick toward the rails
-  rickman:      { x: 10, z: 33.5, real: 'The Rickman / Milner Hotel, N. Burdick near the rails' },
-  mission:      { x: -8.4, z: 34.25, real: 'Kalamazoo Gospel Mission, 448 N. Burdick' },
-  flipside:     { x: 8.8, z: 26, real: 'Flipside Records, 309 N. Burdick (post-1990)' },
-  depot:        { x: 12, z: 45.2, real: 'the depot, just north of the Michigan Central line' },
+  rickman:      { x: 4.2, z: 35.2, real: 'The Rickman / Milner Hotel, N. Burdick near the rails (grid 5.8, 5.9)' },
+  mission:      { x: -4.2, z: 37, real: 'Kalamazoo Gospel Mission, 448 N. Burdick (grid 5.2, 6.0)' },
+  flipside:     { x: 5.6, z: 24.4, real: 'Flipside Records, 309 N. Burdick, post-1990 (grid 5.9, 5.3)' },
+  depot:        { x: 7, z: 45.2, real: 'the depot, just north of the Michigan Central line (grid 6.0)' },
 
   // Bronson Park & the west blocks
-  park:         { x: -22, z: -6, real: 'Bronson Park, between Park St & Rose St' },
-  library:      { x: -19.9, z: -36.5, real: 'Central Library, 315 S. Rose St' },
-  clubsoda:     { x: -20.2, z: 16.6, real: 'Club Soda, 1 Main (compressed to the Michigan/Main edge)' },
-  planetclaire: { x: -20.2, z: 22.5, real: 'Planet Claire, a Mall-era alternative storefront' },
+  park:         { x: -21, z: -13.4, real: 'Bronson Park, between Park St & Rose St, Lovell↔South (grid 4.0, 3.2)' },
+  library:      { x: -14, z: -33.2, real: 'Central Library, 315 S. Rose St (grid 4.5, 2.1)' },
+  clubsoda:     { x: -16.8, z: 13.6, real: 'Club Soda, 1 Main, the west Michigan edge (grid 4.3, 4.7)' },
+  planetclaire: { x: -16.8, z: 22.6, real: 'Planet Claire, a Mall-era alternative storefront (grid 4.3, 5.2)' },
 
   // the Vine / south corridor
-  fourthcoast:  { x: 3, z: -33, real: 'Fourth Coast Cafe, the Vine neighborhood' },
-  upjohn:       { x: 15, z: -33, real: 'Upjohn, 301 John St / the Portage works' },
+  fourthcoast:  { x: -12.6, z: -40.4, real: 'Fourth Coast Cafe, the Vine neighborhood (grid 4.6, 1.7)' },
+  upjohn:       { x: 9.8, z: -35, real: 'Upjohn, 301 John St / the Portage works, east of Burdick (grid 6.2, 2.0)' },
 
-  // the working ground (south & west)
+  // the working ground (south & west) — off the surveyed downtown sheet
   mill:         { x: -22, z: -27, real: 'the mill ground / paper mill on the race' },
   flats:        { x: -42, z: -40, real: 'the Celery Flats, the black muck southwest' },
   superfund:    { x: -18, z: -52, real: 'Allied Paper / Portage Creek Superfund ground' },
   tower:        { x: -56, z: -54, real: 'the Asylum (state hospital) water-tower hill' },
 
-  // the far landmarks
+  // the far landmarks — off the surveyed downtown sheet
   wmu:          { x: -64, z: 36, real: 'Western Michigan University, the hill west of town' },
   gibson:       { x: 16, z: 52, real: 'Gibson / Heritage, 225 Parsons St (north of the rails)' },
   northwest:    { x: -72, z: -16, real: 'KPH Northwest Unit / Blakeslee (the old TB sanatorium)' },
