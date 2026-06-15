@@ -653,6 +653,21 @@ function buildRoads(era, world) {
   if (!frontier) {
     gridNS.forEach(([, x, w]) => { drawNS(x, w); dressNS(x, w, false); });
     gridEW.forEach(([, z, w]) => { drawEW(z, w); dressEW(z, w, false); });
+
+    // Pitcher & Portage: the east streets between Burdick and the river. They run
+    // only north of E. Michigan (the Mall and the State own the blocks to the
+    // south), so the east edge finally reads river → Portage → Pitcher → Burdick.
+    const ez0 = GEO.michiganZ - 2, ez1 = STREETS.ew.parsons + 2;
+    const ezLen = ez1 - ez0, ezMid = (ez0 + ez1) / 2;
+    [['PITCHER', S.ns.pitcher, 5], ['PORTAGE', S.ns.portage, 5]].forEach(([name, x, w]) => {
+      mkRoad(w, ezLen, x, ezMid);
+      [-1, 1].forEach(s => {
+        const c = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.22, ezLen), curbMat);
+        c.position.set(x + s * (w / 2 + 0.2), 0.11, ezMid);
+        c.castShadow = c.receiveShadow = true; g.add(c);
+      });
+      g.add(makeStreetSign(name, x + 0.9, GEO.michiganZ + 3.6, 0, 'ST'));
+    });
   }
 
   // 1831: the portage trail is still a working road — by 1855 it is already
@@ -2774,14 +2789,14 @@ export function buildEraWorld(era) {
     ],
     seventies: [
       { x: 0, z: -8, r: 9 }, { x: -19.5, z: 16, r: 5 }, { x: -72, z: -16, r: 5 },
-      { x: -10, z: -10, r: 5 }, { x: 11, z: 6, r: 7 }, { x: -64, z: 36, r: 7 }, { x: 7, z: 25, r: 6 },
+      { x: -10, z: -10, r: 5 }, { x: 11, z: 6, r: 7 }, { x: -64, z: 36, r: 7 }, { x: 11, z: 24, r: 6 },
     ],
     paper: [
       { x: 0, z: -8, r: 9 }, { x: -14, z: -24, r: 7 }, { x: -18, z: -6, r: 8 },
       { x: 0, z: 2, r: 6 }, { x: 11, z: 6, r: 8 }, { x: -34, z: -40, r: 7 }, { x: -16, z: -46, r: 5 },
     ],
     nineties: [
-      { x: 7, z: 25, r: 7 }, { x: -19.5, z: 16, r: 5 }, { x: -72, z: -16, r: 5 },
+      { x: 11, z: 24, r: 7 }, { x: -19.5, z: 16, r: 5 }, { x: -72, z: -16, r: 5 },
       { x: 0, z: -8, r: 9 }, { x: 11, z: 6, r: 7 }, { x: -18, z: -6, r: 8 }, { x: 8, z: -31.5, r: 4 },
     ],
     living: [

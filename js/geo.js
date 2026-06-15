@@ -28,13 +28,16 @@ export const GEO = {
 
 // The street grid, in ONE place. N–S running streets carry an x; E–W running
 // streets carry a z. The map is built off these; landmarks sit at intersections.
-//   N–S (W→E):  Oakland −56, Westnedge −42, Park −28, Rose −14, Burdick 0, River 34
+//   N–S (W→E):  Oakland −56, Westnedge −42, Park −28, Rose −14, Burdick 0, Pitcher 13, Portage 22, River 34
 //   E–W (S→N):  Vine −44, South −26, Lovell −8, E. Michigan 10, Kalamazoo 28, North 50, Parsons 58
 // Oakland curves into E. Michigan at its south end (handled in world.js geometry).
-// The grid runs well north now: past the rail (z 40) to North St and Parsons St,
-// so the factory blocks (Gibson at 225 Parsons, Checker beyond) sit on real streets.
+// East of Burdick the order out to the water is Burdick → Pitcher → Portage →
+// river; Pitcher and Portage run only north of the avenue (the Mall/State own the
+// blocks south). The grid runs well north now: past the rail (z 40) to North St
+// and Parsons St, so the factory blocks (Gibson at 225 Parsons, Checker) sit on
+// real streets.
 export const STREETS = {
-  ns: { oakland: -56, westnedge: -42, park: -28, rose: -14, burdick: 0, river: 34 },
+  ns: { oakland: -56, westnedge: -42, park: -28, rose: -14, burdick: 0, pitcher: 13, portage: 22, river: 34 },
   ew: { vine: -44, south: -26, lovell: -8, michigan: 10, kalamazoo: 28, north: 50, parsons: 58 },
 };
 
@@ -56,17 +59,17 @@ export const PLACES = {
   // Michigan News Agency — 308 W. Michigan, north side of the avenue, west of Rose.
   newsagency:   { x: -24, z: 16, real: 'Michigan News Agency, 308 W. Michigan — north side of the avenue, west of Rose' },
 
-  // Kalamazoo St row (z 28), reading west→east off the depot at the rail:
-  //   Gospel Mission · Shakespeare's · Pro Co — three fronts on the avenue.
-  busstation:   { x: -9, z: 28, real: 'the bus stand, N. Burdick at Kalamazoo St, beneath the depot' },
-  mission:      { x: 4, z: 28, real: 'Kalamazoo Gospel Mission, 448 N. Burdick — east of the depot on Kalamazoo St' },
-  shakespeares: { x: 12, z: 28, real: "Shakespeare's, 241 E. Michigan — east of the Mission on Kalamazoo St" },
-  proco:        { x: 20, z: 28, real: 'Pro Co Sound — the Sound Factory block, east end of the Kalamazoo St row' },
-  // the N. Burdick block south of the avenue — Rickman under the Mission, the
-  // record stores east of it: Flipside, then Planet Claire just south.
-  rickman:      { x: 4, z: 20, real: 'The Rickman / Milner Hotel, N. Burdick — directly south of the Mission' },
-  flipside:     { x: 15, z: 22, real: 'Flipside Records, the N. Burdick block (309 N. Burdick after the 1990 move)' },
-  planetclaire: { x: 16, z: 16, real: 'Planet Claire, a Mall-era alternative storefront just south of Flipside' },
+  // N. Burdick corridor (the spine, x≈0) reading south→north. East side, climbing
+  // toward the rails: Shakespeare's → Rickman → Pro Co. West side, opposite them:
+  // Planet Claire → the Gospel Mission → Flipside. None of it drifts east toward
+  // Portage/Pitcher anymore — these are Burdick addresses, so they sit on Burdick.
+  busstation:   { x: -9, z: 38, real: 'the bus stand, N. Burdick just south of the rail depot' },
+  shakespeares: { x: 5, z: 15, real: "Shakespeare's Lower Level, N. Burdick at the Michigan corner — east side" },
+  rickman:      { x: 5, z: 22, real: 'The Rickman / Milner Hotel, N. Burdick — east side, climbing toward the rails' },
+  proco:        { x: 5, z: 30, real: 'Pro Co Sound — the Sound Factory block, N. Burdick by the rails (east side)' },
+  planetclaire: { x: -5.5, z: 19, real: 'Planet Claire — west side of N. Burdick, opposite the Rickman' },
+  mission:      { x: -5.5, z: 26, real: 'Kalamazoo Gospel Mission, 448 N. Burdick — west side, opposite the pubs' },
+  flipside:     { x: -6, z: 33, real: 'Flipside Records, 309 N. Burdick after the 1990 move — west side near the rails' },
   depot:        { x: 8, z: 45.2, real: 'the depot, just north of the Michigan Central line' },
 
   // Bronson Park & the west blocks — the park is the square bounded by
