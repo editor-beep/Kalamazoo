@@ -56,7 +56,7 @@ export const PLACES = {
   // between Burdick and Rose (Rose runs N–S, E. Michigan E–W; the hotel sits at
   // their corner), Club Soda just east of it. Anchors are the BUILT centers now.
   hotel:        { x: -8, z: 4, real: 'Burdick House → Radisson Plaza, 100 W. Michigan — south side of the avenue, Burdick–Rose block' },
-  clubsoda:     { x: 8, z: 3, real: 'Club Soda, 1 Main — east of the Radisson, south side of E. Michigan' },
+  clubsoda:     { x: 8, z: 4, real: 'Club Soda, 1 Main — east of the Radisson, south side of E. Michigan' },
   railbldg:     { x: 24, z: 12, real: 'the old rail building, east of Club Soda on the north side of E. Michigan' },
   // Michigan News Agency — 308 W. Michigan, north side of the avenue, west of Rose.
   newsagency:   { x: -24, z: 16, real: 'Michigan News Agency, 308 W. Michigan — north side of the avenue, west of Rose' },
@@ -69,8 +69,10 @@ export const PLACES = {
   planetclaire: { x: -2, z: 15, real: 'Planet Claire — west side of N. Burdick (alt storefront)' },
   flipside:     { x: 5, z: 20, real: 'Flipside Records, 309 N. Burdick (moved across the street 1990, closed 2001)' },
   rickman:      { x: -5.5, z: 27, real: 'The Rickman House, 345 N. Burdick (Milner Hotel by 1944) — west side' },
-  mission:      { x: 4, z: 27, real: 'Kalamazoo Gospel Mission, 448 N. Burdick — east side, by Kalamazoo Ave' },
-  shakespeares: { x: 10, z: 34, real: "Shakespeare's Pub, 241 E. Kalamazoo Ave — the old Shakespeare rod building, east of Burdick" },
+  // the Gospel Mission and Shakespeare's line up with the depot on one E–W row
+  // (shared z) — neighbors along the avenue with the transit hub, depot westmost.
+  mission:      { x: 8, z: 45.2, real: 'Kalamazoo Gospel Mission, 448 N. Burdick — east side, by Kalamazoo Ave' },
+  shakespeares: { x: 15, z: 45.2, real: "Shakespeare's Pub, 241 E. Kalamazoo Ave — the old Shakespeare rod building, east of Burdick" },
   depot:        { x: 0, z: 45.2, real: 'the Transportation Center / depot, 459 N. Burdick, just north of the Michigan Central line' },
 
   // Bronson Park & the west blocks — the square between Park St and Rose St,
