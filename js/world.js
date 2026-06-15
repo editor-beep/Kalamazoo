@@ -1061,8 +1061,9 @@ function buildNightlifeAndShops(era, world) {
     makeVenue({ key: 'clubsoda', label: 'CLUB SODA', sub: '1 MAIN', x: PLACES.clubsoda.x, z: PLACES.clubsoda.z - 6, w: 6.2, d: 5.4, h: 4.8, color: '#4b3b45', neon: '#7de3ff' });
   }
   if (only(era, 'paper', 'nineties')) {
-    // Open since 1977, the North Burdick compass for taste; the 1990 move set it
-    // at 309 N. Burdick, toward the rails. Gone from the scene by the living eras.
+    // Open since 1977, the compass for taste; the 1990 move set it at 309 N.
+    // Burdick. Here it fronts the eastern Kalamazoo-St block near the river's
+    // west bank. Gone from the scene by the living eras.
     makeVenue({
       key: 'flipside', label: 'FLIPSIDE',
       sub: era.key === 'nineties' ? '309 N. BURDICK' : 'RECORDS • N. BURDICK',
@@ -2254,11 +2255,11 @@ function buildDowntownLandmarks(era, world) {
     block(world, lx, lz, 6.4, 7);
   }
 
-  // ---- Shakespeare's Pub + the Lower Level, Michigan Ave at the park corner
+  // ---- Shakespeare's Pub + the Lower Level, now on N. Burdick by the Rickman
   if (since(era, 'nineties')) {
     const shakes = new THREE.Group();
     shakes.userData.landmark = 'shakespeares';
-    let { x: sx, z: sz } = PLACES.shakespeares; sz -= 7;   // seat south of Kalamazoo St
+    const { x: sx, z: sz } = PLACES.shakespeares;
     const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, 5.2, 5.6), brick('#5c4638'));
     body.position.set(sx, 2.6, sz);
     body.castShadow = true; body.receiveShadow = true;
@@ -2276,12 +2277,11 @@ function buildDowntownLandmarks(era, world) {
     block(world, sx, sz, 4.6, 5.6);
   }
 
-  // ---- Pro Co Sound (1974 – the 2010s), next door: the RAT was born here
+  // ---- Pro Co Sound (1974 – the 2010s), up N. Burdick by the Mission: the RAT was born here
   if (only(era, 'seventies', 'paper', 'nineties')) {
     const proco = new THREE.Group();
     proco.userData.landmark = 'proco';
-    // anchor sat in the river; pull it onto the dry west bank, south of Kalamazoo St
-    let { x: px, z: pz } = PLACES.proco; px -= 13; pz -= 10;
+    const { x: px, z: pz } = PLACES.proco;
     const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, 3.4, 4.2), brick('#5c5048'));
     body.position.set(px, 1.7, pz);
     body.castShadow = true; body.receiveShadow = true;
