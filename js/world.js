@@ -653,6 +653,21 @@ function buildRoads(era, world) {
   if (!frontier) {
     gridNS.forEach(([, x, w]) => { drawNS(x, w); dressNS(x, w, false); });
     gridEW.forEach(([, z, w]) => { drawEW(z, w); dressEW(z, w, false); });
+
+    // Pitcher & Portage: the east streets between Burdick and the river. They run
+    // only north of E. Michigan (the Mall and the State own the blocks to the
+    // south), so the east edge finally reads river → Portage → Pitcher → Burdick.
+    const ez0 = GEO.michiganZ - 2, ez1 = STREETS.ew.parsons + 2;
+    const ezLen = ez1 - ez0, ezMid = (ez0 + ez1) / 2;
+    [['PITCHER', S.ns.pitcher, 5], ['PORTAGE', S.ns.portage, 5]].forEach(([name, x, w]) => {
+      mkRoad(w, ezLen, x, ezMid);
+      [-1, 1].forEach(s => {
+        const c = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.22, ezLen), curbMat);
+        c.position.set(x + s * (w / 2 + 0.2), 0.11, ezMid);
+        c.castShadow = c.receiveShadow = true; g.add(c);
+      });
+      g.add(makeStreetSign(name, x + 0.9, GEO.michiganZ + 3.6, 0, 'ST'));
+    });
   }
 
   // 1831: the portage trail is still a working road — by 1855 it is already
@@ -1940,10 +1955,10 @@ function buildGibson(era, world) {
 }
 
 function buildChecker(era, world) {
-  // Checker came to Kalamazoo in 1923 and built cabs until July 1982; the plant
-  // stamped parts for years after. Here it stands from the Mall era through the
-  // '90s — directly north of Gibson, past Parsons St, the yellow giant of the
-  // north blocks. (Gone by the living eras: demolished in real life.)
+  // Checker came to Kalamazoo in 1923 and built cabs at 2016 N. Pitcher until
+  // July 1982; the plant stamped parts for years after. Here it stands from the
+  // Mall era through the '90s — north on Pitcher, near the river, the yellow
+  // giant beyond Gibson. (Gone by the living eras: demolished in real life.)
   if (!only(era, 'mall', 'seventies', 'paper', 'nineties')) return null;
   const g = new THREE.Group();
   g.userData.landmark = 'checker';
@@ -1951,24 +1966,24 @@ function buildChecker(era, world) {
   const winding = ['paper', 'nineties'].includes(era.key);   // the cab line is dead; parts only
   const base = '#7a6e5c';
   const body = new THREE.Mesh(
-    new THREE.BoxGeometry(20, 6.5, 12),
+    new THREE.BoxGeometry(14, 6.5, 16),
     new THREE.MeshStandardMaterial({ map: brickTex(base, shade(base, -34), 16), color: 0xffffff, roughness: 0.9 })
   );
   body.position.set(cx, 3.25, cz);
   body.castShadow = true; body.receiveShadow = true;
   g.add(body);
-  block(world, cx, cz, 20, 12);
+  block(world, cx, cz, 14, 16);
 
   // sawtooth factory roof — the silhouette of every plant that ever ran a line
-  for (let i = 0; i < 5; i++) {
-    const tooth = new THREE.Mesh(new THREE.BoxGeometry(3.4, 1.5, 12), M({ color: shade(base, -8), roughness: 0.92 }));
-    tooth.position.set(cx - 8 + i * 4, 7.1, cz);
+  for (let i = 0; i < 4; i++) {
+    const tooth = new THREE.Mesh(new THREE.BoxGeometry(2.8, 1.5, 16), M({ color: shade(base, -8), roughness: 0.92 }));
+    tooth.position.set(cx - 5.2 + i * 3.4, 7.1, cz);
     tooth.rotation.z = 0.34;
     tooth.castShadow = true;
     g.add(tooth);
   }
   const stack = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1.1, 9, 10), M({ color: 0x6e5a48, roughness: 0.95 }));
-  stack.position.set(cx - 9.2, 7.5, cz + 4.6);
+  stack.position.set(cx - 6.2, 7.5, cz + 6.4);
   stack.castShadow = true;
   g.add(stack);
 
@@ -1977,20 +1992,20 @@ function buildChecker(era, world) {
     emissive: new THREE.Color('#ffd9a0'), emissiveIntensity: 0,
   });
   if (!winding) world.windowMats.push(winMat);
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 6; i++) {
     const win = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.8, 0.08), winMat);
-    win.position.set(cx - 8.4 + i * 2.4, 3.4, cz - 6.05);
+    win.position.set(cx - 5.5 + i * 2.2, 3.4, cz - 8.05);
     g.add(win);
   }
 
   // a parked Checker out front in the cab-building years
   if (!winding) {
     const cab = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.1, 4.6), M({ color: 0xe8b400, roughness: 0.5, metalness: 0.2 }));
-    cab.position.set(cx + 7, 0.7, cz - 8);
+    cab.position.set(cx + 5, 0.7, cz - 10);
     cab.castShadow = true;
     g.add(cab);
     const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.9, 2.2), M({ color: 0x1f1f1f, roughness: 0.4 }));
-    cabin.position.set(cx + 7, 1.6, cz - 8.1);
+    cabin.position.set(cx + 5, 1.6, cz - 10.1);
     g.add(cabin);
   }
 
@@ -2003,7 +2018,7 @@ function buildChecker(era, world) {
   const [t, s] = labels[era.key];
   const sign = new THREE.Mesh(new THREE.BoxGeometry(9, 1.6, 0.15),
     new THREE.MeshStandardMaterial({ map: signTex(t, { bg: '#1f2a1a', fg: '#e8d24d', font: 'bold 40px Georgia', sub: s }), color: 0xffffff }));
-  sign.position.set(cx, 5.7, cz - 6.15);
+  sign.position.set(cx, 5.7, cz - 8.15);
   g.add(sign);
 
   world.pickLandmarks.push(g);
@@ -2432,7 +2447,8 @@ function buildDowntownLandmarks(era, world) {
     block(world, lx, lz, 6.4, 7);
   }
 
-  // ---- Shakespeare's Pub + the Lower Level, now on N. Burdick by the Rickman
+  // ---- Shakespeare's Pub + the Lower Level, 241 E. Kalamazoo Ave (the old
+  // Shakespeare fishing-rod building), east of Burdick on the avenue
   if (since(era, 'nineties')) {
     const shakes = new THREE.Group();
     shakes.userData.landmark = 'shakespeares';
@@ -2444,7 +2460,7 @@ function buildDowntownLandmarks(era, world) {
     const comedy = since(era, 'living');
     const sign = blade("SHAKESPEARE'S", {
       bg: '#1a1612', fg: '#ffe9b8', font: 'bold 42px Georgia',
-      sub: comedy ? 'LOWER LEVEL COMEDY — TONIGHT' : '241 E. MICHIGAN', neon: '#ffd27a',
+      sub: comedy ? 'LOWER LEVEL COMEDY — TONIGHT' : '241 E. KALAMAZOO AVE', neon: '#ffd27a',
     }, 3.8, 1.3, 0.1);
     sign.position.set(sx, 4.3, sz + 2.86);
     shakes.add(sign);
@@ -2454,7 +2470,8 @@ function buildDowntownLandmarks(era, world) {
     block(world, sx, sz, 4.6, 5.6);
   }
 
-  // ---- Pro Co Sound (1974 – the 2010s), up N. Burdick by the Mission: the RAT was born here
+  // ---- Pro Co Sound (1974 – the 2010s) at 225 Parsons, in the Gibson complex
+  // north toward the river: the RAT distortion pedal was born here
   if (only(era, 'seventies', 'paper', 'nineties')) {
     const proco = new THREE.Group();
     proco.userData.landmark = 'proco';
@@ -2774,14 +2791,14 @@ export function buildEraWorld(era) {
     ],
     seventies: [
       { x: 0, z: -8, r: 9 }, { x: -19.5, z: 16, r: 5 }, { x: -72, z: -16, r: 5 },
-      { x: -10, z: -10, r: 5 }, { x: 11, z: 6, r: 7 }, { x: -64, z: 36, r: 7 }, { x: 7, z: 25, r: 6 },
+      { x: -10, z: -10, r: 5 }, { x: 11, z: 6, r: 7 }, { x: -64, z: 36, r: 7 }, { x: 11, z: 24, r: 6 },
     ],
     paper: [
       { x: 0, z: -8, r: 9 }, { x: -14, z: -24, r: 7 }, { x: -18, z: -6, r: 8 },
       { x: 0, z: 2, r: 6 }, { x: 11, z: 6, r: 8 }, { x: -34, z: -40, r: 7 }, { x: -16, z: -46, r: 5 },
     ],
     nineties: [
-      { x: 7, z: 25, r: 7 }, { x: -19.5, z: 16, r: 5 }, { x: -72, z: -16, r: 5 },
+      { x: 11, z: 24, r: 7 }, { x: -19.5, z: 16, r: 5 }, { x: -72, z: -16, r: 5 },
       { x: 0, z: -8, r: 9 }, { x: 11, z: 6, r: 7 }, { x: -18, z: -6, r: 8 }, { x: 8, z: -31.5, r: 4 },
     ],
     living: [
@@ -2804,7 +2821,8 @@ export function buildEraWorld(era) {
     world.noStand.push({ x1: -2.2, z1: -44, x2: 2.2, z2: 34 });
   }
   if (since(era, 'mall')) {
-    // South St also carries traffic in the car eras — no standing in the lane.
+    // Lovell St (south end of the Mall) carries traffic in the car eras — no
+    // standing in the lane.
     world.noStand.push({ x1: -30, z1: -27.8, x2: 22, z2: -24.2 });
   }
   const nav = { obstacles: world.obstacles, zones: world.noStand };
@@ -2819,11 +2837,11 @@ export function buildEraWorld(era) {
   world.agentMeshes = world.agents.map(a => a.mesh);
 
   // ---- vehicles
-  // Downtown traffic runs the two E–W avenues, both kept clear of building
-  // footprints: E. Michigan (z 10) and South St (z −26). The old rectangular loop
-  // needed Portage St, which the new grid drops, so cars shuttle the avenues now.
+  // Downtown traffic runs two E–W streets, both kept clear of building
+  // footprints: E. Michigan (z 10) and Lovell St (z −26, the south end of the
+  // Mall). Cars shuttle the streets — the old rectangular car loop was dropped.
   const MICH = (k, c, sp) => world.cruisers.push(new Shuttle(k, c, { x: -50, z: 10 }, { x: 44, z: 10 }, sp));
-  const SOUTH = (k, c, sp) => world.cruisers.push(new Shuttle(k, c, { x: -30, z: -26 }, { x: 22, z: -26 }, sp));
+  const LOVELL = (k, c, sp) => world.cruisers.push(new Shuttle(k, c, { x: -30, z: -26 }, { x: 22, z: -26 }, sp));
   // The campus shuttle runs Stadium Dr in from the west along E. Michigan.
   const broncoRoute = [{ x: -49, z: 10 }];
   if (only(era, 'founding', 'boiling')) {
@@ -2833,11 +2851,11 @@ export function buildEraWorld(era) {
     world.cruisers.push(new Shuttle('streetcar', null, { x: 0, z: -42 }, { x: 0, z: 32 }, 4.2));
     world.cruisers.push(new Shuttle('wagon', null, { x: 36, z: 10 }, { x: -8, z: 10 }, 1.4));
   } else if (era.key === 'mall') {
-    MICH('finned', 0xc23a3a, 7); MICH('finned', 0x4a8ab5, 6.4); SOUTH('checker', 0xe8b400, 7.5);
+    MICH('finned', 0xc23a3a, 7); MICH('finned', 0x4a8ab5, 6.4); LOVELL('checker', 0xe8b400, 7.5);
   } else if (era.key === 'paper') {
-    MICH('boxy', 0x6e3a3a, 5.6); SOUTH('boxy', 0x3a4a5c, 6.2); MICH('checker', 0xe8b400, 6.6);
+    MICH('boxy', 0x6e3a3a, 5.6); LOVELL('boxy', 0x3a4a5c, 6.2); MICH('checker', 0xe8b400, 6.6);
   } else if (era.key === 'living') {
-    MICH('ev', 0x4a6b8a, 6.2); MICH('bus', 0x3a7a5f, 4.5); SOUTH('bike', 0x2a9d8f, 3.4);
+    MICH('ev', 0x4a6b8a, 6.2); MICH('bus', 0x3a7a5f, 4.5); LOVELL('bike', 0x2a9d8f, 3.4);
     const bronco = new Shuttle('bus', 0x5c3a21, { x: -72, z: 33 }, { x: -19, z: 10 }, 4.0, broncoRoute);
     bronco.mesh.userData.phase2 = 'bronco-shuttle';
     world.cruisers.push(bronco);
@@ -2845,7 +2863,7 @@ export function buildEraWorld(era) {
     const bronco = new Shuttle('bus', 0x5c3a21, { x: -72, z: 33 }, { x: -19, z: 10 }, 4.2, broncoRoute);
     bronco.mesh.userData.phase2 = 'bronco-shuttle';
     world.cruisers.push(bronco);
-    MICH('bus', 0x4f8a6b, 4.5); SOUTH('bike', 0x2a9d8f, 3.2); SOUTH('bike', 0xc28a2f, 3.6);
+    MICH('bus', 0x4f8a6b, 4.5); LOVELL('bike', 0x2a9d8f, 3.2); LOVELL('bike', 0xc28a2f, 3.6);
   }
   world.cruisers.forEach(c => {
     c.mesh.traverse(o => { if (o.isMesh) o.castShadow = true; });

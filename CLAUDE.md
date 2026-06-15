@@ -67,8 +67,11 @@ environments — the code is structured so this is meaningful verification.
    builder hardcodes a coordinate anymore. **Downtown anchors are projected from
    the real Kalamazoo street grid** (Burdick & Michigan = grid 5.5, 4.5):
    `x = (gx − 5.5)×14`, `z = 10 + (gy − 4.5)×18` — the scales that keep Rose at
-   −14 and South at −26, so every building sits on its real corner. Anchors are
-   identical in every era:
+   −14 and Lovell at −26, so every building sits on its real corner. The E–W
+   order south→north is survey-true: Vine −44, **Lovell −26, South −8**, Michigan
+   10, Kalamazoo 28 (South St is the park's south edge, one block below Michigan;
+   Lovell is the south end of the Mall — the two were reversed before). Anchors
+   are identical in every era:
    | Place | Coords | Place | Coords |
    |---|---|---|---|
    | River centerline | x ≈ +34 (east) | Burdick St (the Mall z −24..6) | x = 0 |
@@ -76,8 +79,9 @@ environments — the code is structured so this is meaningful verification.
    | Bronson Park | (−21, −13) | Mill ground | (−22, −27) |
    | Celery flats | (−42, −40) | Allied/superfund | (−18, −52) |
    | Asylum tower hill | (−56, −54) | WMU hill | (−64, 36) |
-   | Gibson/Heritage | (16, 52) | State Theatre | (5.6, −6.2) |
-   | Depot | (7, ~45) | Bridge | (+34, 10) |
+   | Gibson/Pro Co (225 Parsons) | (16, 64/54) | Checker (N. Pitcher) | (17, 80) |
+   | State Theatre | (9.5, −9) | Bridge | (+34, 10) |
+   | Depot | (8, ~45) | Michigan News | (−24, 16) |
    The downtown landmarks (`buildDowntownLandmarks`) read their anchors from
    `PLACES`; Shakespeare's/Pro Co sit in the Michigan core, the library at the
    foot of Rose (315 S. Rose). The off-map anchors (mill, flats, superfund,
@@ -107,11 +111,15 @@ environments — the code is structured so this is meaningful verification.
    test fuzzes targets and sweeps every vehicle path against them. A building
    that skips registration gets residents walking through its walls. The rail
    crossing is a dynamic obstacle (`world.railBlock.active`, set by the train).
-   Vehicles stay on drawn streets: the downtown loop runs Rose (x −12.8) → South
-   (z −26) → Portage (x 20, pulled west of the east river) → Michigan (z 10).
-   The Michigan shuttle crosses the east river on the bridge deck at z 10 (the
-   bridge registers no wall — it's meant to be driven on); the campus shuttle
-   runs Stadium Dr in from the west and no longer crosses the water.
+   Vehicles stay on drawn streets: the car loop was dropped for avenue shuttles —
+   traffic runs E. Michigan (z 10) and Lovell St (z −26), both kept clear of
+   footprints. The Michigan shuttle crosses the east river on the bridge deck at
+   z 10 (the bridge registers no wall — it's meant to be driven on); the campus
+   shuttle runs Stadium Dr in from the west and no longer crosses the water.
+   The east edge reads, out to the water (real order): Burdick (0) → Portage
+   (13) → Pitcher (22) → river (34) — Pitcher hugs the river. Both are drawn
+   streets, but only north of E. Michigan (the Mall and the State own the blocks
+   to the south).
 
 ## Content model (`js/data.js`)
 
@@ -190,15 +198,23 @@ tower 1975+), the **Rickman** (Milner Hotel in '59, Rickman House after), the
 (1893 Romanesque in 1905; the 1959 floating box after), **Shakespeare's Lower
 Level** and **Pro Co Sound** (1974–1995) on N. Burdick (Shakespeare's at the
 Rickman corner, Pro Co up by the Mission), and
-**Fourth Coast Cafe** (1992+) south on the Burdick corridor. The depot grows a
-canopy and a TRANSPORTATION CENTER blade in 2026+. The N. Burdick read, south
-to north: hotel → Shakespeare's → Rickman → Pro Co → rails → depot, with the
-Mission opposite; Flipside and Planet Claire sit east on the Kalamazoo-St block
-by the river.
+**Fourth Coast Cafe** (1992+) at 816 S. Westnedge in the Vine neighborhood. The
+depot grows a canopy and a TRANSPORTATION CENTER blade in 2026+. Real addresses
+drive placement now: the N. Burdick corridor runs on the Burdick spine (x≈±5),
+south→north by street number — **Flipside** (309) → **Rickman House** (345) →
+**Gospel Mission** (448), alternating sides — while **Shakespeare's Pub** sits at
+241 E. **Kalamazoo Ave** (the old Shakespeare fishing-rod building), east of the
+spine, NOT on Burdick. The factory blocks sit north past the rail / North St /
+Parsons, toward the river: **Gibson / Heritage** and **Pro Co Sound** share 225
+Parsons (the RAT was born in the Gibson complex); **Checker Motors** is further
+north-and-east on **N. Pitcher** (2016 N. Pitcher); the **Northwest Unit** is far
+west on Blakeslee. **East Hall → Heritage Hall** (WMU's first building) sits on
+the campus hill, and **Michigan News Agency** (308 W. Michigan, 1947–2025) on the
+north side of the avenue west of Rose.
 The same pass taught the city physics (invariant 8): people pick targets off
 roads and out of buildings and slide along walls; trees stop sprouting indoors;
-Portage St moved east of Bronson Park so the car loop no longer drives through
-the fountain; the campus shuttle crosses on the bridge instead of the water;
+the car loop became avenue shuttles so nothing drives through the fountain;
+the campus shuttle crosses on the bridge instead of the water;
 agents won't cross the rails mid-train. Smoke asserts landmark presence per era,
 fuzzes 400 targets against footprints and lanes, and sweeps every vehicle path.
 

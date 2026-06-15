@@ -10,11 +10,11 @@
 export const GEO = {
   burdickX: 0,        // the Mall / N–S spine
   michiganZ: 10,      // the E–W avenue (E. Michigan)
-  southZ: -26,        // South St
+  southZ: -8,         // South St — the park's south edge, one block below Michigan
   roseX: -14,         // Rose St / River Rd
   riverX: 34,         // east-bank river centerline
   railZ: 40,          // the line, due north — just north of Kalamazoo St
-  lovellZ: -8,        // Lovell St — north edge of Bronson Park
+  lovellZ: -26,       // Lovell St — the south end of the Mall (below South St)
   kalamazooZ: 28,     // Kalamazoo St — the bus-station / mission row
   northZ: 50,         // North St
 
@@ -28,14 +28,19 @@ export const GEO = {
 
 // The street grid, in ONE place. N–S running streets carry an x; E–W running
 // streets carry a z. The map is built off these; landmarks sit at intersections.
-//   N–S (W→E):  Oakland −56, Westnedge −42, Park −28, Rose −14, Burdick 0, River 34
-//   E–W (S→N):  Vine −44, South −26, Lovell −8, E. Michigan 10, Kalamazoo 28, North 50, Parsons 58
+//   N–S (W→E):  Oakland −56, Westnedge −42, Park −28, Rose −14, Burdick 0, Portage 13, Pitcher 22, River 34
+//   E–W (S→N):  Vine −44, Lovell −26, South −8, E. Michigan 10, Kalamazoo 28, North 50, Parsons 58
+//   (real order: Lovell is the south end of the Mall; South St is the park's
+//    south edge, one block below Michigan — the two used to be reversed here.)
 // Oakland curves into E. Michigan at its south end (handled in world.js geometry).
-// The grid runs well north now: past the rail (z 40) to North St and Parsons St,
-// so the factory blocks (Gibson at 225 Parsons, Checker beyond) sit on real streets.
+// East of Burdick the real order out to the water is Burdick → (Edwards) →
+// Portage → Pitcher → river (Pitcher hugs the river). Portage and Pitcher run
+// only north of the avenue (the Mall/State own the blocks south). The grid runs
+// well north now: past the rail (z 40) to North St and Parsons St, so the
+// factory blocks (Gibson/Pro Co at 225 Parsons, Checker on N. Pitcher) sit right.
 export const STREETS = {
-  ns: { oakland: -56, westnedge: -42, park: -28, rose: -14, burdick: 0, river: 34 },
-  ew: { vine: -44, south: -26, lovell: -8, michigan: 10, kalamazoo: 28, north: 50, parsons: 58 },
+  ns: { oakland: -56, westnedge: -42, park: -28, rose: -14, burdick: 0, portage: 13, pitcher: 22, river: 34 },
+  ew: { vine: -44, lovell: -26, south: -8, michigan: 10, kalamazoo: 28, north: 50, parsons: 58 },
 };
 
 // Every named landmark's anchor, in ONE place — the single source of truth the
@@ -56,32 +61,32 @@ export const PLACES = {
   // Michigan News Agency — 308 W. Michigan, north side of the avenue, west of Rose.
   newsagency:   { x: -24, z: 16, real: 'Michigan News Agency, 308 W. Michigan — north side of the avenue, west of Rose' },
 
-  // Kalamazoo St row (z 28), reading west→east off the depot at the rail:
-  //   Gospel Mission · Shakespeare's · Pro Co — three fronts on the avenue.
-  busstation:   { x: -9, z: 28, real: 'the bus stand, N. Burdick at Kalamazoo St, beneath the depot' },
-  mission:      { x: 4, z: 28, real: 'Kalamazoo Gospel Mission, 448 N. Burdick — east of the depot on Kalamazoo St' },
-  shakespeares: { x: 12, z: 28, real: "Shakespeare's, 241 E. Michigan — east of the Mission on Kalamazoo St" },
-  proco:        { x: 20, z: 28, real: 'Pro Co Sound — the Sound Factory block, east end of the Kalamazoo St row' },
-  // the N. Burdick block south of the avenue — Rickman under the Mission, the
-  // record stores east of it: Flipside, then Planet Claire just south.
-  rickman:      { x: 4, z: 20, real: 'The Rickman / Milner Hotel, N. Burdick — directly south of the Mission' },
-  flipside:     { x: 15, z: 22, real: 'Flipside Records, the N. Burdick block (309 N. Burdick after the 1990 move)' },
-  planetclaire: { x: 16, z: 16, real: 'Planet Claire, a Mall-era alternative storefront just south of Flipside' },
-  depot:        { x: 8, z: 45.2, real: 'the depot, just north of the Michigan Central line' },
+  // N. Burdick corridor (the spine, x≈0) by real street address, south→north:
+  // Flipside (309) → Rickman (345) → Gospel Mission (448), alternating sides.
+  // Shakespeare's is NOT on Burdick — it's 241 E. Kalamazoo Ave, in the old
+  // Shakespeare fishing-rod building, east of the spine on the avenue.
+  busstation:   { x: -9, z: 38, real: 'the bus stand, N. Burdick just south of the rail depot' },
+  planetclaire: { x: -5.5, z: 15, real: 'Planet Claire — west side of N. Burdick (alt storefront)' },
+  flipside:     { x: 5, z: 15, real: 'Flipside Records, 309 N. Burdick (moved across the street 1990, closed 2001)' },
+  rickman:      { x: -5.5, z: 22, real: 'The Rickman House, 345 N. Burdick (Milner Hotel by 1944) — west side' },
+  mission:      { x: 4, z: 27, real: 'Kalamazoo Gospel Mission, 448 N. Burdick — east side, by Kalamazoo Ave' },
+  shakespeares: { x: 10, z: 30, real: "Shakespeare's Pub, 241 E. Kalamazoo Ave — the old Shakespeare rod building, east of Burdick" },
+  depot:        { x: 8, z: 45.2, real: 'the Transportation Center / depot, 459 N. Burdick, just north of the Michigan Central line' },
 
-  // Bronson Park & the west blocks — the park is the square bounded by
-  // Rose / Lovell / E. Michigan / South. The library sits at its east edge on Lovell.
-  park:         { x: -21, z: 1, real: 'Bronson Park, the square between Rose, Lovell, E. Michigan and South' },
-  library:      { x: -14, z: -8, real: 'Central Library, 315 S. Rose St — east edge of the park on Lovell' },
+  // Bronson Park & the west blocks — the square between Park St and Rose St,
+  // one block south of Michigan; its south edge is South St. The library sits at
+  // the park's south edge, on Rose.
+  park:         { x: -21, z: 1, real: 'Bronson Park, between Park & Rose, one block south of E. Michigan' },
+  library:      { x: -14, z: -8, real: "Central Library, 315 S. Rose St — at the park's south edge (South St)" },
 
-  // the Burdick / Michigan core (the Mall, south of Lovell) — the State and the
-  // Gazette flank the pedestrian Mall, east and west, not standing in it.
+  // the Burdick / Michigan core (the South Mall, between South St and Lovell) —
+  // the State and the Gazette flank the pedestrian Mall, east and west, not in it.
   theatre:      { x: 9.5, z: -9, real: 'State Theatre, 404 S. Burdick — east side of the Mall' },
   gazette:      { x: -8.1, z: -9, real: 'Kalamazoo Gazette, 401 S. Burdick — west side of the Mall, across from the State' },
 
-  // the Vine / south corridor — Fourth Coast pulled in toward downtown (it sat
-  // too far south); East Hall is WMU's first building, on the East Campus hill.
-  fourthcoast:  { x: -30, z: -20, real: 'Fourth Coast Cafe, the south-downtown corridor (Westnedge/Vine)' },
+  // the Vine / south corridor — Fourth Coast at 816 S. Westnedge in the Vine
+  // neighborhood; East Hall is WMU's first building, on the East Campus hill.
+  fourthcoast:  { x: -38, z: -32, real: 'Fourth Coast Cafe, 816 S. Westnedge Ave — the Vine neighborhood, south of Lovell' },
   easthall:     { x: -52, z: -50, real: "East Hall → Heritage Hall, WMU's first building on the East Campus hill" },
   upjohn:       { x: 15, z: -33, real: 'Upjohn, 301 John St / the Portage works (east, south of downtown)' },
 
@@ -95,12 +100,14 @@ export const PLACES = {
   // the far landmarks — off the surveyed downtown sheet.
   // WMU lies further west than Oakland and further south than the Asylum tower.
   wmu:          { x: -68, z: -58, real: 'Western Michigan University, the hill west and south of town' },
-  // the north factory blocks — past the rail (40) and North St (50): Gibson on
-  // Parsons St (58), Checker directly north of it, the Northwest Unit far west
-  // on the same Parsons line. Spread north so nothing sits on top of anything.
-  gibson:       { x: 12, z: 64, real: 'Gibson / Heritage, 225 Parsons St — north of North St' },
-  checker:      { x: 12, z: 76, real: 'Checker Motors cab plant — directly north of Gibson, north of Parsons' },
-  northwest:    { x: -56, z: 64, real: 'KPH Northwest Unit / Blakeslee — far west, on the Parsons line' },
+  // the north factory blocks — past the rail (40) / North St (50) / Parsons (58),
+  // toward the river: Gibson's 1917 daylight factory at 225 Parsons (Pro Co Sound
+  // shared the complex), Checker's plant further north-and-east on N. Pitcher,
+  // the Northwest Unit far west on Blakeslee.
+  gibson:       { x: 16, z: 64, real: 'Gibson / Heritage, 225 Parsons St — the 1917 daylight factory, north toward the river' },
+  proco:        { x: 16, z: 54, real: 'Pro Co Sound, 225 Parsons St — the RAT pedal born in the Gibson complex' },
+  checker:      { x: 17, z: 80, real: 'Checker Motors, 2016 N. Pitcher St — north plant near the river' },
+  northwest:    { x: -56, z: 64, real: 'KPH Northwest Unit / Blakeslee Ave — far northwest' },
 };
 
 // Shared predicates — imported by agents.js (movement) and smoke.mjs (fuzzing).
