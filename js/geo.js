@@ -55,7 +55,7 @@ export const PLACES = {
   // E. Michigan row — the Radisson seated on the avenue's south side in the block
   // between Burdick and Rose (Rose runs N–S, E. Michigan E–W; the hotel sits at
   // their corner), Club Soda just east of it. Anchors are the BUILT centers now.
-  hotel:        { x: -8, z: 2, real: 'Burdick House → Radisson Plaza, 100 W. Michigan — south side of the avenue, Burdick–Rose block' },
+  hotel:        { x: -8, z: 4, real: 'Burdick House → Radisson Plaza, 100 W. Michigan — south side of the avenue, Burdick–Rose block' },
   clubsoda:     { x: 8, z: 3, real: 'Club Soda, 1 Main — east of the Radisson, south side of E. Michigan' },
   railbldg:     { x: 24, z: 12, real: 'the old rail building, east of Club Soda on the north side of E. Michigan' },
   // Michigan News Agency — 308 W. Michigan, north side of the avenue, west of Rose.
@@ -66,12 +66,12 @@ export const PLACES = {
   // Shakespeare's is NOT on Burdick — it's 241 E. Kalamazoo Ave, in the old
   // Shakespeare fishing-rod building, east of the spine on the avenue.
   busstation:   { x: -9, z: 38, real: 'the bus stand, N. Burdick just south of the rail depot' },
-  planetclaire: { x: -5.5, z: 15, real: 'Planet Claire — west side of N. Burdick (alt storefront)' },
-  flipside:     { x: 5, z: 15, real: 'Flipside Records, 309 N. Burdick (moved across the street 1990, closed 2001)' },
-  rickman:      { x: -5.5, z: 22, real: 'The Rickman House, 345 N. Burdick (Milner Hotel by 1944) — west side' },
+  planetclaire: { x: -2, z: 15, real: 'Planet Claire — west side of N. Burdick (alt storefront)' },
+  flipside:     { x: 5, z: 20, real: 'Flipside Records, 309 N. Burdick (moved across the street 1990, closed 2001)' },
+  rickman:      { x: -5.5, z: 27, real: 'The Rickman House, 345 N. Burdick (Milner Hotel by 1944) — west side' },
   mission:      { x: 4, z: 27, real: 'Kalamazoo Gospel Mission, 448 N. Burdick — east side, by Kalamazoo Ave' },
-  shakespeares: { x: 10, z: 30, real: "Shakespeare's Pub, 241 E. Kalamazoo Ave — the old Shakespeare rod building, east of Burdick" },
-  depot:        { x: 8, z: 45.2, real: 'the Transportation Center / depot, 459 N. Burdick, just north of the Michigan Central line' },
+  shakespeares: { x: 10, z: 34, real: "Shakespeare's Pub, 241 E. Kalamazoo Ave — the old Shakespeare rod building, east of Burdick" },
+  depot:        { x: 0, z: 45.2, real: 'the Transportation Center / depot, 459 N. Burdick, just north of the Michigan Central line' },
 
   // Bronson Park & the west blocks — the square between Park St and Rose St,
   // one block south of Michigan; its south edge is South St. The library sits at
@@ -105,7 +105,7 @@ export const PLACES = {
   // shared the complex), Checker's plant further north-and-east on N. Pitcher,
   // the Northwest Unit far west on Blakeslee.
   gibson:       { x: 16, z: 64, real: 'Gibson / Heritage, 225 Parsons St — the 1917 daylight factory, north toward the river' },
-  proco:        { x: 16, z: 54, real: 'Pro Co Sound, 225 Parsons St — the RAT pedal born in the Gibson complex' },
+  proco:        { x: 16, z: 57, real: 'Pro Co Sound, 225 Parsons St — the RAT pedal born in the Gibson complex' },
   checker:      { x: 17, z: 80, real: 'Checker Motors, 2016 N. Pitcher St — north plant near the river' },
   northwest:    { x: -56, z: 64, real: 'KPH Northwest Unit / Blakeslee Ave — far northwest' },
 };
