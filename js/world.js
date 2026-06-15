@@ -1366,7 +1366,7 @@ function buildRail(era, world) {
   depot.position.set(PLACES.depot.x, 0, z + 5.2);
   g.add(depot);
   world.pickLandmarks.push(depot);
-  block(world, 12, z + 5.2, 9, 4.6);   // the platform out front stays walkable
+  block(world, PLACES.depot.x, z + 5.2, 9, 4.6);   // footprint follows the depot anchor
 
   // crossing gates at Burdick
   const crossing = new THREE.Group();
