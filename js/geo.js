@@ -60,7 +60,9 @@ export const PLACES = {
 
   // N. Burdick toward the rails — Rickman directly south of the Mission.
   rickman:      { x: 7, z: 18, real: 'The Rickman / Milner Hotel, N. Burdick — directly south of the Mission' },
-  flipside:     { x: 4, z: 20, real: 'Flipside Records, 309 N. Burdick, post-1990' },
+  // Flipside sits north up N. Burdick toward the rails (its own clear ground,
+  // clear of the Rickman); it kept a string of N. Burdick addresses, 309 after 1990.
+  flipside:     { x: 7, z: 30, real: 'Flipside Records, N. Burdick toward the rails (309 N. Burdick after the 1990 move)' },
   planetclaire: { x: 4, z: 16, real: 'Planet Claire, a Mall-era alternative storefront — just south of Flipside' },
   depot:        { x: 8, z: 45.2, real: 'the depot, just north of the Michigan Central line' },
 
@@ -69,13 +71,15 @@ export const PLACES = {
   park:         { x: -21, z: 1, real: 'Bronson Park, the square between Rose, Lovell, E. Michigan and South' },
   library:      { x: -14, z: -8, real: 'Central Library, 315 S. Rose St — east edge of the park on Lovell' },
 
-  // the Burdick / Michigan core (the Mall, south of Lovell)
-  theatre:      { x: 4, z: -16, real: 'State Theatre, 404 S. Burdick — east side of the Mall' },
-  gazette:      { x: -4, z: -16, real: 'Kalamazoo Gazette, 401 S. Burdick — across the Mall from the State' },
+  // the Burdick / Michigan core (the Mall, south of Lovell) — the State and the
+  // Gazette flank the pedestrian Mall, east and west, not standing in it.
+  theatre:      { x: 9.5, z: -9, real: 'State Theatre, 404 S. Burdick — east side of the Mall' },
+  gazette:      { x: -8.1, z: -9, real: 'Kalamazoo Gazette, 401 S. Burdick — west side of the Mall, across from the State' },
 
-  // the Vine / south corridor — East Hall just west of Fourth Coast.
-  fourthcoast:  { x: -42, z: -52, real: 'Fourth Coast Cafe, the far southwest ground (swapped with the Flats)' },
-  easthall:     { x: -52, z: -54, real: 'East Hall, just west of Fourth Coast' },
+  // the Vine / south corridor — Fourth Coast in the Vine neighborhood south of
+  // downtown; East Hall stays out by the campus/tower hill.
+  fourthcoast:  { x: -8, z: -36, real: 'Fourth Coast Cafe, the Vine corridor south of downtown' },
+  easthall:     { x: -52, z: -54, real: 'East Hall, out by the campus / water-tower hill' },
   upjohn:       { x: 15, z: -33, real: 'Upjohn, 301 John St / the Portage works (east, south of downtown)' },
 
   // the working ground (south & west) — off the surveyed downtown sheet.
