@@ -1365,10 +1365,13 @@ function buildRail(era, world) {
     hubSign.position.set(0, 3.85, -2.35);
     depot.add(hubSign);
   }
-  depot.position.set(PLACES.depot.x, 0, z + 5.2);
+  // the depot sits just SOUTH of the line now; spin it so the platform, canopy
+  // and name face north toward the iron, and let its anchor drive the position.
+  depot.position.set(PLACES.depot.x, 0, PLACES.depot.z);
+  depot.rotation.y = Math.PI;
   g.add(depot);
   world.pickLandmarks.push(depot);
-  block(world, PLACES.depot.x, z + 5.2, 9, 4.6);   // footprint follows the depot anchor
+  block(world, PLACES.depot.x, PLACES.depot.z, 9, 4.6);   // footprint follows the depot anchor
 
   // crossing gates at Burdick
   const crossing = new THREE.Group();
@@ -2591,7 +2594,7 @@ export function buildEraWorld(era) {
   world.noStand.push({ x1: -52, z1: 8.2, x2: 44, z2: 12.0 });
   if (era.key === 'celery') {
     // the streetcar owns the middle of Burdick
-    world.noStand.push({ x1: -2.2, z1: -44, x2: 2.2, z2: 34 });
+    world.noStand.push({ x1: -2.2, z1: -44, x2: 2.2, z2: 30 });
   }
   if (since(era, 'mall')) {
     // Lovell St (south end of the Mall) carries traffic in the car eras — no
@@ -2621,7 +2624,7 @@ export function buildEraWorld(era) {
     // 1831's wagon is an ox-team: same road, slower opinion
     world.cruisers.push(new Shuttle('wagon', null, { x: -8, z: 10 }, { x: 40, z: 10 }, era.key === 'founding' ? 1.0 : 1.3));
   } else if (era.key === 'celery') {
-    world.cruisers.push(new Shuttle('streetcar', null, { x: 0, z: -42 }, { x: 0, z: 32 }, 4.2));
+    world.cruisers.push(new Shuttle('streetcar', null, { x: 0, z: -42 }, { x: 0, z: 30 }, 4.2));
     world.cruisers.push(new Shuttle('wagon', null, { x: 36, z: 10 }, { x: -8, z: 10 }, 1.4));
   } else if (era.key === 'mall') {
     MICH('finned', 0xc23a3a, 7); MICH('finned', 0x4a8ab5, 6.4); LOVELL('checker', 0xe8b400, 7.5);
