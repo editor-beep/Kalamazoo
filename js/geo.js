@@ -89,7 +89,7 @@ export const PLACES = {
   // the Vine / south corridor — Fourth Coast at 816 S. Westnedge in the Vine
   // neighborhood; East Hall is WMU's first building, on the East Campus hill.
   fourthcoast:  { x: -38, z: -32, real: 'Fourth Coast Cafe, 816 S. Westnedge Ave — the Vine neighborhood, south of Lovell' },
-  easthall:     { x: -52, z: -50, real: "East Hall → Heritage Hall, WMU's first building on the East Campus hill" },
+  easthall:     { x: -30, z: -40, real: "East Hall → Heritage Hall, WMU's first building — the East Campus / Prospect Hill knoll SW of downtown" },
   upjohn:       { x: 15, z: -33, real: 'Upjohn, 301 John St / the Portage works (east, south of downtown)' },
 
   // the working ground (south & west) — off the surveyed downtown sheet.
