@@ -51,19 +51,19 @@ export const PLACES = {
   clubsoda:     { x: 8, z: 9, real: 'Club Soda, 1 Main — east of the Radisson, south side of E. Michigan' },
   railbldg:     { x: 24, z: 12, real: 'the old rail building, east of Club Soda on the north side of E. Michigan' },
 
-  // Kalamazoo St row — bus station, then the Gospel Mission directly east of it,
-  // then Shakespeare's and Pro Co continuing east on the same street.
+  // Kalamazoo St row — bus station, then the Gospel Mission directly east of it.
   busstation:   { x: -9, z: 28, real: 'the bus station, N. Burdick at Kalamazoo St' },
   mission:      { x: 7, z: 28, real: 'Kalamazoo Gospel Mission, 448 N. Burdick — directly east of the bus station' },
-  shakespeares: { x: 24, z: 28, real: "Shakespeare's, 241 E. Michigan — east on Kalamazoo St" },
-  proco:        { x: 33, z: 32, real: 'Pro Co Sound — the Sound Factory block, east on Kalamazoo St' },
+  // the eastern Kalamazoo-St block, near the river's west bank, now carries the
+  // record-store row: Flipside out front, Planet Claire just inside it.
+  flipside:     { x: 24, z: 23, real: 'Flipside Records, the eastern Kalamazoo-St block near the river (309 N. Burdick after the 1990 move)' },
+  planetclaire: { x: 18, z: 19, real: 'Planet Claire, a Mall-era alternative storefront beside Flipside' },
 
-  // N. Burdick toward the rails — Rickman directly south of the Mission.
+  // N. Burdick toward the rails — Rickman directly south of the Mission, with
+  // Pro Co up by the Mission and Shakespeare's south down by the Rickman corner.
   rickman:      { x: 7, z: 18, real: 'The Rickman / Milner Hotel, N. Burdick — directly south of the Mission' },
-  // Flipside sits north up N. Burdick toward the rails (its own clear ground,
-  // clear of the Rickman); it kept a string of N. Burdick addresses, 309 after 1990.
-  flipside:     { x: 7, z: 30, real: 'Flipside Records, N. Burdick toward the rails (309 N. Burdick after the 1990 move)' },
-  planetclaire: { x: 4, z: 16, real: 'Planet Claire, a Mall-era alternative storefront — just south of Flipside' },
+  proco:        { x: 7, z: 30, real: 'Pro Co Sound — the Sound Factory block, N. Burdick toward the rails' },
+  shakespeares: { x: 4, z: 16, real: "Shakespeare's, 241 E. Michigan — N. Burdick at the Rickman corner" },
   depot:        { x: 8, z: 45.2, real: 'the depot, just north of the Michigan Central line' },
 
   // Bronson Park & the west blocks — the park is the square bounded by

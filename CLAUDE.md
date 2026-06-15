@@ -188,10 +188,13 @@ the **Burdick House → Radisson Plaza** (Burdick & Michigan, brick 1905–1959,
 tower 1975+), the **Rickman** (Milner Hotel in '59, Rickman House after), the
 **Gospel Mission** across N. Burdick, the **Public Library** at the foot of Rose
 (1893 Romanesque in 1905; the 1959 floating box after), **Shakespeare's Lower
-Level** and **Pro Co Sound** (1974–1995) at the Michigan/Portage corner, and
+Level** and **Pro Co Sound** (1974–1995) on N. Burdick (Shakespeare's at the
+Rickman corner, Pro Co up by the Mission), and
 **Fourth Coast Cafe** (1992+) south on the Burdick corridor. The depot grows a
 canopy and a TRANSPORTATION CENTER blade in 2026+. The N. Burdick read, south
-to north: hotel → Flipside → Rickman → rails → depot, with the Mission opposite.
+to north: hotel → Shakespeare's → Rickman → Pro Co → rails → depot, with the
+Mission opposite; Flipside and Planet Claire sit east on the Kalamazoo-St block
+by the river.
 The same pass taught the city physics (invariant 8): people pick targets off
 roads and out of buildings and slide along walls; trees stop sprouting indoors;
 Portage St moved east of Bronson Park so the car loop no longer drives through
