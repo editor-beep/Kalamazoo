@@ -184,10 +184,10 @@ post-frontier era. `buildRiver()` gives 2026/2050 an east-bank riverwalk:
 boardwalk planks, railings, benches, and overlook bulbs that make the city look
 at the water again. `buildWMU()` adds brown-and-gold banners plus book-carrying
 students on the hill, and 2026/2050 get a Bronco-colored shuttle between campus
-and downtown. `buildStorefronts()` now carries a tall 1970s office slab for
-1985+ so downtown's massing is less storybook and more honest, with a handful of
-more era-true storefront names in `SIGNS` (real brands still kept light). Smoke
-now asserts the phase-two visible markers so they do not quietly disappear.
+and downtown. Smoke now asserts the phase-two visible markers so they do not
+quietly disappear. (The generic procedural storefront frontage, its 1970s office
+slab, and the unnamed steepled church were later removed — the city is built
+from named, clickable landmarks only; no filler buildings.)
 
 ### 2b. Downtown landmarks + a city that respects its own walls — ✅ shipped
 `buildDowntownLandmarks()` in `world.js` adds seven storied buildings on

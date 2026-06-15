@@ -119,8 +119,6 @@ for (const era of ERAS) {
       if (!(phase2Counts['wmu-banner'] >= 3 && phase2Counts['wmu-student'] >= 3)) fail(`${era.key}: WMU hill lacks banner/student energy`);
       if (!(phase2Counts['bronco-shuttle'] >= 1)) fail(`${era.key}: missing Bronco shuttle`);
     }
-    if (['paper', 'nineties', 'living', 'returns'].includes(era.key) && !(phase2Counts['office-slab'] >= 1)) fail(`${era.key}: missing 1970s downtown office slab`);
-
     // the new downtown landmarks appear in the right eras, and only those
     const lmKeys = new Set(w.pickLandmarks.map(o => o.userData.landmark));
     const expected = {
