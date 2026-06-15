@@ -1748,7 +1748,7 @@ export const STRATA = {
       returns:'Still two rooms: one for dinner, one for risk. The stairs are the ticket.',
     },
     body: {
-      nineties: 'A pub on the Michigan Avenue corner with burgers upstairs and a basement that is, for now, just storage with acoustics. Rooms like that don’t stay empty in this town. Somebody always eventually looks at a low ceiling and thinks: stage.',
+      nineties: 'A pub in the old Shakespeare fishing-rod building on East Kalamazoo Avenue — burgers upstairs and a basement that is, for now, just storage with acoustics. Rooms like that don’t stay empty in this town. Somebody always eventually looks at a low ceiling and thinks: stage.',
       living: 'The basement found its calling: comedy. Gary Fields ran a club down here in the mid-2000s, others followed, the room went dark for a while, and now the Lower Level mic is hot again. A laugh in a basement full of strangers is the cheapest medicine downtown sells.',
       returns: 'Generations of open-micers have died gently on that little stage and climbed the stairs feeling more alive than the people who never tried. The pub keeps the basement booked. A city that wants to stay funny has to keep at least one room where failing is allowed.',
     },
@@ -1757,7 +1757,7 @@ export const STRATA = {
     title: 'Pro Co Sound',
     kicker: 'DISTORTION, EXPORTED',
     layers: {
-      seventies: 'Founded 1974 out of the Sound Factory on East Michigan. Cables, consoles, and one fateful circuit.',
+      seventies: 'Founded 1974 at 225 Parsons, in the Gibson complex. Cables, consoles, and one fateful circuit.',
       paper:  'The RAT pedal snarls on stages worldwide. Return address: Kalamazoo.',
       nineties: 'Grunge runs on RATs. The town that built Gibsons now builds the growl too.',
       living: 'Wound down in the 2010s. The pedals outlive the plant, which is the point of pedals.',

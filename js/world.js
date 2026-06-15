@@ -1955,10 +1955,10 @@ function buildGibson(era, world) {
 }
 
 function buildChecker(era, world) {
-  // Checker came to Kalamazoo in 1923 and built cabs until July 1982; the plant
-  // stamped parts for years after. Here it stands from the Mall era through the
-  // '90s — directly north of Gibson, past Parsons St, the yellow giant of the
-  // north blocks. (Gone by the living eras: demolished in real life.)
+  // Checker came to Kalamazoo in 1923 and built cabs at 2016 N. Pitcher until
+  // July 1982; the plant stamped parts for years after. Here it stands from the
+  // Mall era through the '90s — north on Pitcher, near the river, the yellow
+  // giant beyond Gibson. (Gone by the living eras: demolished in real life.)
   if (!only(era, 'mall', 'seventies', 'paper', 'nineties')) return null;
   const g = new THREE.Group();
   g.userData.landmark = 'checker';
@@ -1966,24 +1966,24 @@ function buildChecker(era, world) {
   const winding = ['paper', 'nineties'].includes(era.key);   // the cab line is dead; parts only
   const base = '#7a6e5c';
   const body = new THREE.Mesh(
-    new THREE.BoxGeometry(20, 6.5, 12),
+    new THREE.BoxGeometry(14, 6.5, 16),
     new THREE.MeshStandardMaterial({ map: brickTex(base, shade(base, -34), 16), color: 0xffffff, roughness: 0.9 })
   );
   body.position.set(cx, 3.25, cz);
   body.castShadow = true; body.receiveShadow = true;
   g.add(body);
-  block(world, cx, cz, 20, 12);
+  block(world, cx, cz, 14, 16);
 
   // sawtooth factory roof — the silhouette of every plant that ever ran a line
-  for (let i = 0; i < 5; i++) {
-    const tooth = new THREE.Mesh(new THREE.BoxGeometry(3.4, 1.5, 12), M({ color: shade(base, -8), roughness: 0.92 }));
-    tooth.position.set(cx - 8 + i * 4, 7.1, cz);
+  for (let i = 0; i < 4; i++) {
+    const tooth = new THREE.Mesh(new THREE.BoxGeometry(2.8, 1.5, 16), M({ color: shade(base, -8), roughness: 0.92 }));
+    tooth.position.set(cx - 5.2 + i * 3.4, 7.1, cz);
     tooth.rotation.z = 0.34;
     tooth.castShadow = true;
     g.add(tooth);
   }
   const stack = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1.1, 9, 10), M({ color: 0x6e5a48, roughness: 0.95 }));
-  stack.position.set(cx - 9.2, 7.5, cz + 4.6);
+  stack.position.set(cx - 6.2, 7.5, cz + 6.4);
   stack.castShadow = true;
   g.add(stack);
 
@@ -1992,20 +1992,20 @@ function buildChecker(era, world) {
     emissive: new THREE.Color('#ffd9a0'), emissiveIntensity: 0,
   });
   if (!winding) world.windowMats.push(winMat);
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 6; i++) {
     const win = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.8, 0.08), winMat);
-    win.position.set(cx - 8.4 + i * 2.4, 3.4, cz - 6.05);
+    win.position.set(cx - 5.5 + i * 2.2, 3.4, cz - 8.05);
     g.add(win);
   }
 
   // a parked Checker out front in the cab-building years
   if (!winding) {
     const cab = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.1, 4.6), M({ color: 0xe8b400, roughness: 0.5, metalness: 0.2 }));
-    cab.position.set(cx + 7, 0.7, cz - 8);
+    cab.position.set(cx + 5, 0.7, cz - 10);
     cab.castShadow = true;
     g.add(cab);
     const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.9, 2.2), M({ color: 0x1f1f1f, roughness: 0.4 }));
-    cabin.position.set(cx + 7, 1.6, cz - 8.1);
+    cabin.position.set(cx + 5, 1.6, cz - 10.1);
     g.add(cabin);
   }
 
@@ -2018,7 +2018,7 @@ function buildChecker(era, world) {
   const [t, s] = labels[era.key];
   const sign = new THREE.Mesh(new THREE.BoxGeometry(9, 1.6, 0.15),
     new THREE.MeshStandardMaterial({ map: signTex(t, { bg: '#1f2a1a', fg: '#e8d24d', font: 'bold 40px Georgia', sub: s }), color: 0xffffff }));
-  sign.position.set(cx, 5.7, cz - 6.15);
+  sign.position.set(cx, 5.7, cz - 8.15);
   g.add(sign);
 
   world.pickLandmarks.push(g);
@@ -2447,7 +2447,8 @@ function buildDowntownLandmarks(era, world) {
     block(world, lx, lz, 6.4, 7);
   }
 
-  // ---- Shakespeare's Pub + the Lower Level, now on N. Burdick by the Rickman
+  // ---- Shakespeare's Pub + the Lower Level, 241 E. Kalamazoo Ave (the old
+  // Shakespeare fishing-rod building), east of Burdick on the avenue
   if (since(era, 'nineties')) {
     const shakes = new THREE.Group();
     shakes.userData.landmark = 'shakespeares';
@@ -2459,7 +2460,7 @@ function buildDowntownLandmarks(era, world) {
     const comedy = since(era, 'living');
     const sign = blade("SHAKESPEARE'S", {
       bg: '#1a1612', fg: '#ffe9b8', font: 'bold 42px Georgia',
-      sub: comedy ? 'LOWER LEVEL COMEDY — TONIGHT' : '241 E. MICHIGAN', neon: '#ffd27a',
+      sub: comedy ? 'LOWER LEVEL COMEDY — TONIGHT' : '241 E. KALAMAZOO AVE', neon: '#ffd27a',
     }, 3.8, 1.3, 0.1);
     sign.position.set(sx, 4.3, sz + 2.86);
     shakes.add(sign);
@@ -2469,7 +2470,8 @@ function buildDowntownLandmarks(era, world) {
     block(world, sx, sz, 4.6, 5.6);
   }
 
-  // ---- Pro Co Sound (1974 – the 2010s), up N. Burdick by the Mission: the RAT was born here
+  // ---- Pro Co Sound (1974 – the 2010s) at 225 Parsons, in the Gibson complex
+  // north toward the river: the RAT distortion pedal was born here
   if (only(era, 'seventies', 'paper', 'nineties')) {
     const proco = new THREE.Group();
     proco.userData.landmark = 'proco';
