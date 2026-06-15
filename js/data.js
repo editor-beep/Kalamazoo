@@ -1549,8 +1549,9 @@ export const STRATA = {
   northwest: {
     title: 'KPH Northwest Unit / Blakeslee',
     kicker: 'THE HILL THAT LOOKED BACK',
-    layers: { seventies: 'The 1954 tuberculosis sanatorium now serves geriatric psychiatric patients.', paper: 'A quiet state facility on Blakeslee while the wards empty elsewhere.', nineties: 'Closed in 1990; fenced, broken-windowed, and wrongly called empty.' },
+    layers: { mall: 'The 1954 Southwestern Michigan Tuberculosis Sanatorium — screened porches, the rest cure, the disease already in retreat.', seventies: 'The 1954 tuberculosis sanatorium now serves geriatric psychiatric patients.', paper: 'A quiet state facility on Blakeslee while the wards empty elsewhere.', nineties: 'Closed in 1990; fenced, broken-windowed, and wrongly called empty.' },
     body: {
+      mall: 'In 1959 the long building on Blakeslee is the Southwestern Michigan Tuberculosis Sanatorium, only five years old and already half a relief: the new drugs are emptying the wards faster than anyone dared hope. Patients still take the rest cure on screened porches, wrapped against the cold air a doctor once swore was the medicine. From the hill they can see the whole town that sent them up here — and that is, slowly, learning it no longer has to.',
       seventies: 'The building on Blakeslee began as the Southwestern Michigan Tuberculosis Sanatorium in 1954 and became part of Kalamazoo Psychiatric Hospital after TB treatment changed. By 1975 it is a place of bed care, memory work, and city views.',
       paper: 'The Northwest Unit is the asylum story’s quieter annex: elderly patients, long institutional histories, staff trying to make normalcy practical one afternoon group at a time.',
       nineties: 'The unit closed in 1990 after patient counts fell. Chain link, broken windows, and teenage dares cannot make it empty; Janice Pike can still name who preferred pudding and who sang in German.',

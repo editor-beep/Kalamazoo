@@ -790,9 +790,13 @@ function buildStorefronts(era, world) {
   // Buildings run along z; width bw is the z-extent, depth bd the x-extent.
   // West rows stay shallow: the block between Burdick and Rose St is only
   // ~5.8 deep, and deeper backs used to sit in the street the cars drive.
+  // The Mall's middle block (z -16..-4) is left open on BOTH sides for the two
+  // landmarks that flank it: the Gazette to the west, the State Theatre to the
+  // east. The generic storefronts fill the rest of the frontage, never the Mall.
   const rows = [
-    { faceX: -5.4, facing: 1, from: -24, to: 4, depth: [4.6, 5.4] },
-    { faceX: 5.4, facing: -1, from: -22, to: -16 },   // gap for the State Theatre
+    { faceX: -5.4, facing: 1, from: -24, to: -16, depth: [4.6, 5.4] },   // gap for the Gazette
+    { faceX: -5.4, facing: 1, from: -4, to: 4, depth: [4.6, 5.4] },
+    { faceX: 5.4, facing: -1, from: -22, to: -16 },                      // gap for the State
     { faceX: 5.4, facing: -1, from: -4, to: 6 },
   ];
   // North of Michigan: the west side keeps shops (Mission caps the block);
@@ -984,7 +988,7 @@ function buildTheatre(era, world) {
   // sits in the gap left in the east storefront row; blade & marquee are on
   // the local -x side, so the front faces the Mall to the west
   g.position.set(PLACES.theatre.x, 0, PLACES.theatre.z);
-  block(world, 10, -10.5, 7.5, 9);
+  block(world, PLACES.theatre.x, PLACES.theatre.z, 7.5, 9);
   world.pickLandmarks.push(g);
   return g;
 }
@@ -994,27 +998,29 @@ function buildGazette(era, world) {
   if (!since(era, 'mall') || era.key === 'returns') return null;
   const g = new THREE.Group();
   g.userData.landmark = 'gazette';
-  // slimmed and pulled east so its back wall no longer sits in Rose St
+  // flanks the west side of the Mall, narrowed to fit the shallow block between
+  // Rose St and the Mall sidewalk — its back wall clears the street, its press
+  // window faces the State across the bricks.
   const { x: cx, z: cz } = PLACES.gazette;
   const body = new THREE.Mesh(
-    new THREE.BoxGeometry(6.5, 8.8, 8.8),
+    new THREE.BoxGeometry(5.4, 8.8, 8.8),
     new THREE.MeshStandardMaterial({ map: brickTex('#8f7b61', '#5f5243', 16), color: 0xffffff, roughness: 0.86 })
   );
   body.position.set(cx, 4.4, cz);
   body.castShadow = true; body.receiveShadow = true;
   g.add(body);
-  block(world, cx, cz, 6.5, 8.8);
-  const press = new THREE.Mesh(new THREE.BoxGeometry(5.0, 2.0, 5.2), M({ color: 0x2a2d31, roughness: 0.65, metalness: 0.25 }));
+  block(world, cx, cz, 5.4, 8.8);
+  const press = new THREE.Mesh(new THREE.BoxGeometry(4.4, 2.0, 5.2), M({ color: 0x2a2d31, roughness: 0.65, metalness: 0.25 }));
   press.position.set(cx - 0.2, 1.15, cz + 0.6);
   press.userData.phase2 = 'gazette-press';
   g.add(press);
   const facade = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.4, 6.6), new THREE.MeshStandardMaterial({ map: signTex('KALAMAZOO GAZETTE', { bg: '#2e2a24', fg: '#eadfcf', font: 'bold 38px Georgia' }), color: 0xffffff, roughness: 0.7 }));
-  facade.position.set(cx + 3.32, 5.6, cz);
+  facade.position.set(cx + 2.77, 5.6, cz);
   g.add(facade);
   const reliefMat = M({ color: 0xd7c7a8, roughness: 0.75 });
   [-2.5, 2.5].forEach(dz => {
     const pil = new THREE.Mesh(new THREE.BoxGeometry(0.16, 5.6, 0.42), reliefMat);
-    pil.position.set(cx + 3.38, 3.3, cz + dz);
+    pil.position.set(cx + 2.83, 3.3, cz + dz);
     g.add(pil);
   });
   world.pickLandmarks.push(g);
@@ -1054,10 +1060,14 @@ function buildNightlifeAndShops(era, world) {
   if (only(era, 'seventies', 'paper', 'nineties')) {
     makeVenue({ key: 'clubsoda', label: 'CLUB SODA', sub: '1 MAIN', x: PLACES.clubsoda.x, z: PLACES.clubsoda.z - 6, w: 6.2, d: 5.4, h: 4.8, color: '#4b3b45', neon: '#7de3ff' });
   }
-  if (only(era, 'nineties')) {
-    // Flipside's 1990 move lands it near N. Burdick/Eleanor; north is +z here.
-    // Present in its 309 N. Burdick decade; gone from the scene by the living eras.
-    makeVenue({ key: 'flipside', label: 'FLIPSIDE', sub: '309 N. BURDICK', x: PLACES.flipside.x, z: PLACES.flipside.z, w: 6.8, d: 5.8, h: 4.4, color: '#5a4638', neon: '#ffd24d' });
+  if (only(era, 'paper', 'nineties')) {
+    // Open since 1977, the North Burdick compass for taste; the 1990 move set it
+    // at 309 N. Burdick, toward the rails. Gone from the scene by the living eras.
+    makeVenue({
+      key: 'flipside', label: 'FLIPSIDE',
+      sub: era.key === 'nineties' ? '309 N. BURDICK' : 'RECORDS • N. BURDICK',
+      x: PLACES.flipside.x, z: PLACES.flipside.z, w: 6.8, d: 5.8, h: 4.4, color: '#5a4638', neon: '#ffd24d',
+    });
   }
   if (only(era, 'seventies', 'paper', 'nineties')) {
     makeVenue({ key: 'planetclaire', label: 'PLANET CLAIRE', sub: 'imports • candles • oddities', x: PLACES.planetclaire.x, z: PLACES.planetclaire.z, w: 6.0, d: 5.0, h: 4.1, color: '#4b3d5c', neon: '#e68cff' });
@@ -1066,7 +1076,10 @@ function buildNightlifeAndShops(era, world) {
 }
 
 function buildNorthwestUnit(era, world) {
-  if (!since(era, 'seventies') || since(era, 'living')) return null;
+  // Opens in 1954 as the Southwestern Michigan Tuberculosis Sanatorium, so it
+  // already stands in 1959 (mall); becomes the KPH Northwest Unit; closes 1990;
+  // gone by the living eras.
+  if (!since(era, 'mall') || since(era, 'living')) return null;
   const g = new THREE.Group();
   g.userData.landmark = 'northwest';
   const { x: cx, z: cz } = PLACES.northwest;
@@ -1074,6 +1087,7 @@ function buildNorthwestUnit(era, world) {
   lawn.rotation.x = -Math.PI / 2;
   lawn.position.set(cx, 0.08, cz);
   g.add(lawn);
+  const tb = era.key === 'mall';
   const vacant = era.key === 'nineties';
   const body = new THREE.Mesh(new THREE.BoxGeometry(16, 8, 6), M({ color: vacant ? 0x68665f : 0xd6d2c3, roughness: 0.82 }));
   body.position.set(cx, 4.0, cz);
@@ -1096,7 +1110,7 @@ function buildNorthwestUnit(era, world) {
     fence.position.set(cx, 0.7, cz);
     g.add(fence);
   }
-  const sign = new THREE.Mesh(new THREE.BoxGeometry(3.8, 1.0, 0.1), new THREE.MeshStandardMaterial({ map: signTex(vacant ? 'NORTHWEST UNIT' : 'KPH NORTHWEST', { bg: '#26342d', fg: '#e8e3d8', font: 'bold 40px Georgia', sub: vacant ? 'CLOSED 1990' : 'BLAKESLEE AVE' }), color: 0xffffff }));
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(3.8, 1.0, 0.1), new THREE.MeshStandardMaterial({ map: signTex(tb ? 'TB SANATORIUM' : (vacant ? 'NORTHWEST UNIT' : 'KPH NORTHWEST'), { bg: '#26342d', fg: '#e8e3d8', font: 'bold 36px Georgia', sub: tb ? 'SW MICHIGAN • 1954' : (vacant ? 'CLOSED 1990' : 'BLAKESLEE AVE') }), color: 0xffffff }));
   sign.position.set(cx, 1.3, cz + 8.2);
   g.add(sign);
   world.pickLandmarks.push(g);
