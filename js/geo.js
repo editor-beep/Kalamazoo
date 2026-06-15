@@ -10,11 +10,11 @@
 export const GEO = {
   burdickX: 0,        // the Mall / N–S spine
   michiganZ: 10,      // the E–W avenue (E. Michigan)
-  southZ: -26,        // South St
+  southZ: -8,         // South St — the park's south edge, one block below Michigan
   roseX: -14,         // Rose St / River Rd
   riverX: 34,         // east-bank river centerline
   railZ: 40,          // the line, due north — just north of Kalamazoo St
-  lovellZ: -8,        // Lovell St — north edge of Bronson Park
+  lovellZ: -26,       // Lovell St — the south end of the Mall (below South St)
   kalamazooZ: 28,     // Kalamazoo St — the bus-station / mission row
   northZ: 50,         // North St
 
@@ -29,7 +29,9 @@ export const GEO = {
 // The street grid, in ONE place. N–S running streets carry an x; E–W running
 // streets carry a z. The map is built off these; landmarks sit at intersections.
 //   N–S (W→E):  Oakland −56, Westnedge −42, Park −28, Rose −14, Burdick 0, Portage 13, Pitcher 22, River 34
-//   E–W (S→N):  Vine −44, South −26, Lovell −8, E. Michigan 10, Kalamazoo 28, North 50, Parsons 58
+//   E–W (S→N):  Vine −44, Lovell −26, South −8, E. Michigan 10, Kalamazoo 28, North 50, Parsons 58
+//   (real order: Lovell is the south end of the Mall; South St is the park's
+//    south edge, one block below Michigan — the two used to be reversed here.)
 // Oakland curves into E. Michigan at its south end (handled in world.js geometry).
 // East of Burdick the real order out to the water is Burdick → (Edwards) →
 // Portage → Pitcher → river (Pitcher hugs the river). Portage and Pitcher run
@@ -38,7 +40,7 @@ export const GEO = {
 // factory blocks (Gibson/Pro Co at 225 Parsons, Checker on N. Pitcher) sit right.
 export const STREETS = {
   ns: { oakland: -56, westnedge: -42, park: -28, rose: -14, burdick: 0, portage: 13, pitcher: 22, river: 34 },
-  ew: { vine: -44, south: -26, lovell: -8, michigan: 10, kalamazoo: 28, north: 50, parsons: 58 },
+  ew: { vine: -44, lovell: -26, south: -8, michigan: 10, kalamazoo: 28, north: 50, parsons: 58 },
 };
 
 // Every named landmark's anchor, in ONE place — the single source of truth the
@@ -71,19 +73,20 @@ export const PLACES = {
   shakespeares: { x: 10, z: 30, real: "Shakespeare's Pub, 241 E. Kalamazoo Ave — the old Shakespeare rod building, east of Burdick" },
   depot:        { x: 8, z: 45.2, real: 'the Transportation Center / depot, 459 N. Burdick, just north of the Michigan Central line' },
 
-  // Bronson Park & the west blocks — the park is the square bounded by
-  // Rose / Lovell / E. Michigan / South. The library sits at its east edge on Lovell.
-  park:         { x: -21, z: 1, real: 'Bronson Park, the square between Rose, Lovell, E. Michigan and South' },
-  library:      { x: -14, z: -8, real: 'Central Library, 315 S. Rose St — east edge of the park on Lovell' },
+  // Bronson Park & the west blocks — the square between Park St and Rose St,
+  // one block south of Michigan; its south edge is South St. The library sits at
+  // the park's south edge, on Rose.
+  park:         { x: -21, z: 1, real: 'Bronson Park, between Park & Rose, one block south of E. Michigan' },
+  library:      { x: -14, z: -8, real: "Central Library, 315 S. Rose St — at the park's south edge (South St)" },
 
-  // the Burdick / Michigan core (the Mall, south of Lovell) — the State and the
-  // Gazette flank the pedestrian Mall, east and west, not standing in it.
+  // the Burdick / Michigan core (the South Mall, between South St and Lovell) —
+  // the State and the Gazette flank the pedestrian Mall, east and west, not in it.
   theatre:      { x: 9.5, z: -9, real: 'State Theatre, 404 S. Burdick — east side of the Mall' },
   gazette:      { x: -8.1, z: -9, real: 'Kalamazoo Gazette, 401 S. Burdick — west side of the Mall, across from the State' },
 
   // the Vine / south corridor — Fourth Coast at 816 S. Westnedge in the Vine
   // neighborhood; East Hall is WMU's first building, on the East Campus hill.
-  fourthcoast:  { x: -38, z: -22, real: 'Fourth Coast Cafe, 816 S. Westnedge Ave — the Vine neighborhood, since 1992' },
+  fourthcoast:  { x: -38, z: -32, real: 'Fourth Coast Cafe, 816 S. Westnedge Ave — the Vine neighborhood, south of Lovell' },
   easthall:     { x: -52, z: -50, real: "East Hall → Heritage Hall, WMU's first building on the East Campus hill" },
   upjohn:       { x: 15, z: -33, real: 'Upjohn, 301 John St / the Portage works (east, south of downtown)' },
 

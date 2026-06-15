@@ -67,8 +67,11 @@ environments — the code is structured so this is meaningful verification.
    builder hardcodes a coordinate anymore. **Downtown anchors are projected from
    the real Kalamazoo street grid** (Burdick & Michigan = grid 5.5, 4.5):
    `x = (gx − 5.5)×14`, `z = 10 + (gy − 4.5)×18` — the scales that keep Rose at
-   −14 and South at −26, so every building sits on its real corner. Anchors are
-   identical in every era:
+   −14 and Lovell at −26, so every building sits on its real corner. The E–W
+   order south→north is survey-true: Vine −44, **Lovell −26, South −8**, Michigan
+   10, Kalamazoo 28 (South St is the park's south edge, one block below Michigan;
+   Lovell is the south end of the Mall — the two were reversed before). Anchors
+   are identical in every era:
    | Place | Coords | Place | Coords |
    |---|---|---|---|
    | River centerline | x ≈ +34 (east) | Burdick St (the Mall z −24..6) | x = 0 |
@@ -109,7 +112,7 @@ environments — the code is structured so this is meaningful verification.
    that skips registration gets residents walking through its walls. The rail
    crossing is a dynamic obstacle (`world.railBlock.active`, set by the train).
    Vehicles stay on drawn streets: the car loop was dropped for avenue shuttles —
-   traffic runs E. Michigan (z 10) and South St (z −26), both kept clear of
+   traffic runs E. Michigan (z 10) and Lovell St (z −26), both kept clear of
    footprints. The Michigan shuttle crosses the east river on the bridge deck at
    z 10 (the bridge registers no wall — it's meant to be driven on); the campus
    shuttle runs Stadium Dr in from the west and no longer crosses the water.

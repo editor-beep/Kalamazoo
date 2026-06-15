@@ -2821,7 +2821,8 @@ export function buildEraWorld(era) {
     world.noStand.push({ x1: -2.2, z1: -44, x2: 2.2, z2: 34 });
   }
   if (since(era, 'mall')) {
-    // South St also carries traffic in the car eras — no standing in the lane.
+    // Lovell St (south end of the Mall) carries traffic in the car eras — no
+    // standing in the lane.
     world.noStand.push({ x1: -30, z1: -27.8, x2: 22, z2: -24.2 });
   }
   const nav = { obstacles: world.obstacles, zones: world.noStand };
@@ -2836,11 +2837,11 @@ export function buildEraWorld(era) {
   world.agentMeshes = world.agents.map(a => a.mesh);
 
   // ---- vehicles
-  // Downtown traffic runs the two E–W avenues, both kept clear of building
-  // footprints: E. Michigan (z 10) and South St (z −26). The old rectangular loop
-  // needed Portage St, which the new grid drops, so cars shuttle the avenues now.
+  // Downtown traffic runs two E–W streets, both kept clear of building
+  // footprints: E. Michigan (z 10) and Lovell St (z −26, the south end of the
+  // Mall). Cars shuttle the streets — the old rectangular car loop was dropped.
   const MICH = (k, c, sp) => world.cruisers.push(new Shuttle(k, c, { x: -50, z: 10 }, { x: 44, z: 10 }, sp));
-  const SOUTH = (k, c, sp) => world.cruisers.push(new Shuttle(k, c, { x: -30, z: -26 }, { x: 22, z: -26 }, sp));
+  const LOVELL = (k, c, sp) => world.cruisers.push(new Shuttle(k, c, { x: -30, z: -26 }, { x: 22, z: -26 }, sp));
   // The campus shuttle runs Stadium Dr in from the west along E. Michigan.
   const broncoRoute = [{ x: -49, z: 10 }];
   if (only(era, 'founding', 'boiling')) {
@@ -2850,11 +2851,11 @@ export function buildEraWorld(era) {
     world.cruisers.push(new Shuttle('streetcar', null, { x: 0, z: -42 }, { x: 0, z: 32 }, 4.2));
     world.cruisers.push(new Shuttle('wagon', null, { x: 36, z: 10 }, { x: -8, z: 10 }, 1.4));
   } else if (era.key === 'mall') {
-    MICH('finned', 0xc23a3a, 7); MICH('finned', 0x4a8ab5, 6.4); SOUTH('checker', 0xe8b400, 7.5);
+    MICH('finned', 0xc23a3a, 7); MICH('finned', 0x4a8ab5, 6.4); LOVELL('checker', 0xe8b400, 7.5);
   } else if (era.key === 'paper') {
-    MICH('boxy', 0x6e3a3a, 5.6); SOUTH('boxy', 0x3a4a5c, 6.2); MICH('checker', 0xe8b400, 6.6);
+    MICH('boxy', 0x6e3a3a, 5.6); LOVELL('boxy', 0x3a4a5c, 6.2); MICH('checker', 0xe8b400, 6.6);
   } else if (era.key === 'living') {
-    MICH('ev', 0x4a6b8a, 6.2); MICH('bus', 0x3a7a5f, 4.5); SOUTH('bike', 0x2a9d8f, 3.4);
+    MICH('ev', 0x4a6b8a, 6.2); MICH('bus', 0x3a7a5f, 4.5); LOVELL('bike', 0x2a9d8f, 3.4);
     const bronco = new Shuttle('bus', 0x5c3a21, { x: -72, z: 33 }, { x: -19, z: 10 }, 4.0, broncoRoute);
     bronco.mesh.userData.phase2 = 'bronco-shuttle';
     world.cruisers.push(bronco);
@@ -2862,7 +2863,7 @@ export function buildEraWorld(era) {
     const bronco = new Shuttle('bus', 0x5c3a21, { x: -72, z: 33 }, { x: -19, z: 10 }, 4.2, broncoRoute);
     bronco.mesh.userData.phase2 = 'bronco-shuttle';
     world.cruisers.push(bronco);
-    MICH('bus', 0x4f8a6b, 4.5); SOUTH('bike', 0x2a9d8f, 3.2); SOUTH('bike', 0xc28a2f, 3.6);
+    MICH('bus', 0x4f8a6b, 4.5); LOVELL('bike', 0x2a9d8f, 3.2); LOVELL('bike', 0xc28a2f, 3.6);
   }
   world.cruisers.forEach(c => {
     c.mesh.traverse(o => { if (o.isMesh) o.castShadow = true; });
