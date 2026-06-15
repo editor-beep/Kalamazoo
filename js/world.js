@@ -899,11 +899,56 @@ function buildNightlifeAndShops(era, world) {
 function buildNorthwestUnit(era, world) {
   // Opens in 1954 as the Southwestern Michigan Tuberculosis Sanatorium, so it
   // already stands in 1959 (mall); becomes the KPH Northwest Unit; closes 1990;
-  // gone by the living eras.
-  if (!since(era, 'mall') || since(era, 'living')) return null;
+  // demolished 2011; reborn as Prairie Gardens senior housing in the living eras.
+  if (!since(era, 'mall')) return null;
   const g = new THREE.Group();
   g.userData.landmark = 'northwest';
   const { x: cx, z: cz } = PLACES.northwest;
+
+  // ---- Prairie Gardens (2014): the County Land Bank built ground-level senior
+  // duplexes on the cleared hospital hill — the rest cure became, at last, rest.
+  if (since(era, 'living')) {
+    const lawn = new THREE.Mesh(new THREE.CircleGeometry(12, 24), M({ color: 0x55703f, roughness: 1 }));
+    lawn.rotation.x = -Math.PI / 2;
+    lawn.position.set(cx, 0.08, cz);
+    lawn.receiveShadow = true;
+    g.add(lawn);
+    const drive = new THREE.Mesh(new THREE.RingGeometry(3.0, 4.2, 22), M({ color: 0x6d6557, roughness: 0.95 }));
+    drive.rotation.x = -Math.PI / 2;
+    drive.position.set(cx, 0.09, cz);
+    g.add(drive);
+    const homeWin = new THREE.MeshStandardMaterial({ color: 0x2c3844, roughness: 0.3, emissive: new THREE.Color('#ffd9a0'), emissiveIntensity: 0 });
+    world.windowMats.push(homeWin);
+    const palette = ['#b8a888', '#a8916b', '#9b8a6a', '#c2b48f'];
+    [[-7, -4], [0, -6], [7, -4], [-7, 4], [0, 6], [7, 4]].forEach(([ox, oz]) => {
+      const x = cx + ox + rand(-0.4, 0.4), z = cz + oz + rand(-0.4, 0.4);
+      const w = 6.2, d = 3.6, h = 2.6, c = pick(palette);
+      const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d),
+        new THREE.MeshStandardMaterial({ map: brickTex(c, shade(c, -30), 8), color: 0xffffff, roughness: 0.9 }));
+      body.position.set(x, h / 2, z);
+      body.castShadow = true; body.receiveShadow = true;
+      g.add(body);
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(4.5, 1.5, 4), M({ color: 0x6b5a48, roughness: 0.85 }));
+      roof.position.set(x, h + 0.7, z);
+      roof.rotation.y = Math.PI / 4;
+      roof.scale.set(1, 1, 0.62);
+      roof.castShadow = true;
+      g.add(roof);
+      [-1.5, 1.5].forEach(wx => {   // a duplex: two doors' worth of light
+        const win = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.0, 0.08), homeWin);
+        win.position.set(x + wx, 1.3, z - d / 2 - 0.05);
+        g.add(win);
+      });
+      block(world, x, z, w, d);
+    });
+    const sign = new THREE.Mesh(new THREE.BoxGeometry(4.4, 1.1, 0.1),
+      new THREE.MeshStandardMaterial({ map: signTex('PRAIRIE GARDENS', { bg: '#26342d', fg: '#e8e3d8', font: 'bold 34px Georgia', sub: 'SENIOR LIVING • ON THE OLD HILL' }), color: 0xffffff }));
+    sign.position.set(cx, 1.4, cz + 9.6);
+    g.add(sign);
+    world.pickLandmarks.push(g);
+    return g;
+  }
+
   const lawn = new THREE.Mesh(new THREE.CircleGeometry(12, 24), M({ color: 0x4d5a3d, roughness: 1 }));
   lawn.rotation.x = -Math.PI / 2;
   lawn.position.set(cx, 0.08, cz);
@@ -1841,6 +1886,12 @@ function buildEastHall(era, world) {
   const g = new THREE.Group();
   g.userData.landmark = 'easthall';
   const { x: cx, z: cz } = PLACES.easthall;
+  // its own green knoll — East Campus on Prospect Hill, clear of the Asylum hill
+  const knoll = new THREE.Mesh(new THREE.CircleGeometry(9, 24), M({ color: 0x42603a, roughness: 1 }));
+  knoll.rotation.x = -Math.PI / 2;
+  knoll.position.set(cx, 0.07, cz);
+  knoll.receiveShadow = true;
+  g.add(knoll);
   const restored = since(era, 'living');
   const dark = era.key === 'nineties';   // the East Campus years of dark windows
   const base = '#9b5a3a';
