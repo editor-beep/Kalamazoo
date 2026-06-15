@@ -803,9 +803,10 @@ function buildTheatre(era, world) {
     blade.material.userData.flicker = true;
   }
 
-  // sits in the gap left in the east storefront row; blade & marquee are on
-  // the local -x side, so the front faces the Mall to the west
+  // blade & marquee are on the local -x side; when the theatre sits west of the
+  // Mall (x<0) the bricks face the Mall to the east, so spin it to face the spine
   g.position.set(PLACES.theatre.x, 0, PLACES.theatre.z);
+  if (PLACES.theatre.x < 0) g.rotation.y = Math.PI;
   block(world, PLACES.theatre.x, PLACES.theatre.z, 7.5, 9);
   world.pickLandmarks.push(g);
   return g;
@@ -816,10 +817,11 @@ function buildGazette(era, world) {
   if (!since(era, 'mall') || era.key === 'returns') return null;
   const g = new THREE.Group();
   g.userData.landmark = 'gazette';
-  // flanks the west side of the Mall, narrowed to fit the shallow block between
-  // Rose St and the Mall sidewalk — its back wall clears the street, its press
-  // window faces the State across the bricks.
+  // narrowed to fit the shallow block flanking the Mall; its press window and
+  // lettered facade face the State across the bricks. `s` points toward the Mall
+  // (the spine at x=0), so the facade always fronts the street whichever side it's on.
   const { x: cx, z: cz } = PLACES.gazette;
+  const s = cx < 0 ? 1 : -1;
   const body = new THREE.Mesh(
     new THREE.BoxGeometry(5.4, 8.8, 8.8),
     new THREE.MeshStandardMaterial({ map: brickTex('#8f7b61', '#5f5243', 16), color: 0xffffff, roughness: 0.86 })
@@ -829,16 +831,16 @@ function buildGazette(era, world) {
   g.add(body);
   block(world, cx, cz, 5.4, 8.8);
   const press = new THREE.Mesh(new THREE.BoxGeometry(4.4, 2.0, 5.2), M({ color: 0x2a2d31, roughness: 0.65, metalness: 0.25 }));
-  press.position.set(cx - 0.2, 1.15, cz + 0.6);
+  press.position.set(cx + s * 0.2, 1.15, cz + 0.6);
   press.userData.phase2 = 'gazette-press';
   g.add(press);
   const facade = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.4, 6.6), new THREE.MeshStandardMaterial({ map: signTex('KALAMAZOO GAZETTE', { bg: '#2e2a24', fg: '#eadfcf', font: 'bold 38px Georgia' }), color: 0xffffff, roughness: 0.7 }));
-  facade.position.set(cx + 2.77, 5.6, cz);
+  facade.position.set(cx + s * 2.77, 5.6, cz);
   g.add(facade);
   const reliefMat = M({ color: 0xd7c7a8, roughness: 0.75 });
   [-2.5, 2.5].forEach(dz => {
     const pil = new THREE.Mesh(new THREE.BoxGeometry(0.16, 5.6, 0.42), reliefMat);
-    pil.position.set(cx + 2.83, 3.3, cz + dz);
+    pil.position.set(cx + s * 2.83, 3.3, cz + dz);
     g.add(pil);
   });
   world.pickLandmarks.push(g);
