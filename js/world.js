@@ -578,7 +578,8 @@ function buildRoads(era, world) {
   // ---- the street grid (survey-true; see the geo.js PLACES transform).
   // N–S streets run in z; E–W streets run in x. The five MAIN streets exist from
   // the frontier on; the rest of the named grid fills in once the city is platted.
-  const nsZ0 = -48, nsZ1 = 58;     // N–S streets span this z-range
+  const nsZ0 = -48, nsZ1 = 84;     // N–S streets run well north — past the rail to
+                                   // North St, Parsons St, and the factory blocks
   const ewX0 = -58, ewX1 = 26;     // E–W streets stop just west of the river water
   const drawNS = (x, w) => mkRoad(w, nsZ1 - nsZ0, x, (nsZ0 + nsZ1) / 2);
   const drawEW = (z, w, x0 = ewX0, x1 = ewX1) => mkRoad(x1 - x0, w, (x0 + x1) / 2, z, Math.PI / 2);
@@ -636,7 +637,7 @@ function buildRoads(era, world) {
   const mainNS = [['BURDICK', S.ns.burdick, 7], ['ROSE', S.ns.rose, 6]];
   const mainEW = [['MICHIGAN', S.ew.michigan, 7], ['SOUTH', S.ew.south, 6]];
   const gridNS = [['OAKLAND', S.ns.oakland, 5], ['WESTNEDGE', S.ns.westnedge, 6], ['PARK', S.ns.park, 5]];
-  const gridEW = [['NORTH', S.ew.north, 5], ['KALAMAZOO', S.ew.kalamazoo, 6], ['LOVELL', S.ew.lovell, 6], ['VINE', S.ew.vine, 5]];
+  const gridEW = [['PARSONS', S.ew.parsons, 5], ['NORTH', S.ew.north, 5], ['KALAMAZOO', S.ew.kalamazoo, 6], ['LOVELL', S.ew.lovell, 6], ['VINE', S.ew.vine, 5]];
 
   mainNS.forEach(([name, x, w]) => {
     drawNS(x, w);
@@ -766,7 +767,7 @@ function buildStorefronts(era, world) {
     seventies: ['PLANET CLAIRE', 'GAZETTE', 'UPJOHN', 'HEAD SHOP', 'LUNCH', 'CAMERA SHOP', 'BOOKS'],
     paper: ['FOR LEASE', 'GILMORE BROTHERS', 'CLUB SODA', 'DINER', 'RESALE', 'TV REPAIR', 'PAWN'],
     nineties: ['FLIPSIDE', 'CLUB SODA', 'PLANET CLAIRE', 'COFFEE', 'ZINES', 'USED CDS', 'TATTOO'],
-    living: ['WATER STREET COFFEE', 'MICHIGAN NEWS', 'SHAWARMA KING', 'BIKE SHOP', 'KIA GALLERY', 'BOOKBUG', "BELL'S TAPROOM"],
+    living: ['WATER STREET COFFEE', 'GAZELLE SPORTS', 'SHAWARMA KING', 'BIKE SHOP', 'KIA GALLERY', 'BOOKBUG', "BELL'S TAPROOM"],
     returns: ['SEED LIBRARY', 'RIVER OUTFITTERS', 'REPAIR CAFE', 'BAKERY', 'STUDIO', 'MARKET HALL', 'TOOL SHARE'],
   };
   const signs = SIGNS[era.key];
@@ -1058,7 +1059,7 @@ function buildNightlifeAndShops(era, world) {
   // bridge — west of Rose St, off the avenue itself, facing the corner. Club
   // Soda's real run is the 1970s–'90s; it does not glow on into the living eras.
   if (only(era, 'seventies', 'paper', 'nineties')) {
-    makeVenue({ key: 'clubsoda', label: 'CLUB SODA', sub: '1 MAIN', x: PLACES.clubsoda.x, z: PLACES.clubsoda.z - 6, w: 6.2, d: 5.4, h: 4.8, color: '#4b3b45', neon: '#7de3ff' });
+    makeVenue({ key: 'clubsoda', label: 'CLUB SODA', sub: '1 MAIN', x: PLACES.clubsoda.x, z: PLACES.clubsoda.z, w: 6.2, d: 5.4, h: 4.8, color: '#4b3b45', neon: '#7de3ff' });
   }
   if (only(era, 'paper', 'nineties')) {
     // Open since 1977, the compass for taste; the 1990 move set it at 309 N.
@@ -1938,6 +1939,182 @@ function buildGibson(era, world) {
   return g;
 }
 
+function buildChecker(era, world) {
+  // Checker came to Kalamazoo in 1923 and built cabs until July 1982; the plant
+  // stamped parts for years after. Here it stands from the Mall era through the
+  // '90s — directly north of Gibson, past Parsons St, the yellow giant of the
+  // north blocks. (Gone by the living eras: demolished in real life.)
+  if (!only(era, 'mall', 'seventies', 'paper', 'nineties')) return null;
+  const g = new THREE.Group();
+  g.userData.landmark = 'checker';
+  const { x: cx, z: cz } = PLACES.checker;
+  const winding = ['paper', 'nineties'].includes(era.key);   // the cab line is dead; parts only
+  const base = '#7a6e5c';
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(20, 6.5, 12),
+    new THREE.MeshStandardMaterial({ map: brickTex(base, shade(base, -34), 16), color: 0xffffff, roughness: 0.9 })
+  );
+  body.position.set(cx, 3.25, cz);
+  body.castShadow = true; body.receiveShadow = true;
+  g.add(body);
+  block(world, cx, cz, 20, 12);
+
+  // sawtooth factory roof — the silhouette of every plant that ever ran a line
+  for (let i = 0; i < 5; i++) {
+    const tooth = new THREE.Mesh(new THREE.BoxGeometry(3.4, 1.5, 12), M({ color: shade(base, -8), roughness: 0.92 }));
+    tooth.position.set(cx - 8 + i * 4, 7.1, cz);
+    tooth.rotation.z = 0.34;
+    tooth.castShadow = true;
+    g.add(tooth);
+  }
+  const stack = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1.1, 9, 10), M({ color: 0x6e5a48, roughness: 0.95 }));
+  stack.position.set(cx - 9.2, 7.5, cz + 4.6);
+  stack.castShadow = true;
+  g.add(stack);
+
+  const winMat = new THREE.MeshStandardMaterial({
+    color: winding ? 0x3a3630 : 0x33414e, roughness: 0.3,
+    emissive: new THREE.Color('#ffd9a0'), emissiveIntensity: 0,
+  });
+  if (!winding) world.windowMats.push(winMat);
+  for (let i = 0; i < 8; i++) {
+    const win = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.8, 0.08), winMat);
+    win.position.set(cx - 8.4 + i * 2.4, 3.4, cz - 6.05);
+    g.add(win);
+  }
+
+  // a parked Checker out front in the cab-building years
+  if (!winding) {
+    const cab = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.1, 4.6), M({ color: 0xe8b400, roughness: 0.5, metalness: 0.2 }));
+    cab.position.set(cx + 7, 0.7, cz - 8);
+    cab.castShadow = true;
+    g.add(cab);
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.9, 2.2), M({ color: 0x1f1f1f, roughness: 0.4 }));
+    cabin.position.set(cx + 7, 1.6, cz - 8.1);
+    g.add(cabin);
+  }
+
+  const labels = {
+    mall: ['CHECKER MOTORS', 'Kalamazoo builds the cab'],
+    seventies: ['CHECKER MOTORS', "the cab that won't quit"],
+    paper: ['CHECKER MOTORS', 'the cabs are memory now'],
+    nineties: ['CHECKER MOTORS', "stamping other men's cars"],
+  };
+  const [t, s] = labels[era.key];
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(9, 1.6, 0.15),
+    new THREE.MeshStandardMaterial({ map: signTex(t, { bg: '#1f2a1a', fg: '#e8d24d', font: 'bold 40px Georgia', sub: s }), color: 0xffffff }));
+  sign.position.set(cx, 5.7, cz - 6.15);
+  g.add(sign);
+
+  world.pickLandmarks.push(g);
+  return g;
+}
+
+function buildEastHall(era, world) {
+  // Western State Normal School opened in 1903; East Hall went up on the East
+  // Campus hill in 1904–05. The campus emptied late in the century; East Hall
+  // was rescued and reopened as Heritage Hall in 2018. It sits on the WMU hill's
+  // east shoulder — the building where the university began.
+  if (!since(era, 'celery')) return null;
+  const g = new THREE.Group();
+  g.userData.landmark = 'easthall';
+  const { x: cx, z: cz } = PLACES.easthall;
+  const restored = since(era, 'living');
+  const dark = era.key === 'nineties';   // the East Campus years of dark windows
+  const base = '#9b5a3a';
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(8, 5, 5),
+    new THREE.MeshStandardMaterial({ map: brickTex(base, shade(base, -36), 12), color: 0xffffff, roughness: 0.88 })
+  );
+  body.position.set(cx, 2.6, cz);
+  body.castShadow = true; body.receiveShadow = true;
+  g.add(body);
+  block(world, cx, cz, 8, 5);
+
+  const tower = new THREE.Mesh(
+    new THREE.BoxGeometry(2.4, 4.6, 2.4),
+    new THREE.MeshStandardMaterial({ map: brickTex(base, shade(base, -40), 10), color: 0xffffff, roughness: 0.88 })
+  );
+  tower.position.set(cx, 6.2, cz);
+  tower.castShadow = true;
+  g.add(tower);
+  const cap = new THREE.Mesh(new THREE.ConeGeometry(1.9, 1.9, 4), M({ color: restored ? 0x4a4036 : 0x3f3832, roughness: 0.85 }));
+  cap.position.set(cx, 9.4, cz);
+  cap.rotation.y = Math.PI / 4;
+  g.add(cap);
+
+  const winMat = new THREE.MeshStandardMaterial({
+    color: dark ? 0x2a2620 : 0x33414e, roughness: 0.3,
+    emissive: new THREE.Color('#ffd9a0'), emissiveIntensity: 0,
+  });
+  if (!dark) world.windowMats.push(winMat);
+  for (let f = 0; f < 2; f++) for (let i = 0; i < 4; i++) {
+    const win = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.2, 0.08), winMat);
+    win.position.set(cx - 2.8 + i * 1.85, 1.9 + f * 2.0, cz - 2.55);
+    g.add(win);
+  }
+
+  const labels = {
+    celery: ['EAST HALL', 'Western State Normal'],
+    mall: ['EAST HALL', 'where it all began'],
+    seventies: ['EAST HALL', 'the hill above the city'],
+    paper: ['EAST HALL', 'East Campus'],
+    nineties: ['EAST HALL', 'dark windows, waiting'],
+    living: ['HERITAGE HALL', 'rescued • 1904 / 2018'],
+    returns: ['HERITAGE HALL', 'still on the hill'],
+  };
+  const [t, s] = labels[era.key] || labels.living;
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(5.6, 1.0, 0.12),
+    new THREE.MeshStandardMaterial({ map: signTex(t, { bg: '#2a2018', fg: '#e8d9b8', font: 'bold 34px Georgia', sub: s }), color: 0xffffff }));
+  sign.position.set(cx, 3.9, cz - 2.62);
+  g.add(sign);
+
+  world.pickLandmarks.push(g);
+  return g;
+}
+
+function buildNewsAgency(era, world) {
+  // Michigan News Agency opened at 308 W. Michigan in 1947 — for three quarters
+  // of a century the densest shelf of magazines and paperbacks in the state.
+  // North side of the avenue, west of Rose. It dimmed in the mid-2020s.
+  if (!since(era, 'mall') || only(era, 'returns')) return null;
+  const g = new THREE.Group();
+  g.userData.landmark = 'newsagency';
+  const { x: cx, z: cz } = PLACES.newsagency;
+  const closing = only(era, 'living');   // 2026: the racks going quiet
+  const base = '#8a5a3a';
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(6, 4.4, 4.6),
+    new THREE.MeshStandardMaterial({ map: brickTex(base, shade(base, -34), 12), color: 0xffffff, roughness: 0.88 })
+  );
+  body.position.set(cx, 2.2, cz);
+  body.castShadow = true; body.receiveShadow = true;
+  g.add(body);
+  block(world, cx, cz, 6, 4.6);
+
+  const winMat = new THREE.MeshStandardMaterial({
+    color: closing ? 0x2a2c30 : 0x2c3844, roughness: 0.25, metalness: 0.2,
+    emissive: new THREE.Color('#ffd9a0'), emissiveIntensity: 0,
+  });
+  if (!closing) world.windowMats.push(winMat);
+  const glass = new THREE.Mesh(new THREE.BoxGeometry(4.4, 1.9, 0.08), winMat);
+  glass.position.set(cx, 1.5, cz - 2.35);
+  g.add(glass);
+
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(5, 1.0, 0.12),
+    new THREE.MeshStandardMaterial({
+      map: signTex('MICHIGAN NEWS', {
+        bg: '#1c2733', fg: '#e8e3d8', font: 'bold 32px Georgia',
+        sub: closing ? '308 W. MICHIGAN • thank you' : 'MORE MAGAZINES THAN ANYWHERE',
+      }), color: 0xffffff,
+    }));
+  sign.position.set(cx, 3.7, cz - 2.4);
+  g.add(sign);
+
+  world.pickLandmarks.push(g);
+  return g;
+}
+
 function buildChurch(era, world) {
   if (only(era, 'founding')) return null;   // services still meet in cabins
   const g = new THREE.Group();
@@ -2135,9 +2312,9 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'celery')) {
     const hotel = new THREE.Group();
     hotel.userData.landmark = 'hotel';
-    // Anchor names the SE corner of E. Michigan & Rose; seat the body inside the
-    // block (south of the avenue, east of Rose) and face its sign to the avenue.
-    let { x: hx, z: hz } = PLACES.hotel; hx += 2; hz -= 8;
+    // Anchor is the built center now: south side of E. Michigan, Burdick–Rose
+    // block, facing the avenue (its sign reads north).
+    const { x: hx, z: hz } = PLACES.hotel;
     if (!since(era, 'seventies')) {
       // the grand Burdick Hotel — burned 1909, rebuilt before the ash cooled
       const body = new THREE.Mesh(new THREE.BoxGeometry(9, 9.5, 9), brick('#8a5a3a'));
@@ -2196,8 +2373,8 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'mall')) {
     const mission = new THREE.Group();
     mission.userData.landmark = 'mission';
-    // seat it south of Kalamazoo St (the anchor sits on the avenue), sign north
-    let { x: mx, z: mz } = PLACES.mission; mz -= 7;
+    // on Kalamazoo St, east of the depot; the sign faces north up the avenue
+    const { x: mx, z: mz } = PLACES.mission;
     const body = new THREE.Mesh(new THREE.BoxGeometry(5.6, 4.8, 6), brick('#6b5b4a'));
     body.position.set(mx, 2.4, mz);
     body.castShadow = true; body.receiveShadow = true;
@@ -2298,11 +2475,12 @@ function buildDowntownLandmarks(era, world) {
     block(world, px, pz, 4.6, 4.2);
   }
 
-  // ---- Fourth Coast Cafe (1992), the Vine corridor south of South St
+  // ---- Fourth Coast Cafe (1992), pulled in toward downtown (Westnedge/Vine),
+  // no longer marooned far to the south
   if (since(era, 'nineties')) {
     const cafe = new THREE.Group();
     cafe.userData.landmark = 'fourthcoast';
-    const { x: cx, z: cz } = PLACES.fourthcoast;   // the Vine corridor, south of South St, clear of Upjohn
+    const { x: cx, z: cz } = PLACES.fourthcoast;   // south-downtown corridor, SW of Bronson Park
     const body = new THREE.Mesh(new THREE.BoxGeometry(6, 3.8, 5), brick('#a8916b'));
     body.position.set(cx, 1.9, cz);
     body.castShadow = true; body.receiveShadow = true;
@@ -2512,6 +2690,9 @@ export function buildEraWorld(era) {
   const superfund = buildSuperfund(era, world); if (superfund) group.add(superfund);
   const wmu = buildWMU(era, world); if (wmu) group.add(wmu);
   const gibson = buildGibson(era, world); if (gibson) group.add(gibson);
+  const checker = buildChecker(era, world); if (checker) group.add(checker);
+  const easthall = buildEastHall(era, world); if (easthall) group.add(easthall);
+  const newsagency = buildNewsAgency(era, world); if (newsagency) group.add(newsagency);
 
   // ---- trees
   const treeKinds = { founding: ['oak', 'round', 'pine', 'oak'], boiling: ['round', 'oak', 'pine'], celery: ['round', 'round', 'oak'], mall: ['round', 'round'], seventies: ['round', 'round'], paper: ['sapling', 'round'], nineties: ['sapling', 'round'], living: ['round', 'round', 'oak'], returns: ['round', 'oak', 'willow', 'pine'] };
