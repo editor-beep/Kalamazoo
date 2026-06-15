@@ -81,8 +81,8 @@ export const PLACES = {
 
   // the Burdick / Michigan core (the South Mall, between South St and Lovell) —
   // the State and the Gazette flank the pedestrian Mall, east and west, not in it.
-  theatre:      { x: 9.5, z: -9, real: 'State Theatre, 404 S. Burdick — east side of the Mall' },
-  gazette:      { x: -8.1, z: -9, real: 'Kalamazoo Gazette, 401 S. Burdick — west side of the Mall, across from the State' },
+  theatre:      { x: -6, z: -9, real: 'State Theatre, 404 S. Burdick — west side of the Mall' },
+  gazette:      { x: 7, z: -9, real: 'Kalamazoo Gazette, 401 S. Burdick — east side of the Mall, across from the State' },
 
   // the Vine / south corridor — Fourth Coast at 816 S. Westnedge in the Vine
   // neighborhood; East Hall is WMU's first building, on the East Campus hill.
