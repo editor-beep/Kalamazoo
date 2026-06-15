@@ -49,19 +49,21 @@ const TRAIN_LINES = {
   returns: 'The quiet electric freight slides through. The town voted to keep the horn. Some sounds are load-bearing.',
 };
 
-// North-up framing: the camera sits SOUTH of the city and looks NORTH, so north
-// is away/top and east is on the right — matching the hand-drawn map. (It used to
-// sit in the NE looking SW, which put north at the bottom and read as flipped.)
+// North-up + east-right framing. The visual group is reflected in z (see
+// world.js: group.scale.z = -1), so authored North (+z) renders at display −z.
+// The camera therefore sits on the display-SOUTH side (+z) and looks toward −z
+// (north): north is away/top, east is on the right, the river on the right edge —
+// a true map. Targets track the reflected downtown core (authored core z negated).
 const CAMERA_DEFAULTS = {
-  founding: { pos: [8, 28, -78], tgt: [-8, 3, -4] },
-  boiling: { pos: [9, 27, -77], tgt: [-6, 3, -6] },
-  celery: { pos: [10, 25, -68], tgt: [-2, 4, -6] },
-  mall: { pos: [11, 22, -63], tgt: [2, 3, -8] },
-  seventies: { pos: [9, 23, -64], tgt: [-2, 3, -6] },
-  paper: { pos: [9, 24, -68], tgt: [-2, 3, -8] },
-  nineties: { pos: [9, 22, -34], tgt: [0, 3, 8] },
-  living: { pos: [10, 21, -61], tgt: [0, 3, -6] },
-  returns: { pos: [5, 24, -71], tgt: [-10, 3, -4] },
+  founding: { pos: [2, 28, 74], tgt: [-8, 3, 4] },
+  boiling: { pos: [3, 27, 74], tgt: [-6, 3, 6] },
+  celery: { pos: [6, 25, 70], tgt: [-2, 4, 6] },
+  mall: { pos: [10, 22, 66], tgt: [2, 3, 8] },
+  seventies: { pos: [6, 23, 66], tgt: [-2, 3, 6] },
+  paper: { pos: [6, 24, 70], tgt: [-2, 3, 8] },
+  nineties: { pos: [8, 22, 54], tgt: [0, 3, -8] },
+  living: { pos: [8, 21, 64], tgt: [0, 3, 6] },
+  returns: { pos: [0, 24, 74], tgt: [-10, 3, 4] },
 };
 
 // ----------------------------------------------------------------- boot
@@ -96,7 +98,7 @@ function boot() {
   document.getElementById('three-container').appendChild(renderer.domElement);
 
   camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.5, 700);
-  camera.position.set(10, 32, -66);   // south, looking north (north-up framing)
+  camera.position.set(10, 34, 68);    // display-south, looking north (true-map framing)
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -104,7 +106,7 @@ function boot() {
   controls.minDistance = 8;
   controls.maxDistance = 150;
   controls.maxPolarAngle = Math.PI * 0.49;
-  controls.target.set(0, 3, -4);
+  controls.target.set(0, 3, 4);
 
   // post pipeline
   const rt = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {

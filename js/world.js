@@ -3,7 +3,7 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { SkyShader, WaterShader } from './shaders.js';
-import { GEO, PLACES } from './geo.js';
+import { GEO, PLACES, STREETS } from './geo.js';
 import {
   Agent, Cruiser, Shuttle, Train, makePersonMesh,
   makeSmokeColumn, makeFireflies, makeMotes, updateChats,
@@ -94,7 +94,7 @@ function groundTex(c1, c2) {
 }
 
 function signTex(text, { bg = '#20242a', fg = '#f3ede2', font = 'bold 54px Georgia', sub = null } = {}) {
-  return canvasTex(512, 128, (ctx, w, h) => {
+  const tex = canvasTex(512, 128, (ctx, w, h) => {
     ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
     ctx.strokeStyle = fg; ctx.globalAlpha = 0.5;
     ctx.strokeRect(6, 6, w - 12, h - 12);
@@ -105,6 +105,10 @@ function signTex(text, { bg = '#20242a', fg = '#f3ede2', font = 'bold 54px Georg
     ctx.fillText(text, w / 2, sub ? h / 2 - 16 : h / 2);
     if (sub) { ctx.font = '24px Georgia'; ctx.fillText(sub, w / 2, h / 2 + 32); }
   });
+  // Mark as readable text so the true-map z-reflection (group.scale.z = -1) can be
+  // cancelled per-mesh, keeping words forward-facing instead of mirror-written.
+  if (tex) tex.userData.isText = true;
+  return tex;
 }
 
 
@@ -626,11 +630,13 @@ function buildRoads(era, world) {
     }
   };
 
-  // N–S: West→East   |   E–W: South→North
-  const mainNS = [['BURDICK', GEO.burdickX, 7], ['ROSE', GEO.roseX, 6], ['PORTAGE', GEO.portageX, 6]];
-  const mainEW = [['MICHIGAN', GEO.michiganZ, 7], ['SOUTH', GEO.southZ, 6]];
-  const gridNS = [['OAKLAND', -56, 5], ['WESTNEDGE', -42, 6], ['PARK', -28, 5], ['PITCHER', 24, 5]];
-  const gridEW = [['NORTH', 56, 5], ['KALAMAZOO', 37, 6], ['LOVELL', -8, 6], ['VINE', -44, 5]];
+  // N–S: West→East   |   E–W: South→North — read from the shared STREETS grid
+  // (geo.js), so the roads and the landmark anchors can never drift apart.
+  const S = STREETS;
+  const mainNS = [['BURDICK', S.ns.burdick, 7], ['ROSE', S.ns.rose, 6]];
+  const mainEW = [['MICHIGAN', S.ew.michigan, 7], ['SOUTH', S.ew.south, 6]];
+  const gridNS = [['OAKLAND', S.ns.oakland, 5], ['WESTNEDGE', S.ns.westnedge, 6], ['PARK', S.ns.park, 5]];
+  const gridEW = [['NORTH', S.ew.north, 5], ['KALAMAZOO', S.ew.kalamazoo, 6], ['LOVELL', S.ew.lovell, 6], ['VINE', S.ew.vine, 5]];
 
   mainNS.forEach(([name, x, w]) => {
     drawNS(x, w);
@@ -954,6 +960,7 @@ function buildTheatre(era, world) {
     })
   );
   blade.position.set(-4.1, 8.6, 2.2);
+  if (blade.material.map) blade.material.map.userData.isText = true;
   g.add(blade);
   world.marqueeMats.push(blade.material);
 
@@ -1045,7 +1052,7 @@ function buildNightlifeAndShops(era, world) {
   // bridge — west of Rose St, off the avenue itself, facing the corner. Club
   // Soda's real run is the 1970s–'90s; it does not glow on into the living eras.
   if (only(era, 'seventies', 'paper', 'nineties')) {
-    makeVenue({ key: 'clubsoda', label: 'CLUB SODA', sub: '1 MAIN', x: PLACES.clubsoda.x, z: PLACES.clubsoda.z, w: 6.2, d: 5.4, h: 4.8, color: '#4b3b45', neon: '#7de3ff' });
+    makeVenue({ key: 'clubsoda', label: 'CLUB SODA', sub: '1 MAIN', x: PLACES.clubsoda.x, z: PLACES.clubsoda.z - 6, w: 6.2, d: 5.4, h: 4.8, color: '#4b3b45', neon: '#7de3ff' });
   }
   if (only(era, 'nineties')) {
     // Flipside's 1990 move lands it near N. Burdick/Eleanor; north is +z here.
@@ -2113,38 +2120,40 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'celery')) {
     const hotel = new THREE.Group();
     hotel.userData.landmark = 'hotel';
-    const { x: hx, z: hz } = PLACES.hotel;
+    // Anchor names the SE corner of E. Michigan & Rose; seat the body inside the
+    // block (south of the avenue, east of Rose) and face its sign to the avenue.
+    let { x: hx, z: hz } = PLACES.hotel; hx += 2; hz -= 8;
     if (!since(era, 'seventies')) {
       // the grand Burdick Hotel — burned 1909, rebuilt before the ash cooled
-      const body = new THREE.Mesh(new THREE.BoxGeometry(12, 9.5, 9), brick('#8a5a3a'));
+      const body = new THREE.Mesh(new THREE.BoxGeometry(9, 9.5, 9), brick('#8a5a3a'));
       body.position.set(hx, 4.75, hz);
       body.castShadow = true; body.receiveShadow = true;
       hotel.add(body);
-      const cornice = new THREE.Mesh(new THREE.BoxGeometry(12.4, 0.55, 9.4), M({ color: 0x5c4632, roughness: 0.85 }));
+      const cornice = new THREE.Mesh(new THREE.BoxGeometry(9.4, 0.55, 9.4), M({ color: 0x5c4632, roughness: 0.85 }));
       cornice.position.set(hx, 9.75, hz);
       hotel.add(cornice);
       const sign = blade('BURDICK HOTEL', { bg: '#2a241e', fg: '#f2e8d8', font: 'bold 44px Georgia', sub: 'SINCE 1855' }, 7, 1.6, 0.12);
-      sign.position.set(hx, 7.6, hz - 4.58);
+      sign.position.set(hx, 7.6, hz + 4.58);
       hotel.add(sign);
     } else {
       // the 1975 plaza hotel, urban renewal's tallest apology
-      const body = new THREE.Mesh(new THREE.BoxGeometry(12, 14, 9),
+      const body = new THREE.Mesh(new THREE.BoxGeometry(9, 14, 9),
         M({ color: 0x6b7a85, roughness: 0.65, metalness: 0.15 }));
       body.position.set(hx, 7, hz);
       body.castShadow = true; body.receiveShadow = true;
       hotel.add(body);
-      const glass = new THREE.Mesh(new THREE.BoxGeometry(10, 12, 0.18),
+      const glass = new THREE.Mesh(new THREE.BoxGeometry(7.4, 12, 0.18),
         M({ color: 0x3a4a5c, roughness: 0.2, metalness: 0.6 }));
-      glass.position.set(hx, 6.6, hz - 4.56);
+      glass.position.set(hx, 6.6, hz + 4.56);
       hotel.add(glass);
       const sign = blade('RADISSON PLAZA', { bg: '#1a252f', fg: '#c9d4e0', font: 'bold 40px Georgia', sub: 'KALAMAZOO', neon: '#a8c4ff' }, 6.4, 1.5, 0.12);
-      sign.position.set(hx, 12.2, hz - 4.6);
+      sign.position.set(hx, 12.2, hz + 4.6);
       hotel.add(sign);
       world.marqueeMats.push(sign.material);
     }
     g.add(hotel);
     world.pickLandmarks.push(hotel);
-    block(world, hx, hz, 12, 9);
+    block(world, hx, hz, 9, 9);
   }
 
   // ---- The Rickman (1908 hotel → Milner → apartments), N. Burdick at the rails
@@ -2172,13 +2181,14 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'mall')) {
     const mission = new THREE.Group();
     mission.userData.landmark = 'mission';
-    const { x: mx, z: mz } = PLACES.mission;
+    // seat it south of Kalamazoo St (the anchor sits on the avenue), sign north
+    let { x: mx, z: mz } = PLACES.mission; mz -= 7;
     const body = new THREE.Mesh(new THREE.BoxGeometry(5.6, 4.8, 6), brick('#6b5b4a'));
     body.position.set(mx, 2.4, mz);
     body.castShadow = true; body.receiveShadow = true;
     mission.add(body);
     const sign = blade('GOSPEL MISSION', { bg: '#2a2d24', fg: '#e8e3d8', font: 'bold 38px Georgia', sub: '448 N. BURDICK • DOORS OPEN' }, 4.4, 1.3, 0.1);
-    sign.position.set(mx, 3.9, mz - 3.06);
+    sign.position.set(mx, 3.9, mz + 3.06);
     mission.add(sign);
     g.add(mission);
     world.pickLandmarks.push(mission);
@@ -2234,7 +2244,7 @@ function buildDowntownLandmarks(era, world) {
   if (since(era, 'nineties')) {
     const shakes = new THREE.Group();
     shakes.userData.landmark = 'shakespeares';
-    const { x: sx, z: sz } = PLACES.shakespeares;   // 241 E. Michigan, east of the theatre
+    let { x: sx, z: sz } = PLACES.shakespeares; sz -= 7;   // seat south of Kalamazoo St
     const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, 5.2, 5.6), brick('#5c4638'));
     body.position.set(sx, 2.6, sz);
     body.castShadow = true; body.receiveShadow = true;
@@ -2256,7 +2266,8 @@ function buildDowntownLandmarks(era, world) {
   if (only(era, 'seventies', 'paper', 'nineties')) {
     const proco = new THREE.Group();
     proco.userData.landmark = 'proco';
-    const { x: px, z: pz } = PLACES.proco;   // just south of Shakespeare's, east of the theatre
+    // anchor sat in the river; pull it onto the dry west bank, south of Kalamazoo St
+    let { x: px, z: pz } = PLACES.proco; px -= 13; pz -= 10;
     const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, 3.4, 4.2), brick('#5c5048'));
     body.position.set(px, 1.7, pz);
     body.castShadow = true; body.receiveShadow = true;
@@ -2455,6 +2466,14 @@ export function buildEraWorld(era) {
   // ---- the persistent places
   const group = new THREE.Group();
   world.group = group;
+  // TRUE-MAP DISPLAY: all logic (geo, obstacles, agent targets, safety bands)
+  // stays authored as +x=East / +z=North, but a Y-up engine renders that frame
+  // east-west MIRRORED when you ask for north-up. Reflecting the visual group in
+  // z (north→display −z) fixes the handedness, so the camera can finally show
+  // BOTH north-up AND east-right (river on the right). Agents/picking ride this
+  // group, so they stay consistent; the smoke test reads the authored frame and
+  // is unaffected. (Text on z-reading signs is un-mirrored in a post-build pass.)
+  group.scale.z = -1;
   scene.add(group);
 
   group.add(buildRiver(era, world));
@@ -2492,7 +2511,7 @@ export function buildEraWorld(era) {
     if (Math.abs(z - 40) < 5) continue;                        // rails
     if (Math.abs(z - 10) < 5 || Math.abs(z + 26) < 4) continue;// streets
     if (x > -18 && x < -10 && z > -37 && z < 37) continue;     // Rose St
-    if (x > 14 && x < 23 && z > -38 && z < 14) continue;       // Portage St
+    if (x > -29 && x < -13 && z > -27 && z < 11) continue;     // the Bronson Park loop streets
     if (x > -75 && x < -46 && z > 8 && z < 38) continue;       // campus shuttle's drive
     if (x > -50 && x < -22 && z > -50 && z < -28) continue;    // flats (southwest)
     if (inFootprint(world, x, z, 1.2)) continue;               // never inside a building
@@ -2590,10 +2609,8 @@ export function buildEraWorld(era) {
     world.noStand.push({ x1: -2.2, z1: -44, x2: 2.2, z2: 34 });
   }
   if (since(era, 'mall')) {
-    // the downtown loop: Rose / South / Portage (Portage pulled west of the river)
-    world.noStand.push({ x1: -14.3, z1: -27.5, x2: -11.3, z2: 12 });
-    world.noStand.push({ x1: 18.5, z1: -27.5, x2: 21.5, z2: 12 });
-    world.noStand.push({ x1: -14.3, z1: -27.5, x2: 21.5, z2: -24.5 });
+    // South St also carries traffic in the car eras — no standing in the lane.
+    world.noStand.push({ x1: -30, z1: -27.8, x2: 22, z2: -24.2 });
   }
   const nav = { obstacles: world.obstacles, zones: world.noStand };
 
@@ -2607,40 +2624,33 @@ export function buildEraWorld(era) {
   world.agentMeshes = world.agents.map(a => a.mesh);
 
   // ---- vehicles
-  // The loop reads Rose → South → Portage → Michigan; its east leg used to
-  // run straight through Bronson Park (and the fountain). Not anymore.
-  const loopA = { x1: -12.8, z1: -26, x2: 20, z2: 10 };
-  // The campus shuttle runs Stadium Dr in from the west; the river is on the far
-  // east side now, so the route no longer crosses it.
-  const broncoRoute = [{ x: -49, z: 10 }, { x: -19, z: 10 }];
+  // Downtown traffic runs the two E–W avenues, both kept clear of building
+  // footprints: E. Michigan (z 10) and South St (z −26). The old rectangular loop
+  // needed Portage St, which the new grid drops, so cars shuttle the avenues now.
+  const MICH = (k, c, sp) => world.cruisers.push(new Shuttle(k, c, { x: -50, z: 10 }, { x: 44, z: 10 }, sp));
+  const SOUTH = (k, c, sp) => world.cruisers.push(new Shuttle(k, c, { x: -30, z: -26 }, { x: 22, z: -26 }, sp));
+  // The campus shuttle runs Stadium Dr in from the west along E. Michigan.
+  const broncoRoute = [{ x: -49, z: 10 }];
   if (only(era, 'founding', 'boiling')) {
     // 1831's wagon is an ox-team: same road, slower opinion
     world.cruisers.push(new Shuttle('wagon', null, { x: -8, z: 10 }, { x: 40, z: 10 }, era.key === 'founding' ? 1.0 : 1.3));
   } else if (era.key === 'celery') {
     world.cruisers.push(new Shuttle('streetcar', null, { x: 0, z: -42 }, { x: 0, z: 32 }, 4.2));
-    world.cruisers.push(new Shuttle('wagon', null, { x: 36, z: 10 }, { x: -10, z: 10 }, 1.4));
+    world.cruisers.push(new Shuttle('wagon', null, { x: 36, z: 10 }, { x: -8, z: 10 }, 1.4));
   } else if (era.key === 'mall') {
-    world.cruisers.push(new Cruiser('finned', 0xc23a3a, loopA, 7, 0));
-    world.cruisers.push(new Cruiser('finned', 0x4a8ab5, loopA, 6.4, 60));
-    world.cruisers.push(new Cruiser('checker', 0xe8b400, loopA, 7.5, 110));
+    MICH('finned', 0xc23a3a, 7); MICH('finned', 0x4a8ab5, 6.4); SOUTH('checker', 0xe8b400, 7.5);
   } else if (era.key === 'paper') {
-    world.cruisers.push(new Cruiser('boxy', 0x6e3a3a, loopA, 5.6, 20));
-    world.cruisers.push(new Cruiser('boxy', 0x3a4a5c, loopA, 6.2, 90));
-    world.cruisers.push(new Cruiser('checker', 0xe8b400, loopA, 6.6, 140));
+    MICH('boxy', 0x6e3a3a, 5.6); SOUTH('boxy', 0x3a4a5c, 6.2); MICH('checker', 0xe8b400, 6.6);
   } else if (era.key === 'living') {
-    world.cruisers.push(new Cruiser('ev', 0x4a6b8a, loopA, 6.2, 0));
-    world.cruisers.push(new Shuttle('bus', 0x3a7a5f, { x: -10, z: 10 }, { x: 42, z: 10 }, 4.5));
-    world.cruisers.push(new Cruiser('bike', 0x2a9d8f, loopA, 3.4, 40));
-    const bronco = new Shuttle('bus', 0x5c3a21, { x: -72, z: 33 }, { x: -12, z: 10 }, 4.0, broncoRoute);
+    MICH('ev', 0x4a6b8a, 6.2); MICH('bus', 0x3a7a5f, 4.5); SOUTH('bike', 0x2a9d8f, 3.4);
+    const bronco = new Shuttle('bus', 0x5c3a21, { x: -72, z: 33 }, { x: -19, z: 10 }, 4.0, broncoRoute);
     bronco.mesh.userData.phase2 = 'bronco-shuttle';
     world.cruisers.push(bronco);
   } else {
-    const bronco = new Shuttle('bus', 0x5c3a21, { x: -72, z: 33 }, { x: -12, z: 10 }, 4.2, broncoRoute);
+    const bronco = new Shuttle('bus', 0x5c3a21, { x: -72, z: 33 }, { x: -19, z: 10 }, 4.2, broncoRoute);
     bronco.mesh.userData.phase2 = 'bronco-shuttle';
     world.cruisers.push(bronco);
-    world.cruisers.push(new Shuttle('bus', 0x4f8a6b, { x: -10, z: 10 }, { x: 42, z: 10 }, 4.5));
-    world.cruisers.push(new Cruiser('bike', 0x2a9d8f, loopA, 3.2, 0));
-    world.cruisers.push(new Cruiser('bike', 0xc28a2f, loopA, 3.6, 70));
+    MICH('bus', 0x4f8a6b, 4.5); SOUTH('bike', 0x2a9d8f, 3.2); SOUTH('bike', 0xc28a2f, 3.6);
   }
   world.cruisers.forEach(c => {
     c.mesh.traverse(o => { if (o.isMesh) o.castShadow = true; });
@@ -2688,6 +2698,18 @@ export function buildEraWorld(era) {
       }
     });
   };
+
+  // True-map text fix: the visual group is reflected in z (group.scale.z = -1),
+  // which would render any word that reads along the z-axis mirror-written. For
+  // every text mesh (flagged via signTex / the STATE blade), cancel the reflection
+  // locally (scale.z *= -1): the parent still places the sign at its reflected
+  // spot, but its glyphs read forward again. Sign meshes are thin in their facing
+  // axis, so reflecting them about their own center is otherwise invisible.
+  group.traverse(o => {
+    if (o.isMesh && o.material && !Array.isArray(o.material) && o.material.map?.userData?.isText) {
+      o.scale.z *= -1;
+    }
+  });
 
   R = Math.random;   // construction over; runtime randomness stays random
 
