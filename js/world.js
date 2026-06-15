@@ -175,27 +175,6 @@ function makeBanner(x, z, text) {
   return g;
 }
 
-function muralTex() {
-  return canvasTex(256, 256, (ctx, w, h) => {
-    const grad = ctx.createLinearGradient(0, 0, w, h);
-    grad.addColorStop(0, '#1d3557'); grad.addColorStop(0.5, '#2a9d8f'); grad.addColorStop(1, '#e9c46a');
-    ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
-    // river ribbon
-    ctx.strokeStyle = '#a8dadc'; ctx.lineWidth = 18; ctx.beginPath();
-    ctx.moveTo(0, h * 0.7);
-    ctx.bezierCurveTo(w * 0.3, h * 0.5, w * 0.6, h * 0.9, w, h * 0.6);
-    ctx.stroke();
-    // sun
-    ctx.fillStyle = '#f4a261'; ctx.beginPath(); ctx.arc(w * 0.75, h * 0.25, 34, 0, Math.PI * 2); ctx.fill();
-    // heron silhouette
-    ctx.fillStyle = '#10141c';
-    ctx.beginPath();
-    ctx.ellipse(w * 0.3, h * 0.32, 26, 12, -0.3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillRect(w * 0.3, h * 0.32, 4, 50);
-  });
-}
-
 function shade(hex, amt) {
   const n = parseInt(hex.slice(1), 16);
   let r = (n >> 16) + amt, g = ((n >> 8) & 0xff) + amt, b = (n & 0xff) + amt;
@@ -767,183 +746,6 @@ function buildRoads(era, world) {
     strip.userData.landmark = 'burdick';
     g.add(strip);
     world.pickLandmarks.push(strip);
-  }
-
-  return g;
-}
-
-function buildStorefronts(era, world) {
-  const g = new THREE.Group();
-  const SIGNS = {
-    founding: ['BRONSON HOUSE', 'BURDICK & CO', 'KINGSBURY DRY GOODS', 'SMITHY', 'POST & TRADE'],
-    boiling: ['GENERAL STORE', 'LAND OFFICE', 'KALAMAZOO HOUSE', 'TELEGRAPH', 'HARNESS'],
-    celery: ['GILMORE BROS.', 'DRY GOODS', 'OAKLAND PHARMACY', 'MILLINERY', 'GAZETTE', 'CORSETS', 'HARDWARE'],
-    mall: ['GILMORE BROTHERS', 'S.S. KRESGE', 'WOOLWORTH', 'SHOES', 'RECORDS', 'LUNCH', 'CAMERA SHOP'],
-    seventies: ['PLANET CLAIRE', 'GAZETTE', 'UPJOHN', 'HEAD SHOP', 'LUNCH', 'CAMERA SHOP', 'BOOKS'],
-    paper: ['FOR LEASE', 'GILMORE BROTHERS', 'CLUB SODA', 'DINER', 'RESALE', 'TV REPAIR', 'PAWN'],
-    nineties: ['FLIPSIDE', 'CLUB SODA', 'PLANET CLAIRE', 'COFFEE', 'ZINES', 'USED CDS', 'TATTOO'],
-    living: ['WATER STREET COFFEE', 'GAZELLE SPORTS', 'SHAWARMA KING', 'BIKE SHOP', 'KIA GALLERY', 'BOOKBUG', "BELL'S TAPROOM"],
-    returns: ['SEED LIBRARY', 'RIVER OUTFITTERS', 'REPAIR CAFE', 'BAKERY', 'STUDIO', 'MARKET HALL', 'TOOL SHARE'],
-  };
-  const signs = SIGNS[era.key];
-  let signIdx = 0;
-
-  const wood = only(era, 'founding', 'boiling');
-  const brickPalettes = {
-    founding: ['#9b8a68', '#8a7656', '#a8956e'],
-    boiling: ['#a8916b', '#8f7a58', '#b5a079'],
-    celery: ['#7d4030', '#8a5a3a', '#6b4438', '#96604a'],
-    mall: ['#8a5a3a', '#9b8a74', '#7d4030', '#a89a85'],
-    seventies: ['#7a5a3d', '#8a6a4a', '#6e5648', '#9b8a74'],
-    paper: ['#6e5648', '#5c5048', '#7d6a58', '#665043'],
-    nineties: ['#5c5048', '#6e5648', '#7d4030', '#3f4650'],
-    living: ['#8a5a3a', '#7d4030', '#9b8a74', '#b08968'],
-    returns: ['#8a5a3a', '#9b8a74', '#a8916b', '#7d6a58'],
-  };
-  const palette = brickPalettes[era.key];
-
-  // Each row: faceX = x of the street-facing wall; facing = +1 faces +x, -1 faces -x.
-  // Buildings run along z; width bw is the z-extent, depth bd the x-extent.
-  // West rows stay shallow: the block between Burdick and Rose St is only
-  // ~5.8 deep, and deeper backs used to sit in the street the cars drive.
-  // The Mall's middle block (z -16..-4) is left open on BOTH sides for the two
-  // landmarks that flank it: the Gazette to the west, the State Theatre to the
-  // east. The generic storefronts fill the rest of the frontage, never the Mall.
-  const rows = [
-    { faceX: -5.4, facing: 1, from: -24, to: -16, depth: [4.6, 5.4] },   // gap for the Gazette
-    { faceX: -5.4, facing: 1, from: -4, to: 4, depth: [4.6, 5.4] },
-    { faceX: 5.4, facing: -1, from: -22, to: -16 },                      // gap for the State
-    { faceX: 5.4, facing: -1, from: -4, to: 6 },
-  ];
-  // North of Michigan: the west side keeps shops (Mission caps the block);
-  // the east side belongs to the hotel / Flipside / Rickman cluster.
-  if (!wood) rows.push({ faceX: -5.4, facing: 1, from: 14, to: 28, depth: [4.6, 5.4] });
-
-  rows.forEach(row => {
-    let z = row.from;
-    while (z < row.to) {
-      const bw = rand(5.2, 7.2);
-      if (z + bw > row.to + 2.5) break;
-      const floors = wood ? 1 : (R() < 0.4 ? 3 : 2);
-      const bh = wood ? rand(3.4, 4.2) : 3.1 * floors + 0.8;
-      const bd = row.depth ? rand(row.depth[0], row.depth[1]) : rand(7, 9);
-      const base = pick(palette);
-      const cx = row.faceX - row.facing * (bd / 2);   // body center x
-      const cz = z + bw / 2;                          // body center z
-      const wallX = row.faceX + row.facing * 0.05;    // just proud of the wall
-
-      const bld = new THREE.Group();
-      const bTex = wood ? null : brickTex(base, shade(base, -36), 14);
-      const bodyMat = new THREE.MeshStandardMaterial({
-        color: bTex ? 0xffffff : new THREE.Color(base),
-        map: bTex, roughness: 0.88,
-      });
-      const body = new THREE.Mesh(new THREE.BoxGeometry(bd, bh, bw - 0.35), bodyMat);
-      body.position.set(cx, bh / 2, cz);
-      body.castShadow = true; body.receiveShadow = true;
-      bld.add(body);
-      block(world, cx, cz, bd, bw - 0.35);
-
-      // cornice
-      const cornice = new THREE.Mesh(new THREE.BoxGeometry(bd + 0.25, 0.35, bw - 0.2), M({ color: shade(base, -50), roughness: 0.8 }));
-      cornice.position.set(cx, bh + 0.12, cz);
-      bld.add(cornice);
-
-      if (wood) {
-        // frontier false front
-        const front = new THREE.Mesh(new THREE.BoxGeometry(0.25, bh * 0.4, bw - 0.3), M({ color: shade(base, 18), roughness: 0.9 }));
-        front.position.set(row.faceX - row.facing * 0.1, bh + bh * 0.18, cz);
-        bld.add(front);
-      }
-
-      // windows (upper floors) share one glowable material per building
-      const winMat = new THREE.MeshStandardMaterial({
-        color: 0x2c3844, roughness: 0.25, metalness: 0.2,
-        emissive: new THREE.Color(era.vis.lamp || '#ffd9a0'), emissiveIntensity: 0,
-      });
-      const boarded = ['paper', 'nineties'].includes(era.key) && R() < (era.key === 'paper' ? 0.34 : 0.18);
-      if (!boarded) world.windowMats.push(winMat);
-      const paneMat = boarded ? M({ color: 0x7a6a4e, roughness: 0.95 }) : winMat;
-
-      for (let f = 1; f < floors; f++) {
-        const wins = Math.max(2, Math.floor(bw / 1.9));
-        for (let wcol = 0; wcol < wins; wcol++) {
-          const win = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.15, 0.85), paneMat);
-          const zz = cz + (wcol - (wins - 1) / 2) * (bw / (wins + 0.4));
-          win.position.set(wallX, f * 3.1 + 0.7, zz);
-          bld.add(win);
-        }
-      }
-
-      // ground floor: storefront glass + sign + awning
-      const glass = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.7, bw * 0.7), paneMat);
-      glass.position.set(wallX, 1.15, cz);
-      bld.add(glass);
-
-      const signText = signs[signIdx++ % signs.length];
-      const sign = new THREE.Mesh(
-        new THREE.BoxGeometry(0.1, 0.85, bw * 0.74),
-        new THREE.MeshStandardMaterial({
-          map: signTex(signText, { bg: boarded ? '#4a4438' : shade(base, -58) }),
-          color: 0xffffff, roughness: 0.7,
-        })
-      );
-      sign.position.set(wallX + row.facing * 0.07, 2.55, cz);
-      bld.add(sign);
-
-      if (!boarded && (only(era, 'mall', 'seventies', 'nineties', 'living', 'returns') || (era.key === 'celery' && R() < 0.6))) {
-        const awnColors = era.key === 'mall' ? [0xc23a3a, 0x2f6b8a, 0x3a8a5c, 0xc28a2f] : [0x735c44, 0x5c6b58, 0x6b5544];
-        const awn = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.09, bw * 0.72), M({ color: pick(awnColors), roughness: 0.85 }));
-        awn.position.set(row.faceX + row.facing * 0.62, 2.1, cz);
-        awn.rotation.z = -row.facing * 0.22;
-        awn.castShadow = true;
-        bld.add(awn);
-      }
-
-      // mural on a 2026 end wall
-      if (era.key === 'living' && R() < 0.18) {
-        const mural = new THREE.Mesh(
-          new THREE.PlaneGeometry(bd * 0.7, bh * 0.62),
-          new THREE.MeshStandardMaterial({ map: muralTex(), color: 0xffffff, roughness: 0.9 })
-        );
-        mural.position.set(cx, bh * 0.45, cz + (bw - 0.35) / 2 + 0.03);
-        bld.add(mural);
-      }
-
-      g.add(bld);
-      // 1831 is a handful of raw frame buildings with grass between them;
-      // 1855 is a wooden street; everything after is a brick wall of fronts.
-      z += bw + (only(era, 'founding') ? rand(5, 10) : wood ? rand(0.8, 2.2) : 0.15);
-    }
-  });
-
-
-  if (since(era, 'paper')) {
-    // A little 1970s massing honesty: downtown is not only fine-grained brick.
-    const slab = new THREE.Group();
-    slab.userData.phase2 = 'office-slab';
-    const body = new THREE.Mesh(
-      new THREE.BoxGeometry(7.2, 21, 9.4),
-      M({ color: only(era, 'paper', 'nineties') ? 0x6e746f : 0x7b827d, roughness: 0.72, metalness: 0.12 })
-    );
-    body.position.set(14.2, 10.5, 1.8);   // flush to Michigan Ave, the core's tall anchor
-    body.castShadow = true;
-    body.receiveShadow = true;
-    slab.add(body);
-    block(world, 14.2, 1.8, 7.2, 9.4);
-    const glassMat = new THREE.MeshStandardMaterial({ color: 0x385060, roughness: 0.2, metalness: 0.25, emissive: new THREE.Color(era.vis.lamp || '#ffd9a0'), emissiveIntensity: 0 });
-    world.windowMats.push(glassMat);
-    for (let floor = 0; floor < 7; floor++) {
-      for (let col = -1; col <= 1; col++) {
-        const win = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.15, 1.25), glassMat);
-        win.position.set(10.55, 2.0 + floor * 2.65, 1.8 + col * 2.45);
-        slab.add(win);
-      }
-    }
-    const crown = new THREE.Mesh(new THREE.BoxGeometry(7.7, 0.55, 9.8), M({ color: 0x424744, roughness: 0.8 }));
-    crown.position.set(14.2, 21.25, 1.8);
-    slab.add(crown);
-    g.add(slab);
   }
 
   return g;
@@ -2130,35 +1932,6 @@ function buildNewsAgency(era, world) {
   return g;
 }
 
-function buildChurch(era, world) {
-  if (only(era, 'founding')) return null;   // services still meet in cabins
-  const g = new THREE.Group();
-  const cx = -10, cz = -38;
-  const wood = only(era, 'boiling');
-  const base = wood ? '#d8d2c4' : '#9b8a74';
-  const body = new THREE.Mesh(new THREE.BoxGeometry(5.5, 4.2, 8),
-    wood ? M({ color: base, roughness: 0.9 }) : new THREE.MeshStandardMaterial({ map: brickTex(base, shade(base, -30), 12), color: 0xffffff, roughness: 0.88 }));
-  body.position.set(cx, 2.1, cz);
-  body.castShadow = true;
-  g.add(body);
-  block(world, cx, cz, 5.5, 8);
-  const roof = new THREE.Mesh(new THREE.ConeGeometry(4.6, 2.2, 4), M({ color: 0x3f3832, roughness: 0.85 }));
-  roof.position.set(cx, 5.3, cz);
-  roof.rotation.y = Math.PI / 4;
-  roof.scale.set(0.8, 1, 1.25);
-  roof.castShadow = true;
-  g.add(roof);
-  const steeple = new THREE.Mesh(new THREE.BoxGeometry(1.5, 3.4, 1.5), wood ? M({ color: base, roughness: 0.9 }) : M({ color: shade(base, 12), roughness: 0.85 }));
-  steeple.position.set(cx, 7.0, cz + 2.6);
-  steeple.castShadow = true;
-  g.add(steeple);
-  const spire = new THREE.Mesh(new THREE.ConeGeometry(1.1, 2.6, 4), M({ color: 0x3f3832, roughness: 0.8 }));
-  spire.position.set(cx, 10.0, cz + 2.6);
-  spire.rotation.y = Math.PI / 4;
-  g.add(spire);
-  return g;
-}
-
 function buildHouses(era, world) {
   const g = new THREE.Group();
   const vis = era.vis;
@@ -2687,13 +2460,11 @@ export function buildEraWorld(era) {
 
   group.add(buildRiver(era, world));
   group.add(buildRoads(era, world));
-  group.add(buildStorefronts(era, world));
   group.add(buildPark(era, world));
   group.add(buildRail(era, world));
   group.add(buildMillSite(era, world));
   group.add(buildFlats(era, world));
   group.add(buildHouses(era, world));
-  const church = buildChurch(era, world); if (church) group.add(church);
   group.add(buildTower(era, world));
   group.add(buildLamps(era, world));
   group.add(buildStringLights(era, world));
