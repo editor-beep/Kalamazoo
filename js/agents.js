@@ -667,7 +667,10 @@ export class Train {
     TRAIN_STYLES[style] ? TRAIN_STYLES[style](this.cars) : TRAIN_STYLES.freight(this.cars);
     this.cars.forEach(c => {
       c.mesh.traverse(o => { if (o.isMesh) o.castShadow = true; });
-      c.mesh.rotation.y = Math.PI / 2;
+      // Cars are modeled with their long axis along x; the rails also run along
+      // x (z = railZ). No extra yaw — rotating them would turn the cars broadside
+      // to the track, so they'd ride sideways and gap apart instead of coupling
+      // end to end.
       this.group.add(c.mesh);
     });
     this.z = z;
